@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Questions and help
+    url: https://github.com/PraiseTechzw/interest-loop/discussions
+    about: Ask questions and discuss ideas with the community
+  - name: Security vulnerability
+    url: https://github.com/PraiseTechzw/interest-loop/security/advisories/new
+    about: Please report security issues privately, never in a public issue

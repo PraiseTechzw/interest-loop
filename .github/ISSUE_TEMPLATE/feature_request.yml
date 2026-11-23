@@ -1,0 +1,53 @@
+name: Feature request
+description: Suggest a new feature or improvement
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping shape InterestLoop. Please describe the problem before the solution.
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem would this solve?
+      description: Describe the frustration or limitation you are encountering.
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed solution
+      description: What would you like to happen? Include the screens or data involved.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Any other approaches you thought about.
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - News
+        - Movies
+        - Discovery
+        - Knowledge Graph
+        - Mindset Coach
+        - Learning Paths
+        - Time Capsule
+        - Profile / saved data
+        - Infrastructure / docs
+    validations:
+      required: true
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checklist
+      options:
+        - label: I searched existing issues and discussions for this idea
+          required: true
+        - label: I understand this may not be prioritised immediately
+          required: true

@@ -1,5 +1,11 @@
 # InterestLoop
 
+[![CI](https://github.com/PraiseTechzw/interest-loop/actions/workflows/ci.yml/badge.svg)](https://github.com/PraiseTechzw/interest-loop/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
+[![Expo SDK](https://img.shields.io/badge/Expo%20SDK-58-000020.svg)](https://docs.expo.dev/versions/v58.0.0/)
+[![Platforms](https://img.shields.io/badge/platform-Android%20%7C%20iOS%20%7C%20Web-blue.svg)](#quick-start)
+[![PRs welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](./CONTRIBUTING.md)
+
 A personalized Expo / React Native app that pulls together tech news, movie picks, hidden gems from the web, a knowledge graph of your interests, and a mindset coach — with offline saving built in.
 
 Built with **Expo SDK 58**, **Expo Router**, **TypeScript**, **TanStack Query** and **expo-sqlite**. Runs on Android, iOS and web.
@@ -111,6 +117,21 @@ bunx eas-cli build --profile production --platform all
 bunx eas-cli submit
 ```
 
-See [CONTRIBUTING.md](./CONTRIBUTING.md), [SCREEN_USAGE.md](./SCREEN_USAGE.md), the [beta checklist](./BETA_CHECKLIST.md), the [changelog](./CHANGELOG.md) and the [delivery report](./FINAL_REPORT.md) for more.
+## Repository guide
 
-MIT licensed.
+| Document | Purpose |
+| --- | --- |
+| [CONTRIBUTING.md](./CONTRIBUTING.md) | How to propose and implement changes |
+| [CODE_OF_CONDUCT.md](./CODE_OF_CONDUCT.md) | Community standards |
+| [SECURITY.md](./SECURITY.md) | Private vulnerability reporting and supported versions |
+| [SUPPORT.md](./SUPPORT.md) | Where to get help |
+| [GOVERNANCE.md](./GOVERNANCE.md) | Roles and decision making |
+| [CHANGELOG.md](./CHANGELOG.md) | Release history |
+| [BETA_CHECKLIST.md](./BETA_CHECKLIST.md) | Release testing and distribution |
+| [SCREEN_USAGE.md](./SCREEN_USAGE.md) | Feature walkthrough |
+| [GITHUB_ROADMAP.md](./GITHUB_ROADMAP.md) | Delivered and planned work |
+| [FINAL_REPORT.md](./FINAL_REPORT.md) | Delivery and team contribution report |
+
+Bug reports and feature requests use the templates in [`.github/ISSUE_TEMPLATE`](./.github/ISSUE_TEMPLATE). Pull requests use [the PR template](./.github/PULL_REQUEST_TEMPLATE.md). All changes must pass the CI checks listed in CONTRIBUTING.
+
+MIT licensed. See [LICENSE](./LICENSE).
