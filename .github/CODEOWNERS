@@ -1,0 +1,9 @@
+# Default owner for everything in the repository.
+* @PraiseTechzw
+
+# Infrastructure and security-sensitive files.
+/.github/ @PraiseTechzw
+/eas.json @PraiseTechzw
+/app.json @PraiseTechzw
+/src/lib/database.ts @PraiseTechzw
+/SECURITY.md @PraiseTechzw
