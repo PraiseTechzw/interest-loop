@@ -1,0 +1,67 @@
+import { Ionicons } from '@expo/vector-icons';
+import { Tabs } from 'expo-router';
+
+import { useTheme } from '@/theme/tokens';
+
+export default function TabsLayout() {
+  const theme = useTheme();
+
+  return (
+    <Tabs
+      screenOptions={{
+        tabBarActiveTintColor: theme.primary,
+        tabBarInactiveTintColor: theme.textMuted,
+        tabBarStyle: {
+          backgroundColor: theme.surface,
+          borderTopColor: theme.border,
+        },
+        headerShown: false,
+      }}>
+      <Tabs.Screen
+        name="index"
+        options={{
+          title: 'Home',
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="home-outline" size={size} color={color as string} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="news"
+        options={{
+          title: 'News',
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="newspaper-outline" size={size} color={color as string} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="movies"
+        options={{
+          title: 'Movies',
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="film-outline" size={size} color={color as string} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="discover"
+        options={{
+          title: 'Discover',
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="compass-outline" size={size} color={color as string} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="profile"
+        options={{
+          title: 'Profile',
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="person-outline" size={size} color={color as string} />
+          ),
+        }}
+      />
+    </Tabs>
+  );
+}
