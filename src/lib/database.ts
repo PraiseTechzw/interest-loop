@@ -21,7 +21,7 @@ import type {
 
 export type Database = SQLite.SQLiteDatabase;
 export const DATABASE_NAME = 'interest_loop.db';
-const SCHEMA_VERSION = 2;
+const SCHEMA_VERSION = 3;
 
 /** Migrations run once per database version inside SQLiteProvider's onInit. */
 export async function migrateDatabase(db: Database): Promise<void> {
@@ -77,6 +77,12 @@ export async function migrateDatabase(db: Database): Promise<void> {
       review_count INTEGER NOT NULL DEFAULT 0,
       interval_days INTEGER NOT NULL DEFAULT 1,
       next_review_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+    );
+
+    CREATE TABLE IF NOT EXISTS learning_progress (
+      item_key TEXT PRIMARY KEY,
+      completed INTEGER NOT NULL DEFAULT 0,
       updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
     );
 
@@ -323,4 +329,32 @@ export async function getInterestActivity(
   }
 
   return counts;
+}
+
+// -- Learning paths ----------------------------------------------------------
+
+export async function getLearningProgress(db: Database): Promise<Record<string, boolean>> {
+  const rows = await db.getAllAsync<{ item_key: string; completed: number }>(
+    'SELECT item_key, completed FROM learning_progress',
+  );
+  return Object.fromEntries(rows.map((row) => [row.item_key, row.completed === 1]));
+}
+
+export async function setLearningProgress(
+  db: Database,
+  itemKey: string,
+  completed: boolean,
+): Promise<void> {
+  await db.runAsync(
+    `INSERT INTO learning_progress (item_key, completed)
+     VALUES ($key, $completed)
+     ON CONFLICT(item_key) DO UPDATE SET
+       completed = excluded.completed,
+       updated_at = CURRENT_TIMESTAMP`,
+    { $key: itemKey, $completed: completed ? 1 : 0 },
+  );
+}
+
+export async function resetLearningProgress(db: Database, prefix: string): Promise<void> {
+  await db.runAsync('DELETE FROM learning_progress WHERE item_key LIKE ?', [`${prefix}%`]);
 }

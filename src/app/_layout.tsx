@@ -50,6 +50,8 @@ export default function RootLayout() {
               <Stack.Screen name="coach" options={{ title: 'Mindset Coach' }} />
               <Stack.Screen name="graph" options={{ title: 'Knowledge Graph' }} />
               <Stack.Screen name="saved" options={{ title: 'Saved for later' }} />
+              <Stack.Screen name="learning" options={{ title: 'Learning Paths' }} />
+              <Stack.Screen name="capsule" options={{ title: 'Time Capsule' }} />
             </Stack>
           </SQLiteProvider>
         </Suspense>

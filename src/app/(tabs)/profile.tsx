@@ -113,6 +113,20 @@ export default function ProfileScreen() {
             <Ionicons name="git-network-outline" size={20} color={theme.primary} />
             <Text style={[styles.toolText, { color: theme.text }]}>Knowledge Graph</Text>
           </Pressable>
+          <Pressable
+            onPress={() => router.push('/learning')}
+            accessibilityRole="button"
+            style={[styles.tool, { backgroundColor: theme.surface, borderColor: theme.border }]}>
+            <Ionicons name="library-outline" size={20} color={theme.success} />
+            <Text style={[styles.toolText, { color: theme.text }]}>Learning Paths</Text>
+          </Pressable>
+          <Pressable
+            onPress={() => router.push('/capsule')}
+            accessibilityRole="button"
+            style={[styles.tool, { backgroundColor: theme.surface, borderColor: theme.border }]}>
+            <Ionicons name="hourglass-outline" size={20} color={theme.accent} />
+            <Text style={[styles.toolText, { color: theme.text }]}>Time Capsule</Text>
+          </Pressable>
         </View>
 
         <SectionHeader title="Data sources" />
@@ -163,7 +177,7 @@ const styles = StyleSheet.create({
   linkIcon: { width: 38, height: 38, borderRadius: radius.sm, alignItems: 'center', justifyContent: 'center' },
   rowTitle: { fontSize: 15, fontWeight: '700' },
   rowSubtitle: { fontSize: 12, marginTop: 3 },
-  tools: { flexDirection: 'row', gap: space.md, marginBottom: space.xl },
+  tools: { flexDirection: 'row', flexWrap: 'wrap', gap: space.md, marginBottom: space.xl },
   tool: { flex: 1, borderWidth: 1, borderRadius: radius.md, padding: space.md, alignItems: 'center', gap: 6 },
   toolText: { fontSize: 12, fontWeight: '700', textAlign: 'center' },
   sourceRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10 },

@@ -5,6 +5,7 @@ import { Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'r
 
 import { DiscoveryCard, MovieCard, NewsCard } from '@/components/content-cards';
 import {
+  Card,
   DemoBanner,
   EmptyState,
   ErrorState,
@@ -192,6 +193,13 @@ export default function HomeScreen() {
               <Ionicons name="bookmark-outline" size={22} color={theme.success} />
               <Text style={[styles.actionLabel, { color: theme.text }]}>Saved</Text>
             </Pressable>
+            <Pressable
+              onPress={() => router.push('/learning')}
+              accessibilityRole="button"
+              style={[styles.action, { backgroundColor: theme.surface, borderColor: theme.border }]}>
+              <Ionicons name="library-outline" size={22} color={theme.primary} />
+              <Text style={[styles.actionLabel, { color: theme.text }]}>Paths</Text>
+            </Pressable>
           </View>
 
           {news.data?.isDemo ? <DemoBanner message={news.data.notice ?? ''} /> : null}
@@ -267,6 +275,24 @@ export default function HomeScreen() {
             />
           ))}
 
+          <SectionHeader title="Remember this moment" />
+          <Card
+            onPress={() => router.push('/capsule')}
+            accessibilityLabel="Create a time capsule">
+            <View style={styles.row}>
+              <View style={[styles.capsuleIcon, { backgroundColor: theme.primarySoft }]}>
+                <Ionicons name="hourglass-outline" size={20} color={theme.primary} />
+              </View>
+              <View style={styles.flex}>
+                <Text style={[styles.capsuleTitle, { color: theme.text }]}>Create a time capsule</Text>
+                <Text style={[styles.capsuleSubtitle, { color: theme.textMuted }]}>
+                  Save a dated snapshot of your interests and progress.
+                </Text>
+              </View>
+              <Ionicons name="chevron-forward" size={18} color={theme.textMuted} />
+            </View>
+          </Card>
+
           <View style={[styles.footer, { borderColor: theme.border }]}>
             <Text style={[styles.footerText, { color: theme.textMuted }]}>
               Your saved reads work offline. Add API keys in .env for live feeds.
@@ -294,6 +320,11 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   actionLabel: { fontSize: 13, fontWeight: '700' },
+  row: { flexDirection: 'row', alignItems: 'center', gap: space.md },
+  flex: { flex: 1 },
+  capsuleIcon: { width: 40, height: 40, borderRadius: radius.sm, alignItems: 'center', justifyContent: 'center' },
+  capsuleTitle: { fontSize: 15, fontWeight: '700' },
+  capsuleSubtitle: { fontSize: 12, lineHeight: 17, marginTop: 3 },
   footer: { borderTopWidth: 1, paddingTop: space.lg, marginTop: space.lg },
   footerText: { fontSize: 12, lineHeight: 18, textAlign: 'center' },
 });

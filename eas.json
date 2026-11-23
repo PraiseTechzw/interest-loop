@@ -6,25 +6,13 @@
   "build": {
     "development": {
       "developmentClient": true,
-      "distribution": "internal",
-      "env": {
-        "EXPO_PUBLIC_NEWSAPI_KEY": "@EXPO_PUBLIC_NEWSAPI_KEY",
-        "EXPO_PUBLIC_TMDB_KEY": "@EXPO_PUBLIC_TMDB_KEY"
-      }
+      "distribution": "internal"
     },
     "preview": {
-      "distribution": "internal",
-      "env": {
-        "EXPO_PUBLIC_NEWSAPI_KEY": "@EXPO_PUBLIC_NEWSAPI_KEY",
-        "EXPO_PUBLIC_TMDB_KEY": "@EXPO_PUBLIC_TMDB_KEY"
-      }
+      "distribution": "internal"
     },
     "production": {
-      "autoIncrement": true,
-      "env": {
-        "EXPO_PUBLIC_NEWSAPI_KEY": "@EXPO_PUBLIC_NEWSAPI_KEY",
-        "EXPO_PUBLIC_TMDB_KEY": "@EXPO_PUBLIC_TMDB_KEY"
-      }
+      "autoIncrement": true
     }
   },
   "submit": {

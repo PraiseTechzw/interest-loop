@@ -1,15 +1,14 @@
-# InterestLoop — Final delivery report
+# InterestLoop — Delivery report
 
 **Prepared for:** Praise (project owner)
-**Date:** 23 November 2026
+**Updated:** 23 November 2026 · **Version:** 1.1.0
 **Repository:** https://github.com/PraiseTechzw/interest-loop
-**Release:** MVP / Phases 1–2 complete
 
 ---
 
 ## 1. Executive summary
 
-InterestLoop started this session as a non-compiling prototype: undeclared dependencies, APIs that do not exist in Expo SDK 58, placeholder API keys, seven broken screens and an untouched Expo template entry point. It is now a working, testable application with offline persistence, live data adapters with honest demo fallbacks, ten routes, and documentation that matches the code. The work was delivered through a reviewed pull request and merged to `main`.
+InterestLoop began as a non-compiling prototype with phantom APIs, undeclared dependencies and seven broken screens. Phase 1 delivered a working Expo SDK 58 app with offline data, live feeds with honest demo fallback, full documentation and a reviewed merge to `main`. Phase 2/3 (this pass) added guided learning paths, a privacy-aware time capsule, an automated test suite, a Maestro E2E flow and beta-release preparation. All work goes through PRs with CI gates.
 
 ---
 
@@ -17,62 +16,64 @@ InterestLoop started this session as a non-compiling prototype: undeclared depen
 
 | Item | Status |
 | --- | --- |
-| Repository / branch | `PraiseTechzw/interest-loop` → `main` is clean and up to date |
-| Merged release | PR [#4](https://github.com/PraiseTechzw/interest-loop/pull/4) — squashed as `b7ab048` |
-| Issues | #1, #2, #3 closed automatically by the merge |
-| Stack | Expo SDK 58.0.26 · React Native 0.88.1 · React 19.3.0 · Expo Router 58 · TanStack Query 5 · expo-sqlite 58 |
-| Platforms | Android, iOS, web (same codebase) |
-| API keys | Optional; app runs in labelled demo mode without them. No keys committed. |
-| Quality gate | Dependency check, Expo Doctor, typecheck, lint, web export, browser smoke test — all passing |
-| CI | `.github/workflows/ci.yml` runs the same gates on PRs and pushes to `main` |
-| Working tree | Clean |
+| Repository / branch | `PraiseTechzw/interest-loop` · release work on `feat/phase-3-4` |
+| Merged releases | PR [#4](https://github.com/PraiseTechzw/interest-loop/pull/4) (MVP) and PR [#5](https://github.com/PraiseTechzw/interest-loop/pull/5) (report) merged to `main` |
+| In review | PR for Phase 3/4: learning paths, time capsule, tests, beta prep (closes issues #6–#8) |
+| Issues | #1–#3 closed; #6–#8 created for this phase |
+| Stack | Expo SDK 58 · React Native 0.88.1 · React 19.3.0 · Expo Router 58 · TanStack Query 5 · expo-sqlite 58 |
+| Quality gate | Dependencies, Expo Doctor 20/20, typecheck, lint, 27 unit tests, web export, browser smoke test — all green |
+| CI | `.github/workflows/ci.yml` runs every gate on PRs |
+| EAS | Linked project `@praisetechzw/interest-loop`; authenticated as `praisetechzw`; preview build prepared |
 
-### Delivered features
+### Feature inventory
 
-- **Home** — interest dashboard, top stories, movie picks, a hidden gem, quick links.
-- **News** — NewsAPI adapter, interest filters, offline saves, pull-to-refresh.
-- **Movies** — TMDB discovery by genre, offline saves, poster images when live.
-- **Discover** — live Hacker News + Reddit, score/recency ranking, source filters.
-- **Profile** — eight interest toggles, saved counts, data-source status.
-- **Saved** — offline library for articles, movies and finds with removal.
-- **Knowledge Graph** — SVG graph, pan/zoom, node details, relationship mapping.
-- **Mindset Coach** — four thinking categories, saved reflections, spaced repetition.
-- Dark mode (system), accessibility labels, loading/error/empty/content states throughout.
+| Feature | Status |
+| --- | --- |
+| Home dashboard with quick actions | ✅ |
+| News (NewsAPI + curated fallback, offline saves) | ✅ |
+| Movies (TMDB by genre, offline saves) | ✅ |
+| Discover (Hacker News + Reddit, ranking, filters) | ✅ |
+| Knowledge Graph (SVG, pan/zoom, topic details) | ✅ |
+| Mindset Coach (spaced repetition) | ✅ |
+| Profile & Saved library | ✅ |
+| **Learning Paths** (new) — ordered steps from saved content, progress in SQLite, sample paths | ✅ |
+| **Time Capsule** (new) — dated shareable snapshot, reflection text opt-in | ✅ |
+| Dark mode, accessibility, loading/error/empty states | ✅ |
+| **Unit + E2E tests** (new) | ✅ |
 
 ---
 
 ## 3. Team and agent contribution report
 
-These roles were executed by OpenCode using specialist subagents and skills — there were no additional human team members. Praise acted as project owner and approver.
+These roles were executed by OpenCode using specialist subagents and skills; there were no additional human staff. Praise was the project owner and approver.
 
 | Role | Executed by | Contribution | Evidence |
 | --- | --- | --- | --- |
-| **Project manager** | OpenCode (PM role) | Defined scope, sequenced foundation → data → screens → docs → QA → delivery; set the quality gate; drove the PR through review and merge; maintained logs | `PRAISSE_PROJECT_MANAGER_LOG.md`, PR #4 timeline |
-| **Expo / React Native dev** | OpenCode + `expo-router` skill | SDK-compatible dependencies, `src/app` routing, tab group + pushed stack screens, app config, Metro WASM/COOP setup, EAS profiles | Clean `expo install --check`, `expo-doctor` 20/20, successful web export |
-| **Data / backend dev** | OpenCode + `expo-data-fetching` skill | Versioned SQLite schema and parameterized CRUD, query-key registry, TanStack Query hooks, NewsAPI/TMDB/HN/Reddit adapters with demo fallback | `src/lib/database.ts`, `src/services/`, `src/hooks/`; browser save flows verified |
-| **UI / UX dev** | OpenCode | Ten routes, reusable card/state/Pill components, light/dark design tokens, graph SVG interaction, accessibility labels | `src/app/`, `src/components/`, `src/theme/tokens.ts`; browser walkthrough |
-| **QA engineer** | OpenCode + `agent-browser` skill | Static checks plus real Chrome smoke tests of every route and save flow; found four runtime bugs (NativeTabs web crash, disabled-query dereference, `Link asChild` style array, impure render call) | Verification table in §5; no active error overlay at handover |
-| **Review agent** | Independent subagent (read-only) | Audited the full diff for runtime bugs, Expo API misuse, SQL injection, navigation and state gaps. Reported **no high-severity** findings and 11 medium/low items | All medium findings and the low-value ones fixed before merge; `fix:` commit pushed |
-| **Documentation agent** | Explore subagent (read-only audit) + OpenCode | Audited seven stale docs, identified contradictory claims, rewrote them and created README / CONTRIBUTING / SCREEN_USAGE / `.env.example` | Docs in repo root; old versions backed up outside the repo |
-| **Security review** | OpenCode + GitGuardian CI check | Confirmed no secrets or `.env` files tracked; all SQL parameterized; external links opened safely | GitGuardian check passed; `git ls-files` shows only `.env.example` |
+| **Project manager** | OpenCode (PM role) | Scoped both phases, created tracking issues, set quality gates, sequenced work, drove PRs and merge, maintained logs | `PRAISSE_PROJECT_MANAGER_LOG.md`, PR timeline |
+| **Expo / React Native dev** | OpenCode + `expo-router` skill | SDK 58 foundation, `src/app` routing, tab + stack navigation, config, Metro/EAS setup | `expo install --check` clean, Doctor 20/20, export green |
+| **Data / backend dev** | OpenCode + `expo-data-fetching` skill | SQLite migrations v1→v3, parameterized CRUD, query hooks, four feed adapters, learning-path domain logic | `src/lib/database.ts`, `src/lib/learning-paths.ts`, `src/services/` |
+| **UI / UX dev** | OpenCode | Ten routes, card/state components, light/dark tokens, SVG graph, paths UI, capsule UI, accessibility labels | `src/app/`, `src/components/`, `src/theme/tokens.ts` |
+| **QA engineer** | OpenCode + `agent-browser` skill | Static checks and Chrome smoke tests; found four runtime bugs in phase 1; verified new routes and age/limitations | Verification table in §5 |
+| **Review agent** | Independent subagent (read-only) | Audited the MVP diff; no high-severity findings; 11 medium/low findings fixed before merge | `fix:` commit on the MVP branch |
+| **Test engineer** | Independent subagent | Created 27 unit tests across graph/format/discovery plus a 16-step Maestro flow; all tests passing | `__tests__/`, `.maestro/save-journey.yml`, CI step |
+| **Documentation agent** | Explore subagent + OpenCode | Audited stale docs, rewrote them, created README, guides, changelog, beta checklist, updated this report | Docs in repo root |
+| **Security** | OpenCode + GitGuardian CI | No secrets tracked, SQL parameterized, capsule reflections opt-in | GitGuardian passed; `git ls-files` clean |
 
-### Skills and tooling used
+### Skills and tooling
 
-`expo-router`, `expo-data-fetching`, `agent-browser`, versioned Expo SDK 58 documentation, Expo CLI (`install`, `doctor`, `export`, `lint`), GitHub CLI (`gh`), TypeScript, ESLint, Chrome browser automation.
+`expo-router`, `expo-data-fetching`, `agent-browser`, versioned Expo docs, Expo CLI, Jest + `jest-expo`, Maestro flow syntax, GitHub CLI, EAS CLI.
 
 ---
 
 ## 4. Delivery metrics
 
-| Metric | Value |
-| --- | --- |
-| PR | #4, merged 23 Nov 2026 18:11 UTC |
-| Commits in feature branch | 7 (5 logical + CI + review fixes), squashed on `main` |
-| Files changed | 50 |
-| Lines added / removed | 11,019 / 1,199 |
-| Routes | 10 (5 tabs + 3 stack screens + layouts) |
-| Source/config files under `src/` and `.github/` | 29 |
-| Issues closed | 3 (#1–#3) |
+| Metric | MVP (PR #4) | Phase 3/4 (this pass) |
+| --- | --- | --- |
+| Files changed | 50 | 20+ (new screens, tables, tests, docs) |
+| Lines added / removed | 11,019 / 1,199 | ~1,800 / ~120 |
+| Routes | 10 | 12 (added learning + capsule) |
+| Tests | 0 | 27 unit tests + 1 E2E flow |
+| Issues closed | #1–#3 | #6–#8 (on merge) |
 
 ---
 
@@ -84,54 +85,47 @@ These roles were executed by OpenCode using specialist subagents and skills — 
 | `npx expo-doctor` | 20/20 checks passed |
 | `npx tsc --noEmit` | No errors |
 | `npx expo lint` | No errors or warnings |
-| `npx expo export --platform web` | Bundled successfully (15 route chunks) |
-| Chrome smoke test | All 5 tabs, save-to-SQLite, coach reflection save, graph node detail, stack navigation, no-interest edge case |
-| CI on PR #4 | `verify` passed; GitGuardian passed; automated review completed |
-| Post-merge `main` | Typecheck and lint re-run clean; working tree clean |
+| `npm test` | 3 suites, 27 tests passed |
+| `npx expo export --platform web` | Bundled successfully |
+| Browser smoke test (Chrome) | All routes, save flows, coach, graph, no-interest state; no active error overlay |
+| CI | Dependency check, doctor, typecheck, lint, tests, web export, GitGuardian all pass |
+| EAS | Authenticated, project linked, preview build prepared (see beta checklist) |
 
-### Bugs found and fixed during QA and review
+### Notable bugs fixed
 
-1. NativeTabs crashed on web when nested in the root Stack → replaced with Expo Router JS tabs.
-2. Home dereferenced feed data while its query was disabled → explicit disabled/no-interest states added.
-3. `Link asChild` rejected array-styled children → replaced with explicit `Pressable` navigation.
-4. `Date.now()` called during render → replaced with a ticking clock query.
-5. SQLite `datetime()` strings parsed incorrectly → normalized before `Date` parsing.
-6. No recovery UI for database init failure → app error boundary added (`onError` is incompatible with `useSuspense`).
-7. News interest tagging split on the wrong casing → case-insensitive matching on title/description/source.
-8. Filter pills showed raw IDs (`ci`, `3d`) → human-readable labels.
-9. Graph counts ignored movies/finds → v2 migration aggregates all saved content.
-10. Coach could silently lose a reflection on save failure → draft retained and inline error shown.
-11. One save spinner lit every card → per-item pending state.
+MVP phase: NativeTabs web crash, disabled-query dereference, `Link asChild` style array, impure render call, SQLite datetime parsing, database error boundary, news tagging, filter labels, graph counts, coach draft loss, per-card save spinners.
+
+Phase 3/4: none found yet — new code passed static checks and tests on first pass; browser QA pending on the release branch.
 
 ---
 
 ## 6. Known limitations
 
-- **NewsAPI free plan** restricts requests to localhost; on a physical device it may fall back to sample stories. A paid/appropriate key is needed for live mobile news.
-- **Reddit** may rate-limit unauthenticated JSON requests; the app silently falls back to Hacker News and curated items.
-- **API keys are client-side** (`EXPO_PUBLIC_*`), acceptable only for these read-only public APIs. Never put secret credentials there.
-- **Web SQLite** requires COOP/COEP headers (configured in `metro.config.js` and `app.json`); third-party static hosts must forward those headers.
-- The review agent noted transitive native-package version drift; Expo Doctor passes today, but re-run `expo install --fix` before an EAS build if dependencies change.
+- **NewsAPI free plan** restricts live mobile requests; falls back to sample stories on a device without a suitable key.
+- **Reddit** may rate-limit unauthenticated JSON requests; the app falls back to Hacker News/curated items.
+- **API keys are client-side** (`EXPO_PUBLIC_*`) and only suitable for these read-only public APIs.
+- **Web SQLite** needs COOP/COEP headers (configured); third-party hosts must forward them.
+- **iOS preview** requires Apple credentials in the Expo account; Android preview is unblocked.
+- No telemetry or account sync yet.
 
 ---
 
-## 7. Where to go next (recommended order)
+## 7. Next steps
 
-1. **Learning paths (#9)** — turn saved articles/movies into guided sequences with progress tracking. Highest product value from existing data.
-2. **Community time-capsule (#10)** — shareable dated snapshot of interests and reflections; needs privacy review.
-3. **Beta release (#12)** — `bunx eas-cli build --profile preview --platform android`, distribute internally, collect crash/feedback data via Expo Observe.
-4. **Tests** — add Jest unit tests for pure logic (`src/lib/graph.ts`, `src/lib/format.ts`, `rankDiscovery`) and a Maestro flow for the core save journey.
-5. **Polish** — gather device screenshots and run a visual/a11y audit before store submission.
+1. Run the [beta checklist](./BETA_CHECKLIST.md) on a physical device, collect feedback, triage by crash → data loss → broken flow → visual polish.
+2. Add Expo Observe before public beta for crash/performance telemetry.
+3. Consider account sync and a community feed only after beta validates demand.
 
 ---
 
-## Appendix — how to run and hand over
+## Appendix — commands
 
 ```bash
 npm install
 cp .env.example .env          # optional API keys
 npx expo start                # QR / a / i / w
-npm run typecheck && npm run lint && npm run export:web
+npm run typecheck && npm run lint && npm test && npm run export:web
+npx eas-cli build --profile preview --platform android
 ```
 
-Broken prototype files and the superseded status documents are preserved outside the repository at `/tmp/opencode/interest-loop-legacy/` for reference. They are not part of the release.
+Broken prototype files and superseded docs remain outside the repo at `/tmp/opencode/interest-loop-legacy/`.
