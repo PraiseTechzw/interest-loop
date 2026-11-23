@@ -47,6 +47,7 @@ Non-route code never lives in `src/app/`.
 | Document | Purpose |
 | --- | --- |
 | [guides/SCREEN_USAGE.md](./guides/SCREEN_USAGE.md) | Walkthrough of every screen |
+| [guides/ASSET_SPECS.md](./guides/ASSET_SPECS.md) | Exact sizes, safe zones and prompts for every brand/store asset |
 | [guides/BETA_CHECKLIST.md](./guides/BETA_CHECKLIST.md) | Release testing, privacy and distribution |
 
 ## Project

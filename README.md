@@ -133,6 +133,7 @@ bunx eas-cli submit
 | [docs/README.md](./docs/README.md) | Index of all project documentation |
 | [docs/guides/BETA_CHECKLIST.md](./docs/guides/BETA_CHECKLIST.md) | Release testing and distribution |
 | [docs/guides/SCREEN_USAGE.md](./docs/guides/SCREEN_USAGE.md) | Feature walkthrough |
+| [docs/guides/ASSET_SPECS.md](./docs/guides/ASSET_SPECS.md) | Brand asset sizes, safe zones and prompts |
 | [docs/project/GITHUB_ROADMAP.md](./docs/project/GITHUB_ROADMAP.md) | Delivered and planned work |
 | [docs/reports/FINAL_REPORT.md](./docs/reports/FINAL_REPORT.md) | Delivery and team contribution report |
 
