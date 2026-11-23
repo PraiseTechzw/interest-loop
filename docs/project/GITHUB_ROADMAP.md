@@ -19,7 +19,7 @@ Personalized mobile app for tech enthusiasts: curated news, movie recommendation
 
 ## Remaining work (post-beta candidates)
 
-- Run the [beta checklist](./BETA_CHECKLIST.md) on physical devices and triage feedback.
+- Run the [beta checklist](../guides/BETA_CHECKLIST.md) on physical devices and triage feedback.
 - Add Expo Observe for crash/performance telemetry before public beta.
 - Explore account sync and a community feed once the beta validates demand.
 
@@ -31,7 +31,7 @@ cp .env.example .env   # optional keys: EXPO_PUBLIC_NEWSAPI_KEY, EXPO_PUBLIC_TMD
 npx expo start
 ```
 
-See [README.md](./README.md) for the full guide and [CONTRIBUTING.md](./CONTRIBUTING.md) for the definition of done.
+See [README.md](../../README.md) for the full guide and [CONTRIBUTING.md](../../CONTRIBUTING.md) for the definition of done.
 
 ## Architecture
 

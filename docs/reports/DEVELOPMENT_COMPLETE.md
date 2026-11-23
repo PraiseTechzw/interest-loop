@@ -30,7 +30,7 @@
 - `npm test` → 3 suites, 27 tests passed
 - `npx expo export --platform web` → bundled successfully
 - Browser smoke test (Expo web, Chrome) → all tabs, save-to-SQLite, coach save, graph detail, stack navigation and no-interest state verified; no active error overlay
-- EAS project linked as `@praisetechzw/interest-loop`; preview build documented in [BETA_CHECKLIST.md](./BETA_CHECKLIST.md)
+- EAS project linked as `@praisetechzw/interest-loop`; preview build documented in [BETA_CHECKLIST.md](../guides/BETA_CHECKLIST.md)
 
 ## Known limitations
 

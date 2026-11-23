@@ -5,10 +5,11 @@ Thanks for using InterestLoop. Here is where to get help.
 ## Documentation
 
 - [README](./README.md) — setup, features, scripts and architecture
-- [Screen usage guide](./SCREEN_USAGE.md) — what each screen does
+- [Documentation index](./docs/README.md) — all project docs in one place
+- [Screen usage guide](./docs/guides/SCREEN_USAGE.md) — what each screen does
 - [Contributing](./CONTRIBUTING.md) — development workflow and definition of done
-- [Roadmap](./GITHUB_ROADMAP.md) — delivered work and what is next
-- [Beta checklist](./BETA_CHECKLIST.md) — testing and release process
+- [Roadmap](./docs/project/GITHUB_ROADMAP.md) — delivered work and what is next
+- [Beta checklist](./docs/guides/BETA_CHECKLIST.md) — testing and release process
 - [Changelog](./CHANGELOG.md) — release notes
 
 ## Questions and ideas
