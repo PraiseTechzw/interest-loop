@@ -1,0 +1,38 @@
+appId: com.praisetech.interestloop
+---
+# Start from a clean slate so the saved count goes from 0 to 1.
+- clearState: com.praisetech.interestloop
+
+# Launch and wait for the Home screen.
+- launchApp
+- extendedWaitUntil:
+    visible: "InterestLoop"
+    timeout: 30000
+- assertVisible: "Home"
+
+# Go to the News tab and wait for at least one story to render.
+- tapOn: "News"
+- extendedWaitUntil:
+    visible: "Tech News"
+    timeout: 30000
+- extendedWaitUntil:
+    visible: "Save for offline reading"
+    timeout: 30000
+
+# Save the first story for offline reading.
+- tapOn:
+    text: "Save for offline reading"
+    index: 0
+- assertVisible: "Remove from saved"
+
+# Check the saved stats on the Profile tab.
+- tapOn: "Profile"
+- assertVisible: "Profile"
+- assertVisible: "Articles"
+- assertVisible:
+    text: /[1-9][0-9]* items available offline/
+
+# Open the saved list and verify it loaded.
+- tapOn: "Saved for later"
+- assertVisible: "Saved for later"
+- assertVisible: "Articles"

@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useSQLiteContext } from 'expo-sqlite';
+import { useMemo } from 'react';
 
 import type { InterestId } from '@/constants/interests';
 import {
@@ -7,19 +8,23 @@ import {
   getCoachResponses,
   getInterests,
   getInterestActivity,
+  getLearningProgress,
   getSavedArticles,
   getSavedDiscovery,
   getSavedMovies,
   removeArticle,
   removeDiscovery,
   removeMovie,
+  resetLearningProgress,
   reviewCoachResponse,
   saveArticle,
   saveCoachResponse,
   saveDiscovery,
   saveMovie,
   setInterest,
+  setLearningProgress,
 } from '@/lib/database';
+import { buildLearningPaths } from '@/lib/learning-paths';
 import { keys } from '@/lib/query-keys';
 import { fetchDiscovery } from '@/services/discovery';
 import { fetchMovies } from '@/services/movies';
@@ -195,6 +200,70 @@ export function useDeleteCoachResponse() {
     mutationFn: async (promptId: string) => deleteCoachResponse(db, promptId),
     onSuccess: () => client.invalidateQueries({ queryKey: keys.coachResponses }),
   });
+}
+
+// -- Learning paths ----------------------------------------------------------
+
+export function useLearningProgress() {
+  const db = useDb();
+  return useQuery<Record<string, boolean>>({
+    queryKey: keys.learningProgress,
+    queryFn: () => getLearningProgress(db),
+  });
+}
+
+export function useSetLearningProgress() {
+  const db = useDb();
+  const client = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ key, done }: { key: string; done: boolean }) =>
+      setLearningProgress(db, key, done),
+    onSuccess: () => client.invalidateQueries({ queryKey: keys.learningProgress }),
+  });
+}
+
+export function useResetLearningProgress() {
+  const db = useDb();
+  const client = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (prefix: string) => resetLearningProgress(db, prefix),
+    onSuccess: () => client.invalidateQueries({ queryKey: keys.learningProgress }),
+  });
+}
+
+/** Combine saved content and progress into ordered paths for the current interests. */
+export function useLearningPaths() {
+  const interests = useInterests();
+  const articles = useSavedArticles();
+  const movies = useSavedMovies();
+  const finds = useSavedDiscovery();
+  const progress = useLearningProgress();
+
+  const paths = useMemo(
+    () =>
+      buildLearningPaths({
+        interests: interests.data ?? [],
+        articles: articles.data ?? [],
+        movies: movies.data ?? [],
+        finds: finds.data ?? [],
+        progress: progress.data ?? {},
+      }),
+    [interests.data, articles.data, movies.data, finds.data, progress.data],
+  );
+
+  return {
+    paths,
+    isLoading: interests.isLoading || progress.isLoading,
+    refetch: () => {
+      interests.refetch();
+      articles.refetch();
+      movies.refetch();
+      finds.refetch();
+      progress.refetch();
+    },
+  };
 }
 
 // -- Remote feeds ------------------------------------------------------------
