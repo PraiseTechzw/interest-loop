@@ -105,6 +105,6 @@ bunx eas-cli build --profile production --platform all
 bunx eas-cli submit
 ```
 
-See [CONTRIBUTING.md](./CONTRIBUTING.md) and [SCREEN_USAGE.md](./SCREEN_USAGE.md) for more.
+See [CONTRIBUTING.md](./CONTRIBUTING.md), [SCREEN_USAGE.md](./SCREEN_USAGE.md) and the [final delivery report](./FINAL_REPORT.md) for more.
 
 MIT licensed.
