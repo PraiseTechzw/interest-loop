@@ -112,7 +112,7 @@ Phase 3/4: none found yet — new code passed static checks and tests on first p
 
 ## 7. Next steps
 
-1. Run the [beta checklist](./BETA_CHECKLIST.md) on a physical device, collect feedback, triage by crash → data loss → broken flow → visual polish.
+1. Run the [beta checklist](../guides/BETA_CHECKLIST.md) on a physical device, collect feedback, triage by crash → data loss → broken flow → visual polish.
 2. Add Expo Observe before public beta for crash/performance telemetry.
 3. Consider account sync and a community feed only after beta validates demand.
 

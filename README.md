@@ -29,7 +29,10 @@ Scan the QR code with Expo Go, press `a` / `i` for an emulator/simulator, or `w`
 | Variable | Source | Without it |
 | --- | --- | --- |
 | `EXPO_PUBLIC_NEWSAPI_KEY` | https://newsapi.org/ | Curated sample news is shown |
+| `EXPO_PUBLIC_FREENEWS_KEY` | https://freenewsapi.io/ | That source is skipped; other live sources still work |
 | `EXPO_PUBLIC_TMDB_KEY` | https://www.themoviedb.org/settings/api | Curated sample movies are shown |
+
+News headlines are merged from NewsAPI and FreeNewsApi when both keys are set. FreeNewsApi's free tier allows 5,000 requests/day at 2 requests/second; the adapter paces its calls to stay within that limit and fetches article details (link, image, summary) for the top stories.
 
 Discovery uses the public Hacker News and Reddit JSON APIs — no key required. If those requests fail, curated finds are shown. The UI always labels sample data with a banner.
 
@@ -127,10 +130,11 @@ bunx eas-cli submit
 | [SUPPORT.md](./SUPPORT.md) | Where to get help |
 | [GOVERNANCE.md](./GOVERNANCE.md) | Roles and decision making |
 | [CHANGELOG.md](./CHANGELOG.md) | Release history |
-| [BETA_CHECKLIST.md](./BETA_CHECKLIST.md) | Release testing and distribution |
-| [SCREEN_USAGE.md](./SCREEN_USAGE.md) | Feature walkthrough |
-| [GITHUB_ROADMAP.md](./GITHUB_ROADMAP.md) | Delivered and planned work |
-| [FINAL_REPORT.md](./FINAL_REPORT.md) | Delivery and team contribution report |
+| [docs/README.md](./docs/README.md) | Index of all project documentation |
+| [docs/guides/BETA_CHECKLIST.md](./docs/guides/BETA_CHECKLIST.md) | Release testing and distribution |
+| [docs/guides/SCREEN_USAGE.md](./docs/guides/SCREEN_USAGE.md) | Feature walkthrough |
+| [docs/project/GITHUB_ROADMAP.md](./docs/project/GITHUB_ROADMAP.md) | Delivered and planned work |
+| [docs/reports/FINAL_REPORT.md](./docs/reports/FINAL_REPORT.md) | Delivery and team contribution report |
 
 Bug reports and feature requests use the templates in [`.github/ISSUE_TEMPLATE`](./.github/ISSUE_TEMPLATE). Pull requests use [the PR template](./.github/PULL_REQUEST_TEMPLATE.md). All changes must pass the CI checks listed in CONTRIBUTING.
 
