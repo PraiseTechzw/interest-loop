@@ -1,5 +1,18 @@
+/**
+ * SQLite's datetime()/CURRENT_TIMESTAMP produce "YYYY-MM-DD HH:mm:ss" in UTC.
+ * Normalise that format before handing it to Date, which otherwise interprets
+ * it as local time on V8 and can fail on Hermes.
+ */
+export function parseDate(value: string): Date {
+  const sqliteTimestamp = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/;
+  const normalized = sqliteTimestamp.test(value)
+    ? `${value.replace(' ', 'T')}Z`
+    : value;
+  return new Date(normalized);
+}
+
 export function formatDate(value: string): string {
-  const date = new Date(value);
+  const date = parseDate(value);
   if (Number.isNaN(date.getTime())) return '';
   return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
 }

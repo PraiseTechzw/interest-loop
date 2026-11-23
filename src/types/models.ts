@@ -90,6 +90,7 @@ export type SavedDiscoveryRow = {
   excerpt: string;
   source: string;
   score: number;
+  interest_tag: string;
   saved_at: string;
 };
 

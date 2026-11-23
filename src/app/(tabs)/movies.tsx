@@ -12,7 +12,7 @@ import {
   ScreenContent,
   ScreenHeader,
 } from '@/components/ui';
-import type { InterestId } from '@/constants/interests';
+import { INTEREST_BY_ID, type InterestId } from '@/constants/interests';
 import { useInterests, useMovieFeed, useSavedMovies, useToggleSavedMovie } from '@/hooks/use-app-data';
 import { space, useTheme } from '@/theme/tokens';
 
@@ -23,6 +23,7 @@ export default function MoviesScreen() {
   const saved = useSavedMovies();
   const toggleSave = useToggleSavedMovie();
   const [filter, setFilter] = useState<InterestId | 'all'>('all');
+  const [pendingId, setPendingId] = useState<number | null>(null);
 
   const selected = interests.data ?? [];
   const savedIds = useMemo(
@@ -58,7 +59,7 @@ export default function MoviesScreen() {
               {selected.map((id) => (
                 <Pill
                   key={id}
-                  label={id}
+                  label={INTEREST_BY_ID[id].short}
                   selected={filter === id}
                   onPress={() => setFilter(id)}
                 />
@@ -84,8 +85,14 @@ export default function MoviesScreen() {
                 key={movie.id}
                 movie={movie}
                 saved={savedIds.has(movie.id)}
-                saving={toggleSave.isPending}
-                onToggleSave={() => toggleSave.mutate({ movie, saved: !savedIds.has(movie.id) })}
+                saving={pendingId === movie.id}
+                onToggleSave={() => {
+                  setPendingId(movie.id);
+                  toggleSave.mutate(
+                    { movie, saved: !savedIds.has(movie.id) },
+                    { onSettled: () => setPendingId(null) },
+                  );
+                }}
               />
             ))
           )}

@@ -14,7 +14,7 @@ import {
 } from '@/components/ui';
 import { useInterests, useNews, useSavedArticles, useToggleSavedArticle } from '@/hooks/use-app-data';
 import { space, useTheme } from '@/theme/tokens';
-import type { InterestId } from '@/constants/interests';
+import { INTEREST_BY_ID, type InterestId } from '@/constants/interests';
 
 export default function NewsScreen() {
   const theme = useTheme();
@@ -23,6 +23,7 @@ export default function NewsScreen() {
   const saved = useSavedArticles();
   const toggleSave = useToggleSavedArticle();
   const [filter, setFilter] = useState<InterestId | 'all'>('all');
+  const [pendingUrl, setPendingUrl] = useState<string | null>(null);
 
   const selected = interests.data ?? [];
   const savedUrls = useMemo(
@@ -58,7 +59,7 @@ export default function NewsScreen() {
               {selected.map((id) => (
                 <Pill
                   key={id}
-                  label={id}
+                  label={INTEREST_BY_ID[id].short}
                   selected={filter === id}
                   onPress={() => setFilter(id)}
                 />
@@ -84,10 +85,14 @@ export default function NewsScreen() {
                 key={article.id}
                 article={article}
                 saved={savedUrls.has(article.url)}
-                saving={toggleSave.isPending}
-                onToggleSave={() =>
-                  toggleSave.mutate({ article, saved: !savedUrls.has(article.url) })
-                }
+                saving={pendingUrl === article.url}
+                onToggleSave={() => {
+                  setPendingUrl(article.url);
+                  toggleSave.mutate(
+                    { article, saved: !savedUrls.has(article.url) },
+                    { onSettled: () => setPendingUrl(null) },
+                  );
+                }}
               />
             ))
           )}

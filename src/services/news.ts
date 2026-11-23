@@ -50,12 +50,15 @@ export async function fetchNews(interests: InterestId[]): Promise<FeedResult<New
       .filter((article) => article.title && article.url)
       .map((article, index): NewsArticle => {
         const sourceName = article.source?.name ?? 'Unknown source';
+        const haystack = `${article.title ?? ''} ${article.description ?? ''} ${sourceName}`.toLowerCase();
         const matchingInterest =
           interests.find((id) =>
             INTEREST_BY_ID[id].newsQuery
               .toLowerCase()
-              .split(' or ')
-              .some((term) => sourceName.toLowerCase().includes(term.replace(/"/g, ''))),
+              .split(/\s+or\s+/)
+              .map((term) => term.replace(/[()"]/g, '').trim())
+              .filter(Boolean)
+              .some((term) => haystack.includes(term)),
           ) ?? interests[index % interests.length];
 
         return {

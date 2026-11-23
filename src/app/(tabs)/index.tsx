@@ -1,10 +1,19 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { DiscoveryCard, MovieCard, NewsCard } from '@/components/content-cards';
-import { DemoBanner, EmptyState, LoadingState, Screen, ScreenContent, ScreenHeader, SectionHeader } from '@/components/ui';
+import {
+  DemoBanner,
+  EmptyState,
+  ErrorState,
+  LoadingState,
+  Screen,
+  ScreenContent,
+  ScreenHeader,
+  SectionHeader,
+} from '@/components/ui';
 import { INTEREST_BY_ID } from '@/constants/interests';
 import {
   useDiscoveryFeed,
@@ -19,6 +28,50 @@ import {
   useToggleSavedMovie,
 } from '@/hooks/use-app-data';
 import { radius, space, useTheme } from '@/theme/tokens';
+import type { DiscoveryItem, Movie, NewsArticle } from '@/types/models';
+
+type NoticeProps = {
+  interestPending: boolean;
+  interestError: boolean;
+  noInterests: boolean;
+  pending: boolean;
+  error: boolean;
+  empty: boolean;
+  retry: () => void;
+  openProfile: () => void;
+  loadingLabel: string;
+  errorLabel: string;
+  emptyTitle: string;
+  emptyMessage: string;
+};
+
+/** Shared loading / error / empty handling for the dashboard's feed sections. */
+function FeedNotice(props: NoticeProps) {
+  if (props.interestPending || props.pending) {
+    return <LoadingState label={props.loadingLabel} />;
+  }
+  if (props.interestError) {
+    return <ErrorState message="Could not load your interests." onRetry={props.retry} />;
+  }
+  if (props.noInterests) {
+    return (
+      <EmptyState
+        icon="sparkles-outline"
+        title="Choose your interests"
+        message="Pick a few topics in your profile to fill this section."
+        actionLabel="Open profile"
+        onAction={props.openProfile}
+      />
+    );
+  }
+  if (props.error) {
+    return <ErrorState message={props.errorLabel} onRetry={props.retry} />;
+  }
+  if (props.empty) {
+    return <EmptyState title={props.emptyTitle} message={props.emptyMessage} />;
+  }
+  return null;
+}
 
 export default function HomeScreen() {
   const theme = useTheme();
@@ -33,8 +86,13 @@ export default function HomeScreen() {
   const toggleMovie = useToggleSavedMovie();
   const toggleDiscovery = useToggleSavedDiscovery();
 
+  const [pendingArticle, setPendingArticle] = useState<string | null>(null);
+  const [pendingMovie, setPendingMovie] = useState<number | null>(null);
+  const [pendingDiscovery, setPendingDiscovery] = useState<string | null>(null);
+
   const selected = interests.data ?? [];
-  const isLoading = interests.isLoading || news.isLoading || movies.isLoading;
+  const noInterests = !interests.isLoading && selected.length === 0;
+  const openProfile = () => router.push('/profile');
 
   const refreshing =
     news.isFetching || movies.isFetching || discovery.isFetching || interests.isFetching;
@@ -49,6 +107,38 @@ export default function HomeScreen() {
   const savedArticleUrls = new Set((savedArticles.data ?? []).map((item) => item.url));
   const savedMovieIds = new Set((savedMovies.data ?? []).map((item) => item.tmdb_id));
   const savedDiscoveryIds = new Set((savedDiscovery.data ?? []).map((item) => item.id));
+
+  function onToggleArticle(article: NewsArticle) {
+    setPendingArticle(article.url);
+    toggleArticle.mutate(
+      { article, saved: !savedArticleUrls.has(article.url) },
+      { onSettled: () => setPendingArticle(null) },
+    );
+  }
+
+  function onToggleMovie(movie: Movie) {
+    setPendingMovie(movie.id);
+    toggleMovie.mutate(
+      { movie, saved: !savedMovieIds.has(movie.id) },
+      { onSettled: () => setPendingMovie(null) },
+    );
+  }
+
+  function onToggleDiscovery(item: DiscoveryItem) {
+    setPendingDiscovery(item.id);
+    toggleDiscovery.mutate(
+      { item, saved: !savedDiscoveryIds.has(item.id) },
+      { onSettled: () => setPendingDiscovery(null) },
+    );
+  }
+
+  const feedNotice = {
+    interestPending: interests.isLoading,
+    interestError: interests.isError,
+    noInterests,
+    retry: refresh,
+    openProfile,
+  };
 
   return (
     <Screen>
@@ -107,67 +197,75 @@ export default function HomeScreen() {
           {news.data?.isDemo ? <DemoBanner message={news.data.notice ?? ''} /> : null}
 
           <SectionHeader title="Top stories" actionLabel="All news" onAction={() => router.push('/news')} />
-          {isLoading || !news.data ? (
-            <LoadingState label="Gathering your stories…" />
-          ) : news.data.items.length === 0 ? (
-            <EmptyState
-              title="Nothing here yet"
-              message="Select a few interests in your profile and we'll find stories for you."
-              actionLabel="Open profile"
-              onAction={() => router.push('/profile')}
+          <FeedNotice
+            {...feedNotice}
+            pending={news.isLoading}
+            error={news.isError}
+            empty={(news.data?.items.length ?? 0) === 0}
+            retry={() => news.refetch()}
+            loadingLabel="Gathering your stories…"
+            errorLabel="Could not load stories."
+            emptyTitle="Nothing here yet"
+            emptyMessage="Try adding more interests in your profile."
+          />
+          {news.data?.items.slice(0, 2).map((article) => (
+            <NewsCard
+              key={article.id}
+              article={article}
+              compact
+              saved={savedArticleUrls.has(article.url)}
+              saving={pendingArticle === article.url}
+              onToggleSave={() => onToggleArticle(article)}
             />
-          ) : (
-            news.data.items.slice(0, 2).map((article) => (
-              <NewsCard
-                key={article.id}
-                article={article}
-                compact
-                saved={savedArticleUrls.has(article.url)}
-                saving={toggleArticle.isPending}
-                onToggleSave={() =>
-                  toggleArticle.mutate({
-                    article,
-                    saved: !savedArticleUrls.has(article.url),
-                  })
-                }
-              />
-            ))
-          )}
+          ))}
 
           <SectionHeader title="Movie picks" actionLabel="All movies" onAction={() => router.push('/movies')} />
-          {movies.isLoading || !movies.data ? (
-            <LoadingState label="Finding something good to watch…" />
-          ) : (
-            movies.data.items.slice(0, 2).map((movie) => (
-              <MovieCard
-                key={movie.id}
-                movie={movie}
-                compact
-                saved={savedMovieIds.has(movie.id)}
-                saving={toggleMovie.isPending}
-                onToggleSave={() =>
-                  toggleMovie.mutate({ movie, saved: !savedMovieIds.has(movie.id) })
-                }
-              />
-            ))
-          )}
+          <FeedNotice
+            {...feedNotice}
+            pending={movies.isLoading}
+            error={movies.isError}
+            empty={(movies.data?.items.length ?? 0) === 0}
+            retry={() => movies.refetch()}
+            loadingLabel="Finding something good to watch…"
+            errorLabel="Could not load movies."
+            emptyTitle="No picks yet"
+            emptyMessage="Try a different set of interests in your profile."
+          />
+          {movies.data?.items.slice(0, 2).map((movie) => (
+            <MovieCard
+              key={movie.id}
+              movie={movie}
+              compact
+              saved={savedMovieIds.has(movie.id)}
+              saving={pendingMovie === movie.id}
+              onToggleSave={() => onToggleMovie(movie)}
+            />
+          ))}
 
           <SectionHeader title="Hidden gems" actionLabel="Discover more" onAction={() => router.push('/discover')} />
-          {discovery.isLoading || !discovery.data ? (
-            <LoadingState label="Checking the web…" />
-          ) : (
-            discovery.data.items.slice(0, 1).map((item) => (
-              <DiscoveryCard
-                key={item.id}
-                item={item}
-                saved={savedDiscoveryIds.has(item.id)}
-                saving={toggleDiscovery.isPending}
-                onToggleSave={() =>
-                  toggleDiscovery.mutate({ item, saved: !savedDiscoveryIds.has(item.id) })
-                }
-              />
-            ))
-          )}
+          <FeedNotice
+            interestPending={false}
+            interestError={false}
+            noInterests={false}
+            pending={discovery.isLoading}
+            error={discovery.isError}
+            empty={(discovery.data?.items.length ?? 0) === 0}
+            retry={() => discovery.refetch()}
+            openProfile={openProfile}
+            loadingLabel="Checking the web…"
+            errorLabel="Could not load discoveries."
+            emptyTitle="No finds right now"
+            emptyMessage="Pull to refresh to try again."
+          />
+          {discovery.data?.items.slice(0, 1).map((item) => (
+            <DiscoveryCard
+              key={item.id}
+              item={item}
+              saved={savedDiscoveryIds.has(item.id)}
+              saving={pendingDiscovery === item.id}
+              onToggleSave={() => onToggleDiscovery(item)}
+            />
+          ))}
 
           <View style={[styles.footer, { borderColor: theme.border }]}>
             <Text style={[styles.footerText, { color: theme.textMuted }]}>

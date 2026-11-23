@@ -3,7 +3,7 @@ import { useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { Card, EmptyState, Pill, Screen, ScreenContent, ScreenHeader, SectionHeader } from '@/components/ui';
-import { INTEREST_BY_ID } from '@/constants/interests';
+import { INTEREST_BY_ID, isInterestId } from '@/constants/interests';
 import {
   useSavedArticles,
   useSavedDiscovery,
@@ -217,6 +217,7 @@ function discoveryFromRow(row: {
   excerpt: string;
   source: string;
   score: number;
+  interest_tag: string;
 }) {
   return {
     id: row.id,
@@ -229,7 +230,7 @@ function discoveryFromRow(row: {
     score: row.score,
     age: '',
     type: 'article' as const,
-    interest: 'problem-solving' as const,
+    interest: isInterestId(row.interest_tag) ? row.interest_tag : 'problem-solving',
   };
 }
 

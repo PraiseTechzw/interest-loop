@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import { useQuery } from '@tanstack/react-query';
 import { useMemo, useState } from 'react';
 import {
   ScrollView,
@@ -27,7 +28,7 @@ import {
   useReviewCoachResponse,
   useSaveCoachResponse,
 } from '@/hooks/use-app-data';
-import { formatDate } from '@/lib/format';
+import { formatDate, parseDate } from '@/lib/format';
 import { radius, space, useTheme } from '@/theme/tokens';
 import type { MindsetPrompt, PromptCategory } from '@/types/models';
 
@@ -58,8 +59,14 @@ export default function CoachScreen() {
   const [answer, setAnswer] = useState('');
   const [cursor, setCursor] = useState(0);
 
-  // Query metadata gives us a stable timestamp without impure Date.now() calls in render.
-  const now = responses.dataUpdatedAt;
+  // A ticking query keeps due-state fresh without impure Date.now() calls in render.
+  const clock = useQuery({
+    queryKey: ['now'],
+    queryFn: () => Date.now(),
+    staleTime: 60_000,
+    refetchInterval: 60_000,
+  });
+  const now = clock.data ?? responses.dataUpdatedAt;
 
   const byId = useMemo(
     () => new Map((responses.data ?? []).map((entry) => [entry.promptId, entry])),
@@ -76,7 +83,7 @@ export default function CoachScreen() {
   }, [filter, byId]);
 
   const current: MindsetPrompt | undefined = prompts[cursor % Math.max(prompts.length, 1)];
-  const isDue = (nextReviewAt: string) => now > 0 && new Date(nextReviewAt).getTime() <= now;
+  const isDue = (nextReviewAt: string) => now > 0 && parseDate(nextReviewAt).getTime() <= now;
   const dueCount = (responses.data ?? []).filter((entry) => isDue(entry.nextReviewAt)).length;
 
   function nextPrompt() {
@@ -165,12 +172,14 @@ export default function CoachScreen() {
                 <Pressable
                   disabled={answer.trim().length === 0 || saveResponse.isPending}
                   onPress={() => {
-                    saveResponse.mutate({
-                      promptId: current.id,
-                      response: answer.trim(),
-                      category: current.category,
-                    });
-                    nextPrompt();
+                    saveResponse.mutate(
+                      {
+                        promptId: current.id,
+                        response: answer.trim(),
+                        category: current.category,
+                      },
+                      { onSuccess: nextPrompt },
+                    );
                   }}
                   accessibilityRole="button"
                   style={[
@@ -181,6 +190,12 @@ export default function CoachScreen() {
                   <Text style={{ color: theme.onPrimary, fontWeight: '700' }}>Save reflection</Text>
                 </Pressable>
               </View>
+
+              {saveResponse.isError ? (
+                <Text style={[styles.saveError, { color: theme.danger }]}>
+                  Could not save your reflection. Your text is still here — try again.
+                </Text>
+              ) : null}
             </Card>
           ) : (
             <EmptyState title="No prompts" message="Try a different category." />
@@ -277,4 +292,5 @@ const styles = StyleSheet.create({
   },
   iconButton: { padding: 10 },
   reflection: { fontSize: 14, lineHeight: 20, fontStyle: 'italic', marginTop: 6 },
+  saveError: { fontSize: 12, lineHeight: 17, marginTop: 10 },
 });

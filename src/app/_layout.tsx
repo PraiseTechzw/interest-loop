@@ -5,6 +5,7 @@ import { SQLiteProvider } from 'expo-sqlite';
 import { Suspense, useState } from 'react';
 import { ActivityIndicator, useColorScheme, View } from 'react-native';
 
+import { AppErrorBoundary } from '@/components/app-error-boundary';
 import { DATABASE_NAME, migrateDatabase } from '@/lib/database';
 
 function BootFallback() {
@@ -32,23 +33,27 @@ export default function RootLayout() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <Suspense fallback={<BootFallback />}>
-        <SQLiteProvider
-          databaseName={DATABASE_NAME}
-          onInit={migrateDatabase}
-          useSuspense>
-          <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
-          <Stack
-            screenOptions={{
-              contentStyle: { backgroundColor: colorScheme === 'dark' ? '#0E1020' : '#F5F6FB' },
-            }}>
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-            <Stack.Screen name="coach" options={{ title: 'Mindset Coach' }} />
-            <Stack.Screen name="graph" options={{ title: 'Knowledge Graph' }} />
-            <Stack.Screen name="saved" options={{ title: 'Saved for later' }} />
-          </Stack>
-        </SQLiteProvider>
-      </Suspense>
+      <AppErrorBoundary>
+        <Suspense fallback={<BootFallback />}>
+          <SQLiteProvider
+            databaseName={DATABASE_NAME}
+            onInit={migrateDatabase}
+            useSuspense>
+            <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
+            <Stack
+              screenOptions={{
+                contentStyle: {
+                  backgroundColor: colorScheme === 'dark' ? '#0E1020' : '#F5F6FB',
+                },
+              }}>
+              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+              <Stack.Screen name="coach" options={{ title: 'Mindset Coach' }} />
+              <Stack.Screen name="graph" options={{ title: 'Knowledge Graph' }} />
+              <Stack.Screen name="saved" options={{ title: 'Saved for later' }} />
+            </Stack>
+          </SQLiteProvider>
+        </Suspense>
+      </AppErrorBoundary>
     </QueryClientProvider>
   );
 }

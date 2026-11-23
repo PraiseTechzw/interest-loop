@@ -21,4 +21,11 @@
 - Expo Router `Slot` rejected array-styled `Link asChild` children → replaced with explicit `Pressable` navigation.
 - Coach screen called `Date.now()` during render → switched to TanStack Query's `dataUpdatedAt`.
 
+**Post-review fixes (same day)**
+- Home now renders explicit loading/error/empty/no-interest states instead of spinning forever when all interests are deselected; per-card save spinners are isolated.
+- SQLite `datetime()` strings are normalized before `Date` parsing, fixing due-date math in Coach.
+- Added an app error boundary around SQLite initialization (`onError` is incompatible with `useSuspense`, so the boundary is the recovery path).
+- News interest tagging now matches on title/description/source with a case-insensitive `OR` split; filter pills use human-readable labels.
+- Interest activity counts now include movies and discoveries via a v2 schema migration; Coach uses a ticking clock query and keeps drafts on save failure.
+
 **Result:** one coherent, compiling, testable application; documentation now matches the code.

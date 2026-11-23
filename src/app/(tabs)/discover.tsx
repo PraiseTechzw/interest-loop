@@ -30,6 +30,7 @@ export default function DiscoverScreen() {
   const saved = useSavedDiscovery();
   const toggleSave = useToggleSavedDiscovery();
   const [filter, setFilter] = useState<SourceFilter>('all');
+  const [pendingId, setPendingId] = useState<string | null>(null);
 
   const savedIds = useMemo(
     () => new Set((saved.data ?? []).map((item) => item.id)),
@@ -88,10 +89,14 @@ export default function DiscoverScreen() {
                 key={item.id}
                 item={item}
                 saved={savedIds.has(item.id)}
-                saving={toggleSave.isPending}
-                onToggleSave={() =>
-                  toggleSave.mutate({ item, saved: !savedIds.has(item.id) })
-                }
+                saving={pendingId === item.id}
+                onToggleSave={() => {
+                  setPendingId(item.id);
+                  toggleSave.mutate(
+                    { item, saved: !savedIds.has(item.id) },
+                    { onSettled: () => setPendingId(null) },
+                  );
+                }}
               />
             ))
           )}

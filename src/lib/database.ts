@@ -1,6 +1,12 @@
 import * as SQLite from 'expo-sqlite';
 
-import { DEFAULT_INTERESTS, isInterestId, type InterestId } from '@/constants/interests';
+import {
+  DEFAULT_INTERESTS,
+  INTEREST_BY_ID,
+  INTEREST_IDS,
+  isInterestId,
+  type InterestId,
+} from '@/constants/interests';
 import type {
   CoachResponse,
   DiscoveryItem,
@@ -15,12 +21,13 @@ import type {
 
 export type Database = SQLite.SQLiteDatabase;
 export const DATABASE_NAME = 'interest_loop.db';
-const SCHEMA_VERSION = 1;
+const SCHEMA_VERSION = 2;
 
 /** Migrations run once per database version inside SQLiteProvider's onInit. */
 export async function migrateDatabase(db: Database): Promise<void> {
   const row = await db.getFirstAsync<{ user_version: number }>('PRAGMA user_version');
-  if ((row?.user_version ?? 0) >= SCHEMA_VERSION) return;
+  const currentVersion = row?.user_version ?? 0;
+  if (currentVersion >= SCHEMA_VERSION) return;
 
   await db.execAsync(`
     PRAGMA journal_mode = WAL;
@@ -59,6 +66,7 @@ export async function migrateDatabase(db: Database): Promise<void> {
       excerpt TEXT NOT NULL DEFAULT '',
       source TEXT NOT NULL DEFAULT '',
       score INTEGER NOT NULL DEFAULT 0,
+      interest_tag TEXT NOT NULL DEFAULT 'problem-solving',
       saved_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
     );
 
@@ -75,6 +83,16 @@ export async function migrateDatabase(db: Database): Promise<void> {
     CREATE INDEX IF NOT EXISTS idx_articles_interest ON saved_articles(interest_tag);
     CREATE INDEX IF NOT EXISTS idx_coach_next_review ON coach_responses(next_review_at);
   `);
+
+  // v1 databases predate the interest_tag column on saved_discovery.
+  if (currentVersion < 2) {
+    const columns = await db.getAllAsync<{ name: string }>('PRAGMA table_info(saved_discovery)');
+    if (!columns.some((column) => column.name === 'interest_tag')) {
+      await db.execAsync(
+        "ALTER TABLE saved_discovery ADD COLUMN interest_tag TEXT NOT NULL DEFAULT 'problem-solving'",
+      );
+    }
+  }
 
   for (const tag of DEFAULT_INTERESTS) {
     await db.runAsync('INSERT OR IGNORE INTO user_interests (tag) VALUES (?)', tag);
@@ -180,8 +198,8 @@ export async function getSavedDiscovery(db: Database): Promise<SavedDiscoveryRow
 
 export async function saveDiscovery(db: Database, item: DiscoveryItem): Promise<void> {
   await db.runAsync(
-    `INSERT OR REPLACE INTO saved_discovery (id, title, url, excerpt, source, score)
-     VALUES ($id, $title, $url, $excerpt, $source, $score)`,
+    `INSERT OR REPLACE INTO saved_discovery (id, title, url, excerpt, source, score, interest_tag)
+     VALUES ($id, $title, $url, $excerpt, $source, $score, $interest)`,
     {
       $id: item.id,
       $title: item.title,
@@ -189,6 +207,7 @@ export async function saveDiscovery(db: Database, item: DiscoveryItem): Promise<
       $excerpt: item.excerpt,
       $source: item.source,
       $score: item.score,
+      $interest: item.interest,
     },
   );
 }
@@ -275,12 +294,33 @@ export async function deleteCoachResponse(db: Database, promptId: string): Promi
 export async function getInterestActivity(
   db: Database,
 ): Promise<Record<string, number>> {
-  const articleRows = await db.getAllAsync<{ interest_tag: string; count: number }>(
-    'SELECT interest_tag, COUNT(*) AS count FROM saved_articles GROUP BY interest_tag',
-  );
   const counts: Record<string, number> = {};
-  for (const row of articleRows) {
-    counts[row.interest_tag] = (counts[row.interest_tag] ?? 0) + row.count;
+
+  const [articles, movies, finds] = await Promise.all([
+    db.getAllAsync<{ interest_tag: string }>('SELECT interest_tag FROM saved_articles'),
+    db.getAllAsync<{ genre: string }>('SELECT genre FROM saved_movies'),
+    db.getAllAsync<{ interest_tag: string }>('SELECT interest_tag FROM saved_discovery'),
+  ]);
+
+  for (const article of articles) {
+    if (article.interest_tag) {
+      counts[article.interest_tag] = (counts[article.interest_tag] ?? 0) + 1;
+    }
   }
+
+  for (const find of finds) {
+    if (find.interest_tag) {
+      counts[find.interest_tag] = (counts[find.interest_tag] ?? 0) + 1;
+    }
+  }
+
+  for (const movie of movies) {
+    const genreIds = movie.genre.split(',').filter(Boolean).map(Number);
+    const interest = INTEREST_IDS.find((id) =>
+      INTEREST_BY_ID[id].movieGenres.some((genre) => genreIds.includes(genre)),
+    );
+    if (interest) counts[interest] = (counts[interest] ?? 0) + 1;
+  }
+
   return counts;
 }
