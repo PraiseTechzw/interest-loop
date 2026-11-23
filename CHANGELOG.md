@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Added
+- **FreeNewsApi source** — news headlines are merged from NewsAPI and FreeNewsApi when both keys are configured, with duplicate removal, newest-first ordering and rate-limited detail requests. Works with either key alone; falls back to curated samples when neither is configured.
+- Unit tests for the new adapter and source merging (8 new tests, 35 total).
+
 ## 1.1.0 — Phase 3/4 (23 Nov 2026)
 
 ### Added

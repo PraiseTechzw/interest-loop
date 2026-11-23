@@ -3,6 +3,8 @@ import { DEMO_NEWS } from '@/data/demo';
 import { buildUrl, fetchJson } from '@/lib/api';
 import type { FeedResult, NewsArticle } from '@/types/models';
 
+import { fetchFreeNews } from './free-news';
+
 type NewsApiResponse = {
   articles?: {
     title?: string;
@@ -18,15 +20,11 @@ function demoFor(interests: InterestId[]): NewsArticle[] {
   return DEMO_NEWS.filter((article) => interests.includes(article.interest));
 }
 
-export async function fetchNews(interests: InterestId[]): Promise<FeedResult<NewsArticle>> {
+async function fetchNewsApi(interests: InterestId[]): Promise<FeedResult<NewsArticle>> {
   const apiKey = process.env.EXPO_PUBLIC_NEWSAPI_KEY?.trim();
 
   if (!apiKey || interests.length === 0) {
-    return {
-      items: demoFor(interests),
-      isDemo: true,
-      notice: 'Sample stories — add EXPO_PUBLIC_NEWSAPI_KEY for live news.',
-    };
+    return { items: [], isDemo: false };
   }
 
   const query = interests
@@ -79,19 +77,49 @@ export async function fetchNews(interests: InterestId[]): Promise<FeedResult<New
       });
 
     if (items.length === 0) {
-      return {
-        items: demoFor(interests),
-        isDemo: true,
-        notice: 'No live stories matched — showing sample stories.',
-      };
+      return { items: [], isDemo: false, notice: 'No live stories matched from NewsAPI.' };
     }
 
     return { items, isDemo: false };
   } catch {
-    return {
-      items: demoFor(interests),
-      isDemo: true,
-      notice: 'Live news unavailable — showing sample stories.',
-    };
+    return { items: [], isDemo: false, notice: 'NewsAPI unavailable.' };
   }
+}
+
+/** Merge both live sources, dropping duplicates and keeping the newest stories first. */
+function mergeSources(sources: FeedResult<NewsArticle>[]): NewsArticle[] {
+  const seen = new Set<string>();
+  return sources
+    .flatMap((source) => source.items)
+    .filter((article) => {
+      if (seen.has(article.url)) return false;
+      seen.add(article.url);
+      return true;
+    })
+    .sort((a, b) => Date.parse(b.publishedAt) - Date.parse(a.publishedAt))
+    .slice(0, 30);
+}
+
+export async function fetchNews(interests: InterestId[]): Promise<FeedResult<NewsArticle>> {
+  const hasNewsApiKey = Boolean(process.env.EXPO_PUBLIC_NEWSAPI_KEY?.trim());
+  const hasFreeNewsKey = Boolean(process.env.EXPO_PUBLIC_FREENEWS_KEY?.trim());
+
+  const results = await Promise.all([fetchNewsApi(interests), fetchFreeNews(interests)]);
+  const items = mergeSources(results);
+
+  if (items.length > 0) {
+    return { items, isDemo: false };
+  }
+
+  const notice =
+    !hasNewsApiKey && !hasFreeNewsKey
+      ? 'Sample stories — add EXPO_PUBLIC_NEWSAPI_KEY or EXPO_PUBLIC_FREENEWS_KEY for live news.'
+      : results.find((result) => result.notice)?.notice ??
+        'Live news unavailable — showing sample stories.';
+
+  return {
+    items: demoFor(interests),
+    isDemo: true,
+    notice,
+  };
 }

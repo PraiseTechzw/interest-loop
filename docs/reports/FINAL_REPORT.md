@@ -30,7 +30,7 @@ InterestLoop began as a non-compiling prototype with phantom APIs, undeclared de
 | Feature | Status |
 | --- | --- |
 | Home dashboard with quick actions | ✅ |
-| News (NewsAPI + curated fallback, offline saves) | ✅ |
+| News (NewsAPI + FreeNewsApi + curated fallback, offline saves) | ✅ |
 | Movies (TMDB by genre, offline saves) | ✅ |
 | Discover (Hacker News + Reddit, ranking, filters) | ✅ |
 | Knowledge Graph (SVG, pan/zoom, topic details) | ✅ |

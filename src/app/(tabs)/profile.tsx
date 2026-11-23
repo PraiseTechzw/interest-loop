@@ -25,6 +25,7 @@ export default function ProfileScreen() {
 
   const selected = new Set(interests.data ?? []);
   const newsKey = Boolean(process.env.EXPO_PUBLIC_NEWSAPI_KEY?.trim());
+  const freeNewsKey = Boolean(process.env.EXPO_PUBLIC_FREENEWS_KEY?.trim());
   const tmdbKey = Boolean(process.env.EXPO_PUBLIC_TMDB_KEY?.trim());
 
   const stats = [
@@ -135,6 +136,12 @@ export default function ProfileScreen() {
             <Text style={[styles.rowTitle, { color: theme.text }]}>NewsAPI</Text>
             <Text style={{ color: newsKey ? theme.success : theme.textMuted, fontWeight: '700' }}>
               {newsKey ? 'Live' : 'Sample data'}
+            </Text>
+          </View>
+          <View style={styles.sourceRow}>
+            <Text style={[styles.rowTitle, { color: theme.text }]}>FreeNewsApi</Text>
+            <Text style={{ color: freeNewsKey ? theme.success : theme.textMuted, fontWeight: '700' }}>
+              {freeNewsKey ? 'Live' : 'Not connected'}
             </Text>
           </View>
           <View style={styles.sourceRow}>
