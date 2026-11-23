@@ -20,6 +20,27 @@
 | Docs & QA | Complete |
 | PR review & merge | Complete |
 
+## 23 Nov 2026 (later) — Phase 3/4 delivery
+
+**Objective:** implement all remaining recommended items: learning paths, time capsule, automated tests and beta preparation.
+
+**Decisions**
+- Created real tracking issues #6–#8 (the old report referenced numbers that did not exist).
+- Learning paths reuse saved content rather than adding a second content store; progress is a tiny key-value table. Sample paths keep the feature useful on first launch.
+- Time capsule excludes reflection text by default; sharing is explicit and local (clipboard/native share sheet) — no server, no account.
+- Removed EAS secret references from preview profiles so beta builds work without configured keys.
+- Delegated the test suite to a specialist subagent with strict file boundaries to avoid source conflicts.
+
+**Progress**
+| Item | Status |
+| --- | --- |
+| Learning paths | Complete |
+| Time capsule | Complete |
+| 27 unit tests + Maestro flow | Complete |
+| CI updated with test step | Complete |
+| Beta checklist + EAS preview build | Complete/prepared |
+| PR review + merge | In progress |
+
 **Lessons carried forward**
 - Verify library APIs against versioned docs before writing code; several prototype APIs existed only in stale training data.
 - Expo web is a cheap, high-signal QA target: it exposed three runtime bugs that static checks missed.

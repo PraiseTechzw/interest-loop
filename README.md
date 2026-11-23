@@ -40,6 +40,8 @@ Restart the dev server after changing `.env`.
 - **Profile** — toggle all 8 interest tags; saved counts; data-source status. Interest changes update the news, movie and graph data immediately.
 - **Knowledge Graph** — SVG graph of your interests with pan, zoom, node details and relationships derived from saved activity.
 - **Mindset Coach** — first-principles, inversion, second-order and Occam prompts; saved reflections with simplified spaced repetition (Again / Got it).
+- **Learning Paths** — guided routes built from your saved content with per-step progress (sample paths when you have not saved anything yet).
+- **Time Capsule** — a dated, shareable snapshot of your interests and progress. Reflection text is opt-in and off by default.
 - **Saved** — all offline articles, movies and finds in one place with removal controls.
 - Dark mode follows the system. Interactive controls have accessibility labels and 38–44px touch targets.
 
@@ -58,6 +60,8 @@ src/
 │   ├── coach.tsx           # Pushed stack screen
 │   ├── graph.tsx           # Pushed stack screen
 │   ├── saved.tsx           # Pushed stack screen
+│   ├── learning.tsx        # Learning paths
+│   ├── capsule.tsx         # Dated time capsule
 │   └── _layout.tsx         # Providers, SQLite, Stack
 ├── components/             # Reusable UI and content cards
 ├── constants/              # Interest catalogue and relationships
@@ -82,8 +86,10 @@ Routes live in `src/app/` (supported by Expo Router SDK 55+). Non-route code sta
 | `npm run typecheck` | `tsc --noEmit` |
 | `npm run lint` | `expo lint` (ESLint flat config) |
 | `npm run export:web` | Production web bundle into `dist/` |
+| `npm test` | Jest unit tests (27 tests) |
+| `npm run test:watch` | Jest in watch mode |
 
-Checks run in CI-equivalent form before every merge: `npx expo install --check`, `npx expo-doctor`, typecheck, lint, web export and browser smoke test.
+Checks run in CI on every PR: dependency validation, Expo Doctor, typecheck, lint, unit tests and web export. Browser smoke tests are run manually for UI changes.
 
 ---
 
@@ -105,6 +111,6 @@ bunx eas-cli build --profile production --platform all
 bunx eas-cli submit
 ```
 
-See [CONTRIBUTING.md](./CONTRIBUTING.md), [SCREEN_USAGE.md](./SCREEN_USAGE.md) and the [final delivery report](./FINAL_REPORT.md) for more.
+See [CONTRIBUTING.md](./CONTRIBUTING.md), [SCREEN_USAGE.md](./SCREEN_USAGE.md), the [beta checklist](./BETA_CHECKLIST.md), the [changelog](./CHANGELOG.md) and the [delivery report](./FINAL_REPORT.md) for more.
 
 MIT licensed.

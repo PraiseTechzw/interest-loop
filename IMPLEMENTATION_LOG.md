@@ -1,5 +1,14 @@
 # Implementation log
 
+## 2026-11-23 — Phase 3/4: learning paths, time capsule, tests, beta prep
+
+- Added SQLite schema v3 (`learning_progress`) and domain logic in `src/lib/learning-paths.ts`: ordered paths from saved articles/movies/finds, sample paths when empty, per-step completion hooks and reset.
+- Added `src/app/learning.tsx` (progress bars, step checkboxes, external links) and linked it from Home and Profile.
+- Added `src/lib/capsule.ts` and `src/app/capsule.tsx`: dated snapshot, top topics, opt-in reflection text, clipboard/native share. Added `expo-clipboard`.
+- Added Jest 30 + jest-expo 58 configuration, 27 unit tests and `.maestro/save-journey.yml`; CI now runs `npm test`.
+- Bumped version to 1.1.0, added CHANGELOG.md and BETA_CHECKLIST.md, simplified EAS profiles, wired unit tests into CI.
+- Verified: install check, doctor 20/20, typecheck, lint, 27 tests, web export all pass. EAS project linked; preview build prepared.
+
 ## 2026-11-23 — Full rebuild and delivery (branch `feat/complete-app`)
 
 **Starting state:** seven non-compiling prototype screens, phantom imports (`@expo/sqlite`, `AppRouterProvider`), missing dependencies, hardcoded API keys, and an untouched Expo template entry point.

@@ -13,9 +13,13 @@
 | Discovery | ✅ | Live Hacker News + Reddit, score/recency ranking, source filters |
 | Knowledge Graph | ✅ | SVG graph, pan/zoom, node details, relationship map |
 | Mindset Coach | ✅ | 4 prompt categories, saved reflections, Again/Got-it scheduling |
+| Learning Paths | ✅ | Ordered paths from saved content, SQLite progress, sample paths, reset control |
+| Time Capsule | ✅ | Dated shareable snapshot, privacy-first reflection toggle |
 | Profile & Saved | ✅ | 8 interest toggles, counts, offline library with removal |
 | UX | ✅ | Light/dark tokens, a11y labels, loading/error/empty/content states |
-| Documentation | ✅ | README, CONTRIBUTING, SCREEN_USAGE, roadmap, logs, `.env.example` |
+| Tests | ✅ | 27 Jest unit tests + Maestro E2E flow, wired into CI |
+| Beta prep | ✅ | 1.1.0 version, EAS preview profile, beta checklist, linked Expo project |
+| Documentation | ✅ | README, CONTRIBUTING, SCREEN_USAGE, roadmap, changelog, beta checklist, logs |
 
 ## Verification evidence
 
@@ -23,8 +27,10 @@
 - `npx expo-doctor` → 20/20 checks passed
 - `npx tsc --noEmit` → no errors
 - `npx expo lint` → no errors or warnings
-- `npx expo export --platform web` → bundled successfully (15 route chunks)
-- Browser smoke test (Expo web, Chrome) → all 5 tabs, save-to-SQLite, coach save, graph node detail, and stack navigation verified; no active error overlay
+- `npm test` → 3 suites, 27 tests passed
+- `npx expo export --platform web` → bundled successfully
+- Browser smoke test (Expo web, Chrome) → all tabs, save-to-SQLite, coach save, graph detail, stack navigation and no-interest state verified; no active error overlay
+- EAS project linked as `@praisetechzw/interest-loop`; preview build documented in [BETA_CHECKLIST.md](./BETA_CHECKLIST.md)
 
 ## Known limitations
 
@@ -34,6 +40,6 @@
 
 ## Next (beyond this delivery)
 
-- Issue #9: structured learning paths built on saved items.
-- Issue #10: community time-capsule.
-- Issue #12: beta distribution via `eas build --profile preview`.
+- Run the beta checklist on a physical device and triage feedback.
+- Add Expo Observe for crash/performance telemetry before public beta.
+- Consider account sync and a community feed after beta validation.

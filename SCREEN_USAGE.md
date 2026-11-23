@@ -35,6 +35,12 @@ Your dashboard. Interest pills reflect your Profile selections. Quick actions op
 - **Again** resets the interval; **Got it** doubles it (up to 60 days).
 - Delete an entry with the trash button.
 
+## Learning Paths
+Open from Home (**Paths**) or Profile (**Learning Paths**). Each interest with at least two saved items becomes an ordered path. Tick steps off as you go; progress is stored locally and survives a restart. **Reset all progress** clears every path. If you have not saved anything yet, clearly labelled sample paths are shown instead.
+
+## Time Capsule
+Open from Profile (**Time Capsule**) or the Home card. It previews a dated snapshot of your interests, saved counts and top topics. **Copy / share capsule** copies the text to the clipboard, or opens the native share sheet on supported web browsers. Reflection text is excluded unless you turn on *Include reflection text*.
+
 ## Saved for later
 - Switch between Articles, Movies and Finds.
 - Open a link or remove an item. Everything here is stored in SQLite on the device.

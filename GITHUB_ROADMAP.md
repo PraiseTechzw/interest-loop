@@ -4,26 +4,24 @@
 
 Personalized mobile app for tech enthusiasts: curated news, movie recommendations, web discoveries, a knowledge graph of your interests and mindset coaching — with offline persistence.
 
-## Delivered in this release
+## Delivered
 
-- Issue #1 — Expo project & base configuration: file-based routing, providers, CI-ready checks, EAS config.
-- Issue #2 — Tech news feed: NewsAPI adapter, interest queries, offline saves, fallback data.
-- Issue #3 — Movie recommendations: TMDB genre discovery by interest, offline saves, fallback data.
-- Issue #4 — Offline reading: SQLite persistence for articles, movies and discoveries.
-- Issue #5 — Project structure & documentation: README, contributing guide, screen guide, updated status docs.
-- Issue #6 — Discovery feed: Hacker News + Reddit with ranking and source filters.
-- Issue #7 — Knowledge graph: interactive SVG graph with pan/zoom and topic details.
-- Issue #8 — Mindset coach: prompts, response storage and spaced repetition.
-- Issue #11 — Dark mode & accessibility: system color scheme, tokens, labelled controls.
+**MVP (issues #1–#3, PR #4)**
+- Expo project, SDK 58 dependencies, Expo Router, CI and EAS config.
+- NewsAPI feed, TMDB recommendations, offline SQLite persistence.
+- Discovery (Hacker News + Reddit), knowledge graph, mindset coach, profile, dark mode and accessibility.
+- Full documentation and browser QA.
 
-## Remaining milestones
+**Phase 3/4 (issues #6–#8, PR pending)**
+- Issue #6 — Learning paths from saved content with progress tracking.
+- Issue #7 — Time capsule with privacy-controlled reflection sharing.
+- Issue #8 — Unit tests, Maestro E2E flow, beta checklist and EAS preview build.
 
-### Phase 3 — Learning
-- **#9 Learning paths** — sequence saved articles/movies into guided tracks with progress.
+## Remaining work (post-beta candidates)
 
-### Phase 4 — Community & release
-- **#10 Community time-capsule** — share a dated snapshot of interests and reflections.
-- **#12 Beta testing & feedback** — internal distribution, feedback capture, crash/analytics review.
+- Run the [beta checklist](./BETA_CHECKLIST.md) on physical devices and triage feedback.
+- Add Expo Observe for crash/performance telemetry before public beta.
+- Explore account sync and a community feed once the beta validates demand.
 
 ## Setup
 
