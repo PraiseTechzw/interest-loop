@@ -10,19 +10,22 @@ import {
 import type {
   CoachResponse,
   DiscoveryItem,
+  FeedbackEntry,
   InterestRow,
   MindsetPrompt,
   Movie,
   NewsArticle,
   PromptCategory,
   SavedArticleRow,
+  SavedCapsule,
   SavedDiscoveryRow,
   SavedMovieRow,
+  UserProfile,
 } from '@/types/models';
 
 export type Database = SQLite.SQLiteDatabase;
 export const DATABASE_NAME = 'interest_loop.db';
-const SCHEMA_VERSION = 4;
+const SCHEMA_VERSION = 6;
 
 /** Migrations run once per database version inside SQLiteProvider's onInit. */
 export async function migrateDatabase(db: Database): Promise<void> {
@@ -36,6 +39,11 @@ export async function migrateDatabase(db: Database): Promise<void> {
     CREATE TABLE IF NOT EXISTS user_interests (
       tag TEXT PRIMARY KEY,
       selected_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+    );
+
+    CREATE TABLE IF NOT EXISTS user_profile (
+      key TEXT PRIMARY KEY,
+      value TEXT NOT NULL DEFAULT ''
     );
 
     CREATE TABLE IF NOT EXISTS saved_articles (
@@ -95,6 +103,19 @@ export async function migrateDatabase(db: Database): Promise<void> {
       created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
     );
 
+    CREATE TABLE IF NOT EXISTS feedback (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      category TEXT NOT NULL,
+      message TEXT NOT NULL,
+      created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+    );
+
+    CREATE TABLE IF NOT EXISTS capsules (
+      id TEXT PRIMARY KEY,
+      summary TEXT NOT NULL,
+      created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+    );
+
     CREATE INDEX IF NOT EXISTS idx_articles_interest ON saved_articles(interest_tag);
     CREATE INDEX IF NOT EXISTS idx_coach_next_review ON coach_responses(next_review_at);
   `);
@@ -107,6 +128,13 @@ export async function migrateDatabase(db: Database): Promise<void> {
         "ALTER TABLE saved_discovery ADD COLUMN interest_tag TEXT NOT NULL DEFAULT 'problem-solving'",
       );
     }
+  }
+
+  // Existing users skip onboarding; new databases show it on first launch.
+  if (currentVersion > 0 && currentVersion < 6) {
+    await db.runAsync(
+      "INSERT INTO user_profile (key, value) VALUES ('onboarded', '1') ON CONFLICT(key) DO UPDATE SET value = '1'",
+    );
   }
 
   for (const tag of DEFAULT_INTERESTS) {
@@ -135,6 +163,29 @@ export async function setInterest(
   } else {
     await db.runAsync('DELETE FROM user_interests WHERE tag = ?', tag);
   }
+}
+
+// -- Profile -----------------------------------------------------------------
+
+export async function getProfile(db: Database): Promise<UserProfile> {
+  const rows = await db.getAllAsync<{ key: string; value: string }>(
+    'SELECT key, value FROM user_profile',
+  );
+  const values = Object.fromEntries(rows.map((row) => [row.key, row.value]));
+  return { name: values.name ?? '', bio: values.bio ?? '' };
+}
+
+export async function setProfile(db: Database, profile: UserProfile): Promise<void> {
+  await db.runAsync(
+    `INSERT INTO user_profile (key, value) VALUES ('name', ?)
+     ON CONFLICT(key) DO UPDATE SET value = excluded.value`,
+    profile.name,
+  );
+  await db.runAsync(
+    `INSERT INTO user_profile (key, value) VALUES ('bio', ?)
+     ON CONFLICT(key) DO UPDATE SET value = excluded.value`,
+    profile.bio,
+  );
 }
 
 // -- Saved articles ----------------------------------------------------------
@@ -418,4 +469,101 @@ export async function clearUserData(db: Database): Promise<void> {
     await db.runAsync('DELETE FROM learning_progress');
     await db.runAsync('DELETE FROM mindset_prompts');
   });
+}
+
+// -- Generic settings (onboarding flag, etc.) --------------------------------
+
+export async function getSetting(db: Database, key: string): Promise<string | null> {
+  const row = await db.getFirstAsync<{ value: string }>(
+    'SELECT value FROM user_profile WHERE key = ?',
+    key,
+  );
+  return row?.value ?? null;
+}
+
+export async function setSetting(db: Database, key: string, value: string): Promise<void> {
+  await db.runAsync(
+    'INSERT INTO user_profile (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value',
+    [key, value],
+  );
+}
+
+// -- Detail lookups ----------------------------------------------------------
+
+export async function getSavedArticleByUrl(
+  db: Database,
+  url: string,
+): Promise<SavedArticleRow | null> {
+  return db.getFirstAsync<SavedArticleRow>('SELECT * FROM saved_articles WHERE url = ?', url);
+}
+
+export async function getSavedMovieById(
+  db: Database,
+  tmdbId: number,
+): Promise<SavedMovieRow | null> {
+  return db.getFirstAsync<SavedMovieRow>('SELECT * FROM saved_movies WHERE tmdb_id = ?', tmdbId);
+}
+
+// -- Feedback ----------------------------------------------------------------
+
+export async function getFeedback(db: Database): Promise<FeedbackEntry[]> {
+  return db.getAllAsync<FeedbackEntry>('SELECT * FROM feedback ORDER BY created_at DESC');
+}
+
+export async function addFeedback(
+  db: Database,
+  input: { category: string; message: string },
+): Promise<void> {
+  await db.runAsync('INSERT INTO feedback (category, message) VALUES (?, ?)', [
+    input.category,
+    input.message,
+  ]);
+}
+
+// -- Saved capsules ----------------------------------------------------------
+
+export async function getCapsules(db: Database): Promise<SavedCapsule[]> {
+  return db.getAllAsync<SavedCapsule>('SELECT * FROM capsules ORDER BY created_at DESC');
+}
+
+export async function saveCapsule(db: Database, summary: string): Promise<string> {
+  const id = `capsule-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+  await db.runAsync('INSERT INTO capsules (id, summary) VALUES (?, ?)', [id, summary]);
+  return id;
+}
+
+export async function deleteCapsule(db: Database, id: string): Promise<void> {
+  await db.runAsync('DELETE FROM capsules WHERE id = ?', id);
+}
+
+// -- Export ------------------------------------------------------------------
+
+export async function exportUserData(db: Database) {
+  const [interests, profile, articles, movies, finds, prompts, responses, progress, capsules, feedback] =
+    await Promise.all([
+      getInterests(db),
+      getProfile(db),
+      getSavedArticles(db),
+      getSavedMovies(db),
+      getSavedDiscovery(db),
+      getMindsetPrompts(db),
+      getCoachResponses(db),
+      getLearningProgress(db),
+      getCapsules(db),
+      getFeedback(db),
+    ]);
+
+  return {
+    exportedAt: new Date().toISOString(),
+    interests,
+    profile,
+    savedArticles: articles,
+    savedMovies: movies,
+    savedDiscovery: finds,
+    prompts,
+    reflections: responses,
+    learningProgress: progress,
+    capsules,
+    feedback,
+  };
 }

@@ -94,9 +94,27 @@ export type SavedDiscoveryRow = {
   saved_at: string;
 };
 
+export type FeedbackEntry = {
+  id: number;
+  category: string;
+  message: string;
+  created_at: string;
+};
+
+export type SavedCapsule = {
+  id: string;
+  summary: string;
+  created_at: string;
+};
+
 export type InterestRow = {
   tag: string;
   selected_at: string;
+};
+
+export type UserProfile = {
+  name: string;
+  bio: string;
 };
 
 export type GraphNode = {
