@@ -151,7 +151,7 @@ export default function HomeScreen() {
   }
 
   return (
-    <Screen>
+    <Screen edges={['top']}>
       <ScrollView
         contentContainerStyle={{ flexGrow: 1 }}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refresh} />}>

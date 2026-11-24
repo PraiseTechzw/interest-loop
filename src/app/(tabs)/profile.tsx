@@ -40,7 +40,7 @@ export default function ProfileScreen() {
   ];
 
   return (
-    <Screen>
+    <Screen edges={['top']}>
       <ScrollView>
         <ScreenContent>
           <ScreenHeader title="Profile" subtitle="Make the loop yours." />
