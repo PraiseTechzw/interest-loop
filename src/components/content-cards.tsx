@@ -4,7 +4,7 @@ import { Image } from 'expo-image';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { INTEREST_BY_ID } from '@/constants/interests';
-import { formatDate, formatRating, initials, truncate } from '@/lib/format';
+import { formatCount, formatDate, formatRating, initials, truncate } from '@/lib/format';
 import { openExternalUrl } from '@/lib/links';
 import { radius, space, useTheme } from '@/theme/tokens';
 import type { DiscoveryItem, Movie, NewsArticle } from '@/types/models';
@@ -30,6 +30,24 @@ export function NewsCard({
   return (
     <Card>
       <View style={styles.row}>
+        {article.imageUrl ? (
+          <Image
+            source={{ uri: article.imageUrl }}
+            style={[styles.thumb, compact && styles.thumbSmall]}
+            contentFit="cover"
+            cachePolicy="memory-disk"
+          />
+        ) : (
+          <View
+            style={[
+              styles.thumb,
+              compact && styles.thumbSmall,
+              styles.thumbFallback,
+              { backgroundColor: theme.primarySoft },
+            ]}>
+            <Ionicons name="newspaper-outline" size={22} color={interest.color} />
+          </View>
+        )}
         <View style={styles.flex}>
           <Text style={[styles.meta, { color: interest.color }]}>{interest.short}</Text>
           <Text style={[styles.title, { color: theme.text }]} numberOfLines={compact ? 2 : 3}>
@@ -50,15 +68,20 @@ export function NewsCard({
 
       <Text
         accessibilityRole="link"
-        onPress={() => openExternalUrl(article.url)}
+        onPress={() =>
+          router.push({
+            pathname: '/article/[url]',
+            params: { url: article.url, data: JSON.stringify(article) },
+          })
+        }
         style={[styles.link, { color: theme.primary }]}>
-        Read story →
+        Read in app
       </Text>
       <Text
         accessibilityRole="link"
-        onPress={() => router.push(`/article/${encodeURIComponent(article.url)}`)}
-        style={[styles.link, { color: theme.primary }]}>
-        Offline reader →
+        onPress={() => openExternalUrl(article.url)}
+        style={[styles.secondaryLink, { color: theme.textMuted }]}>
+        Publisher site ↗
       </Text>
     </Card>
   );
@@ -69,12 +92,14 @@ export function MovieCard({
   saved,
   saving,
   onToggleSave,
+  rank,
   compact = false,
 }: {
   movie: Movie;
   saved: boolean;
   saving: boolean;
   onToggleSave: () => void;
+  rank?: number;
   compact?: boolean;
 }) {
   const theme = useTheme();
@@ -107,12 +132,30 @@ export function MovieCard({
         )}
 
         <View style={styles.flex}>
-          <Text style={[styles.meta, { color: interest.color }]}>{interest.short}</Text>
+          <View style={styles.rankRow}>
+            {rank ? (
+              <View
+                style={[
+                  styles.rankBadge,
+                  { backgroundColor: rank <= 3 ? theme.primary : theme.primarySoft },
+                ]}>
+                <Text
+                  style={[
+                    styles.rankText,
+                    { color: rank <= 3 ? theme.onPrimary : theme.primary },
+                  ]}>
+                  #{rank}
+                </Text>
+              </View>
+            ) : null}
+            <Text style={[styles.meta, { color: interest.color }]}>{interest.short}</Text>
+          </View>
           <Text style={[styles.title, { color: theme.text }]} numberOfLines={2}>
             {movie.title}
           </Text>
           <Text style={[styles.meta, { color: theme.textMuted }]}>
-            ⭐ {formatRating(movie.rating)} · {movie.releaseDate.slice(0, 4)}
+            ⭐ {formatRating(movie.rating)} · {formatCount(movie.voteCount)} votes ·{' '}
+            {movie.releaseDate.slice(0, 4) || '—'}
           </Text>
           {!compact ? (
             <Text style={[styles.description, { color: theme.textMuted }]} numberOfLines={3}>
@@ -121,21 +164,9 @@ export function MovieCard({
           ) : null}
           <Text
             accessibilityRole="link"
-            onPress={() =>
-              openExternalUrl(
-                `https://www.youtube.com/results?search_query=${encodeURIComponent(
-                  `${movie.title} official trailer`,
-                )}`,
-              )
-            }
-            style={[styles.trailer, { color: theme.primary }]}>
-            ▶ Watch trailer
-          </Text>
-          <Text
-            accessibilityRole="link"
             onPress={() => router.push(`/movie/${movie.id}`)}
             style={[styles.trailer, { color: theme.primary }]}>
-            Movie details →
+            Watch trailer & details →
           </Text>
         </View>
 
@@ -182,7 +213,7 @@ export function DiscoveryCard({
             accessibilityRole="link"
             onPress={() => openExternalUrl(item.url)}
             style={[styles.link, { color: theme.primary }]}>
-            Open discussion →
+            Open discussion
           </Text>
         </View>
         <SaveButton saved={saved} busy={saving} onPress={onToggleSave} />
@@ -199,6 +230,13 @@ const styles = StyleSheet.create({
   description: { fontSize: 13, lineHeight: 19, marginTop: 6 },
   trailer: { fontSize: 12, fontWeight: '700', marginTop: 8 },
   link: { fontSize: 13, fontWeight: '700', marginTop: 10 },
+  secondaryLink: { fontSize: 12, fontWeight: '600', marginTop: 6 },
+  thumb: { width: 76, height: 76, borderRadius: radius.sm },
+  thumbSmall: { width: 60, height: 60 },
+  thumbFallback: { alignItems: 'center', justifyContent: 'center' },
+  rankRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  rankBadge: { borderRadius: radius.pill, paddingHorizontal: 8, paddingVertical: 3 },
+  rankText: { fontSize: 11, fontWeight: '800' },
   poster: { width: 76, height: 112, borderRadius: radius.sm },
   posterSmall: { width: 56, height: 84 },
   posterFallback: { alignItems: 'center', justifyContent: 'center' },

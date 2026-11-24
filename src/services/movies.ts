@@ -23,6 +23,14 @@ function pickInterest(genreIds: number[], interests: InterestId[]): InterestId {
   );
 }
 
+const MIN_VOTES = 500;
+const PRIOR_RATING = 6;
+
+/** Bayesian score: a 9/10 from 50 votes should not outrank 8/10 from 20,000. */
+export function rankingScore(rating: number, votes: number): number {
+  return (votes * rating + MIN_VOTES * PRIOR_RATING) / (votes + MIN_VOTES);
+}
+
 export async function fetchMovieById(
   id: number,
   interests: InterestId[],
@@ -35,10 +43,14 @@ export async function fetchMovieById(
       id: number;
       title?: string;
       overview?: string;
+      tagline?: string;
       poster_path?: string | null;
+      backdrop_path?: string | null;
       vote_average?: number;
       vote_count?: number;
       genre_ids?: number[];
+      genres?: { name: string }[];
+      runtime?: number | null;
       release_date?: string;
     }>(
       buildUrl(`https://api.themoviedb.org/3/movie/${id}`, {
@@ -56,8 +68,39 @@ export async function fetchMovieById(
       voteCount: movie.vote_count ?? 0,
       genreIds: movie.genre_ids ?? [],
       releaseDate: movie.release_date ?? '',
-      interest: pickInterest(movie.genre_ids ?? [], interests),
+      interest: pickInterest(
+        movie.genre_ids ?? [],
+        interests.length ? interests : ['geek'],
+      ),
+      tagline: movie.tagline || undefined,
+      runtime: movie.runtime ?? undefined,
+      genres: movie.genres?.map((genre) => genre.name),
+      backdropPath: movie.backdrop_path ?? null,
     };
+  } catch {
+    return null;
+  }
+}
+
+/** Finds an official YouTube trailer key so it can play without leaving the app. */
+export async function fetchMovieTrailer(id: number): Promise<string | null> {
+  const apiKey = process.env.EXPO_PUBLIC_TMDB_KEY?.trim();
+  if (!apiKey) return null;
+
+  try {
+    const data = await fetchJson<{
+      results?: { site?: string; type?: string; official?: boolean; key?: string }[];
+    }>(
+      buildUrl(`https://api.themoviedb.org/3/movie/${id}/videos`, {
+        api_key: apiKey,
+        language: 'en-US',
+      }),
+    );
+    const videos = data.results ?? [];
+    const trailer =
+      videos.find((video) => video.site === 'YouTube' && video.type === 'Trailer' && video.official) ??
+      videos.find((video) => video.site === 'YouTube' && video.type === 'Trailer');
+    return trailer?.key ?? null;
   } catch {
     return null;
   }
@@ -106,6 +149,11 @@ export async function fetchMovies(interests: InterestId[]): Promise<FeedResult<M
           releaseDate: movie.release_date ?? '',
           interest: pickInterest(movie.genre_ids ?? [], interests),
         }),
+      )
+      .sort(
+        (a, b) =>
+          rankingScore(b.rating, b.voteCount) - rankingScore(a.rating, a.voteCount) ||
+          b.voteCount - a.voteCount,
       );
 
     if (items.length === 0) {

@@ -1,4 +1,4 @@
-import { fetchMovies } from '@/services/movies';
+import { fetchMovies, rankingScore } from '@/services/movies';
 
 const mockFetchJson = jest.fn();
 
@@ -34,6 +34,10 @@ describe('fetchMovies', () => {
     expect(result.items).toEqual([]);
     expect(result.error).toBeUndefined();
     expect(result.notice).toMatch(/No movies matched your interests/);
+  });
+
+  it('ranks a well-voted film above a thinly voted one with a higher rating', () => {
+    expect(rankingScore(8.1, 18_000)).toBeGreaterThan(rankingScore(9.2, 40));
   });
 
   it('does not call TMDB when no key is configured', async () => {

@@ -84,6 +84,7 @@ function toArticle(
     id: details.uuid ?? item.uuid ?? url,
     title,
     description: (details.incipit ?? details.body ?? '').trim(),
+    content: (details.body ?? details.incipit ?? '').trim() || null,
     url,
     source: details.publisher ?? item.publisher ?? 'FreeNewsApi',
     imageUrl: details.thumbnail ?? null,

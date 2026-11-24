@@ -212,7 +212,10 @@ export default function CoachScreen() {
 
               <Text style={[styles.prompt, { color: theme.text }]}>{current.prompt}</Text>
               {current.hint ? (
-                <Text style={[styles.hint, { color: theme.textMuted }]}>💡 {current.hint}</Text>
+                <View style={styles.hintRow}>
+                <Ionicons name="bulb-outline" size={15} color={theme.textMuted} />
+                <Text style={[styles.hint, { color: theme.textMuted }]}>{current.hint}</Text>
+              </View>
               ) : null}
 
               <TextInput
@@ -326,7 +329,8 @@ const styles = StyleSheet.create({
   badgeText: { fontSize: 11, fontWeight: '700' },
   meta: { fontSize: 11, fontWeight: '600' },
   prompt: { fontSize: 19, fontWeight: '700', lineHeight: 26, marginTop: space.md },
-  hint: { fontSize: 13, lineHeight: 19, marginTop: space.sm },
+  hint: { flex: 1, fontSize: 13, lineHeight: 19 },
+  hintRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 6, marginTop: space.sm },
   input: { borderWidth: 1, borderRadius: radius.md, padding: space.md, marginTop: space.lg, minHeight: 100, fontSize: 14, lineHeight: 20 },
   hintInput: { minHeight: 44, marginTop: space.sm },
   buttonRow: { flexDirection: 'row', gap: space.sm, marginTop: space.md, alignItems: 'center' },

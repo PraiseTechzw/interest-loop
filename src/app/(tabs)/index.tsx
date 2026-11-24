@@ -6,7 +6,6 @@ import { Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'r
 import { DiscoveryCard, MovieCard, NewsCard } from '@/components/content-cards';
 import {
   Card,
-  NoticeBanner,
   EmptyState,
   ErrorState,
   LoadingState,
@@ -190,39 +189,22 @@ export default function HomeScreen() {
           </View>
 
           <View style={styles.actions}>
-            <Pressable
-              onPress={() => router.push('/coach')}
-              accessibilityRole="button"
-              style={[styles.action, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-              <Ionicons name="bulb-outline" size={22} color={theme.accent} />
-              <Text style={[styles.actionLabel, { color: theme.text }]}>Coach</Text>
-            </Pressable>
-            <Pressable
-              onPress={() => router.push('/graph')}
-              accessibilityRole="button"
-              style={[styles.action, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-              <Ionicons name="git-network-outline" size={22} color={theme.primary} />
-              <Text style={[styles.actionLabel, { color: theme.text }]}>Graph</Text>
-            </Pressable>
-            <Pressable
-              onPress={() => router.push('/saved')}
-              accessibilityRole="button"
-              style={[styles.action, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-              <Ionicons name="bookmark-outline" size={22} color={theme.success} />
-              <Text style={[styles.actionLabel, { color: theme.text }]}>Saved</Text>
-            </Pressable>
-            <Pressable
-              onPress={() => router.push('/learning')}
-              accessibilityRole="button"
-              style={[styles.action, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-              <Ionicons name="library-outline" size={22} color={theme.primary} />
-              <Text style={[styles.actionLabel, { color: theme.text }]}>Paths</Text>
-            </Pressable>
+            {[
+              { label: 'Coach', href: '/coach' },
+              { label: 'Graph', href: '/graph' },
+              { label: 'Saved', href: '/saved' },
+              { label: 'Paths', href: '/learning' },
+            ].map((item) => (
+              <Pressable
+                key={item.label}
+                onPress={() => router.push(item.href)}
+                accessibilityRole="button"
+                style={styles.actionItem}>
+                <Text style={[styles.actionLabel, { color: theme.text }]}>{item.label}</Text>
+                <Ionicons name="chevron-forward" size={13} color={theme.textMuted} />
+              </Pressable>
+            ))}
           </View>
-
-          {news.data?.notice && news.data.items.length > 0 ? (
-            <NoticeBanner message={news.data.notice} />
-          ) : null}
 
           <SectionHeader title="Top stories" actionLabel="All news" onAction={() => router.push('/news')} />
           <FeedNotice
@@ -267,10 +249,11 @@ export default function HomeScreen() {
               'Add EXPO_PUBLIC_TMDB_KEY to .env to load live recommendations.'
             }
           />
-          {movies.data?.items.slice(0, 2).map((movie) => (
+          {movies.data?.items.slice(0, 2).map((movie, index) => (
             <MovieCard
               key={movie.id}
               movie={movie}
+              rank={index + 1}
               compact
               saved={savedMovieIds.has(movie.id)}
               saving={pendingMovie === movie.id}
@@ -340,16 +323,9 @@ const styles = StyleSheet.create({
   heroSubtitle: { color: '#fff', fontSize: 13, lineHeight: 19, marginTop: 4, opacity: 0.9 },
   heroPills: { flexDirection: 'row', flexWrap: 'wrap', marginTop: 12 },
   heroPill: { backgroundColor: 'rgba(255,255,255,0.2)', paddingHorizontal: 10, paddingVertical: 5, borderRadius: radius.pill, marginRight: 6, marginBottom: 6 },
-  actions: { flexDirection: 'row', gap: space.md, marginBottom: space.xl },
-  action: {
-    flex: 1,
-    borderWidth: 1,
-    borderRadius: radius.md,
-    paddingVertical: space.lg,
-    alignItems: 'center',
-    gap: 6,
-  },
-  actionLabel: { fontSize: 13, fontWeight: '700' },
+  actions: { flexDirection: 'row', alignItems: 'center', gap: space.lg, marginBottom: space.xl },
+  actionItem: { flexDirection: 'row', alignItems: 'center', gap: 2, paddingVertical: 4 },
+  actionLabel: { fontSize: 13, fontWeight: '600' },
   row: { flexDirection: 'row', alignItems: 'center', gap: space.md },
   flex: { flex: 1 },
   capsuleIcon: { width: 40, height: 40, borderRadius: radius.sm, alignItems: 'center', justifyContent: 'center' },

@@ -4,6 +4,8 @@ export type NewsArticle = {
   id: string;
   title: string;
   description: string;
+  /** Full article body when the provider supplies one (falls back to description). */
+  content?: string | null;
   url: string;
   source: string;
   imageUrl?: string | null;
@@ -21,6 +23,12 @@ export type Movie = {
   genreIds: number[];
   releaseDate: string;
   interest: InterestId;
+  /** Enriched details, filled in by the movie detail endpoint. */
+  tagline?: string;
+  runtime?: number;
+  genres?: string[];
+  backdropPath?: string | null;
+  trailerKey?: string | null;
 };
 
 export type DiscoveryItem = {

@@ -33,6 +33,10 @@ export default function MoviesScreen() {
     () => new Set((saved.data ?? []).map((item) => item.tmdb_id)),
     [saved.data],
   );
+  const ranks = useMemo(
+    () => new Map((movies.data?.items ?? []).map((movie, index) => [movie.id, index + 1])),
+    [movies.data],
+  );
 
   const visible = useMemo(() => {
     const items = movies.data?.items ?? [];
@@ -54,7 +58,10 @@ export default function MoviesScreen() {
           />
         }>
         <ScreenContent>
-          <ScreenHeader title="Movie Night" subtitle="Picks shaped by the genres you love." />
+          <ScreenHeader
+            title="Movie Night"
+            subtitle="Your interests, ranked by rating and audience votes."
+          />
 
           {selected.length > 1 ? (
             <View style={styles.filters}>
@@ -115,6 +122,7 @@ export default function MoviesScreen() {
               <MovieCard
                 key={movie.id}
                 movie={movie}
+                rank={ranks.get(movie.id)}
                 saved={savedIds.has(movie.id)}
                 saving={pendingId === movie.id}
                 onToggleSave={() => {
