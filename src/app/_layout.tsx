@@ -7,11 +7,19 @@ import { ActivityIndicator, useColorScheme, View } from 'react-native';
 
 import { AppErrorBoundary } from '@/components/app-error-boundary';
 import { DATABASE_NAME, migrateDatabase } from '@/lib/database';
+import { useTheme } from '@/theme/tokens';
 
 function BootFallback() {
+  const theme = useTheme();
   return (
-    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: '#0E1020' }}>
-      <ActivityIndicator color="#9A8EFF" />
+    <View
+      style={{
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: theme.background,
+      }}>
+      <ActivityIndicator color={theme.primary} />
     </View>
   );
 }
@@ -30,6 +38,7 @@ export default function RootLayout() {
       }),
   );
   const colorScheme = useColorScheme();
+  const theme = useTheme();
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -42,9 +51,10 @@ export default function RootLayout() {
             <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
             <Stack
               screenOptions={{
-                contentStyle: {
-                  backgroundColor: colorScheme === 'dark' ? '#0E1020' : '#F5F6FB',
-                },
+                contentStyle: { backgroundColor: theme.background },
+                headerStyle: { backgroundColor: theme.surface },
+                headerTintColor: theme.text,
+                headerTitleStyle: { color: theme.text, fontWeight: '700' },
               }}>
               <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
               <Stack.Screen name="coach" options={{ title: 'Mindset Coach' }} />
@@ -52,9 +62,20 @@ export default function RootLayout() {
               <Stack.Screen name="saved" options={{ title: 'Saved for later' }} />
               <Stack.Screen name="learning" options={{ title: 'Learning Paths' }} />
               <Stack.Screen name="capsule" options={{ title: 'Time Capsule' }} />
+              <Stack.Screen name="profile-edit" options={{ title: 'Edit profile' }} />
               <Stack.Screen name="settings" options={{ title: 'Settings' }} />
               <Stack.Screen name="credits" options={{ title: 'Credits' }} />
               <Stack.Screen name="privacy" options={{ title: 'Privacy' }} />
+              <Stack.Screen name="onboarding" options={{ headerShown: false }} />
+              <Stack.Screen name="search" options={{ title: 'Search' }} />
+              <Stack.Screen name="feedback" options={{ title: 'Feedback' }} />
+              <Stack.Screen name="community" options={{ title: 'Community' }} />
+              <Stack.Screen name="diagnostics" options={{ title: 'Diagnostics' }} />
+              <Stack.Screen name="terms" options={{ title: 'Terms of use' }} />
+              <Stack.Screen name="export" options={{ title: 'Export data' }} />
+              <Stack.Screen name="accessibility" options={{ title: 'Accessibility' }} />
+              <Stack.Screen name="article/[url]" options={{ title: 'Article' }} />
+              <Stack.Screen name="movie/[id]" options={{ title: 'Movie' }} />
             </Stack>
           </SQLiteProvider>
         </Suspense>

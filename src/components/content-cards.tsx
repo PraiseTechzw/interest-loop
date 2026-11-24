@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import { router } from 'expo-router';
 import { Image } from 'expo-image';
 import { StyleSheet, Text, View } from 'react-native';
 
@@ -52,6 +53,12 @@ export function NewsCard({
         onPress={() => openExternalUrl(article.url)}
         style={[styles.link, { color: theme.primary }]}>
         Read story →
+      </Text>
+      <Text
+        accessibilityRole="link"
+        onPress={() => router.push(`/article/${encodeURIComponent(article.url)}`)}
+        style={[styles.link, { color: theme.primary }]}>
+        Offline reader →
       </Text>
     </Card>
   );
@@ -123,6 +130,12 @@ export function MovieCard({
             }
             style={[styles.trailer, { color: theme.primary }]}>
             ▶ Watch trailer
+          </Text>
+          <Text
+            accessibilityRole="link"
+            onPress={() => router.push(`/movie/${movie.id}`)}
+            style={[styles.trailer, { color: theme.primary }]}>
+            Movie details →
           </Text>
         </View>
 

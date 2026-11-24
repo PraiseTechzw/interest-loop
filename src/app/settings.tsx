@@ -6,27 +6,17 @@ import { Alert, Platform, Pressable, ScrollView, StyleSheet, Text, View } from '
 import { Card, NoticeBanner, Screen, ScreenContent, ScreenHeader, SectionHeader } from '@/components/ui';
 import { useClearUserData } from '@/hooks/use-app-data';
 import { openExternalUrl } from '@/lib/links';
+import { getDataSources, sourceStatusLabel } from '@/lib/sources';
 import { radius, space, useTheme } from '@/theme/tokens';
-
-function status(connected: boolean) {
-  return connected ? 'Connected' : 'Not connected';
-}
 
 export default function SettingsScreen() {
   const theme = useTheme();
   const clearData = useClearUserData();
 
-  const newsApi = Boolean(process.env.EXPO_PUBLIC_NEWSAPI_KEY?.trim());
-  const freeNews = Boolean(process.env.EXPO_PUBLIC_FREENEWS_KEY?.trim());
-  const tmdb = Boolean(process.env.EXPO_PUBLIC_TMDB_KEY?.trim());
   const privacyUrl = process.env.EXPO_PUBLIC_PRIVACY_URL?.trim();
   const version = Constants.expoConfig?.version ?? '1.2.0';
 
-  const sources = [
-    { label: 'NewsAPI', connected: newsApi },
-    { label: 'FreeNewsApi', connected: freeNews },
-    { label: 'TMDB', connected: tmdb },
-  ];
+  const sources = getDataSources();
   const allConnected = sources.every((source) => source.connected);
 
   function confirmClear() {
@@ -47,7 +37,7 @@ export default function SettingsScreen() {
           <ScreenHeader title="Settings" subtitle="Connection status, privacy and local data." />
 
           {!allConnected ? (
-            <NoticeBanner message="Some live sources are not connected. Run `npm run env:check` before launching, and configure keys in EAS for installed builds." />
+            <NoticeBanner message="Some live sources are not connected. Run npm run env:check before launching, and configure keys in EAS for installed builds." />
           ) : null}
 
           <SectionHeader title="Live sources" />
@@ -66,7 +56,7 @@ export default function SettingsScreen() {
                     fontWeight: '700',
                     fontSize: 12,
                   }}>
-                  {status(source.connected)}
+                  {sourceStatusLabel(source.connected)}
                 </Text>
               </View>
             ))}

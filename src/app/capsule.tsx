@@ -10,6 +10,7 @@ import {
   useCoachResponses,
   useInterestActivity,
   useInterests,
+  useSaveCapsule,
   useSavedArticles,
   useSavedDiscovery,
   useSavedMovies,
@@ -25,6 +26,7 @@ export default function CapsuleScreen() {
   const finds = useSavedDiscovery();
   const responses = useCoachResponses();
   const activity = useInterestActivity();
+  const saveCapsule = useSaveCapsule();
   const [includeReflections, setIncludeReflections] = useState(false);
 
   const today = useQuery({
@@ -162,6 +164,15 @@ export default function CapsuleScreen() {
             <Text style={[styles.shareLabel, { color: theme.onPrimary }]}>Copy / share capsule</Text>
           </Pressable>
 
+          <Pressable
+            accessibilityRole="button"
+            onPress={() => saveCapsule.mutate(summary)}
+            style={[styles.saveCapsule, { borderColor: theme.primary }]}>
+            <Text style={{ color: theme.primary, fontWeight: '700' }}>
+              {saveCapsule.isPending ? 'Saving…' : 'Save capsule to library'}
+            </Text>
+          </Pressable>
+
           <Card>
             <Text style={[styles.sectionLabel, { color: theme.text }]}>Preview</Text>
             <Text style={[styles.preview, { color: theme.textMuted }]}>{summary}</Text>
@@ -196,5 +207,6 @@ const styles = StyleSheet.create({
     marginBottom: space.md,
   },
   shareLabel: { fontSize: 15, fontWeight: '700' },
+  saveCapsule: { borderWidth: 1, borderRadius: radius.md, paddingVertical: 12, alignItems: 'center', marginBottom: space.md },
   preview: { fontSize: 12, lineHeight: 19, fontFamily: 'monospace' },
 });

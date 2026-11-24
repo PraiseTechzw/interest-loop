@@ -260,8 +260,11 @@ export function EmptyState({
         {message}
       </Text>
       {actionLabel && onAction ? (
-        <Pressable onPress={onAction} accessibilityRole="button" style={styles.retryButton}>
-          <Text style={{ color: theme.primary, fontWeight: '600' }}>{actionLabel}</Text>
+        <Pressable
+          onPress={onAction}
+          accessibilityRole="button"
+          style={[styles.retryButton, { backgroundColor: theme.primary }]}>
+          <Text style={{ color: theme.onPrimary, fontWeight: '600' }}>{actionLabel}</Text>
         </Pressable>
       ) : null}
     </View>
