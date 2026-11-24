@@ -17,6 +17,7 @@ Built with **Expo SDK 58**, **Expo Router**, **TypeScript**, **TanStack Query** 
 ```bash
 npm install
 cp .env.example .env      # optional: add API keys for live news/movies
+npm run env:check   # verify EXPO_PUBLIC_* keys before launching
 npx expo start
 ```
 
@@ -52,6 +53,8 @@ Restart the dev server after changing `.env`.
 - **Learning Paths** — guided routes built from your saved content with per-step progress.
 - **Time Capsule** — a dated, shareable snapshot of your interests and progress. Reflection text is opt-in and off by default.
 - **Saved** — all offline articles, movies and finds in one place with removal controls.
+- **Settings** — live-source connection status, app version, privacy summary and one-tap local data clearing.
+- **Credits / Privacy** — data-source attributions and a plain-language privacy summary.
 - Dark mode follows the system. Interactive controls have accessibility labels and 38–44px touch targets.
 
 ### Interests
@@ -94,6 +97,7 @@ Routes live in `src/app/` (supported by Expo Router SDK 55+). Non-route code sta
 | `npm run typecheck` | `tsc --noEmit` |
 | `npm run lint` | `expo lint` (ESLint flat config) |
 | `npm run export:web` | Production web bundle into `dist/` |
+| `npm run env:check` | Preflight check for `EXPO_PUBLIC_*` keys (values are never printed) |
 | `npm test` | Jest unit tests (27 tests) |
 | `npm run test:watch` | Jest in watch mode |
 
@@ -130,6 +134,7 @@ bunx eas-cli submit
 | [GOVERNANCE.md](./GOVERNANCE.md) | Roles and decision making |
 | [CHANGELOG.md](./CHANGELOG.md) | Release history |
 | [docs/README.md](./docs/README.md) | Index of all project documentation |
+| [docs/PRIVACY.md](./docs/PRIVACY.md) | Privacy policy ready to publish for store listings |
 | [docs/guides/BETA_CHECKLIST.md](./docs/guides/BETA_CHECKLIST.md) | Release testing and distribution |
 | [docs/guides/SCREEN_USAGE.md](./docs/guides/SCREEN_USAGE.md) | Feature walkthrough |
 | [docs/guides/ASSET_SPECS.md](./docs/guides/ASSET_SPECS.md) | Brand asset sizes, safe zones and prompts |

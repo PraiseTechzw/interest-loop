@@ -15,6 +15,7 @@ Version: **1.2.0** · EAS project: `@praisetechzw/interest-loop`
 ```bash
 npx expo install --check
 npx expo-doctor
+npm run env:check
 npm run typecheck && npm run lint && npm test
 npx expo export --platform web
 
@@ -32,6 +33,8 @@ Find artifacts at https://expo.dev/accounts/praisetechzw/projects/interest-loop/
 - [ ] Install the preview build on a physical Android device (Expo Orbit or internal link).
 - [ ] Home loads with interests and at least one feed section.
 - [ ] News/Movies/Discover fetch live data or show a clear error/empty state with retry.
+- [ ] Settings shows all three sources as Connected.
+- [ ] Publish docs/PRIVACY.md at a public URL and set EXPO_PUBLIC_PRIVACY_URL.
 - [ ] Saving an article works while offline, and it appears under Saved after a restart.
 - [ ] Learning Paths progress survives a restart.
 - [ ] Time Capsule copies/shares text; reflection text is absent unless toggled.

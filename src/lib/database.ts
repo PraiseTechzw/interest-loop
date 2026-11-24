@@ -407,3 +407,15 @@ export async function setLearningProgress(
 export async function resetLearningProgress(db: Database, prefix: string): Promise<void> {
   await db.runAsync('DELETE FROM learning_progress WHERE item_key LIKE ?', [`${prefix}%`]);
 }
+
+/** Clears user content but keeps selected interests. Used by Settings → Clear local data. */
+export async function clearUserData(db: Database): Promise<void> {
+  await db.withTransactionAsync(async () => {
+    await db.runAsync('DELETE FROM saved_articles');
+    await db.runAsync('DELETE FROM saved_movies');
+    await db.runAsync('DELETE FROM saved_discovery');
+    await db.runAsync('DELETE FROM coach_responses');
+    await db.runAsync('DELETE FROM learning_progress');
+    await db.runAsync('DELETE FROM mindset_prompts');
+  });
+}

@@ -10,6 +10,7 @@
     "lint": "expo lint",
     "typecheck": "tsc --noEmit",
     "export:web": "expo export --platform web",
+    "env:check": "node scripts/check-env.mjs",
     "test": "jest --runInBand",
     "test:watch": "jest --watch"
   },

@@ -128,6 +128,20 @@ export default function ProfileScreen() {
             <Ionicons name="hourglass-outline" size={20} color={theme.accent} />
             <Text style={[styles.toolText, { color: theme.text }]}>Time Capsule</Text>
           </Pressable>
+          <Pressable
+            onPress={() => router.push('/settings')}
+            accessibilityRole="button"
+            style={[styles.tool, { backgroundColor: theme.surface, borderColor: theme.border }]}>
+            <Ionicons name="settings-outline" size={20} color={theme.textMuted} />
+            <Text style={[styles.toolText, { color: theme.text }]}>Settings</Text>
+          </Pressable>
+          <Pressable
+            onPress={() => router.push('/privacy')}
+            accessibilityRole="button"
+            style={[styles.tool, { backgroundColor: theme.surface, borderColor: theme.border }]}>
+            <Ionicons name="lock-closed-outline" size={20} color={theme.success} />
+            <Text style={[styles.toolText, { color: theme.text }]}>Privacy</Text>
+          </Pressable>
         </View>
 
         <SectionHeader title="Data sources" />
