@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+### Added
+- `npm run env:check` preflight script and in-app connection status on the new Settings screen.
+- Settings, Credits and Privacy screens; publishable privacy policy at `docs/PRIVACY.md`.
+- Clear-local-data action with confirmation.
+
 ## 1.2.0 — Live-only release (24 Nov 2026)
 
 ### Changed

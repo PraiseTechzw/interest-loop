@@ -5,6 +5,7 @@ import { useMemo } from 'react';
 import type { InterestId } from '@/constants/interests';
 import {
   addMindsetPrompt,
+  clearUserData,
   deleteCoachResponse,
   deleteMindsetPrompt,
   getCoachResponses,
@@ -305,6 +306,28 @@ export function useDeleteMindsetPrompt() {
       await Promise.all([
         client.invalidateQueries({ queryKey: keys.mindsetPrompts }),
         client.invalidateQueries({ queryKey: keys.coachResponses }),
+      ]);
+    },
+  });
+}
+
+// -- Local data management ---------------------------------------------------
+
+export function useClearUserData() {
+  const db = useDb();
+  const client = useQueryClient();
+
+  return useMutation({
+    mutationFn: async () => clearUserData(db),
+    onSuccess: async () => {
+      await Promise.all([
+        client.invalidateQueries({ queryKey: keys.savedArticles }),
+        client.invalidateQueries({ queryKey: keys.savedMovies }),
+        client.invalidateQueries({ queryKey: keys.savedDiscovery }),
+        client.invalidateQueries({ queryKey: keys.coachResponses }),
+        client.invalidateQueries({ queryKey: keys.mindsetPrompts }),
+        client.invalidateQueries({ queryKey: keys.learningProgress }),
+        client.invalidateQueries({ queryKey: keys.activity }),
       ]);
     },
   });

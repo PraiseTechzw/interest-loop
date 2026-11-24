@@ -39,6 +39,7 @@ InterestLoop began as a non-compiling prototype with phantom APIs, undeclared de
 | **Learning Paths** (new) — ordered steps from saved content, progress in SQLite | ✅ |
 | **Time Capsule** (new) — dated shareable snapshot, reflection text opt-in | ✅ |
 | Dark mode, accessibility, loading/error/empty states | ✅ |
+| Settings, Credits and Privacy screens; env preflight script | ✅ |
 | **Unit + E2E tests** (new) | ✅ |
 
 ---

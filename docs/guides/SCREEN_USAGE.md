@@ -44,3 +44,12 @@ Open from Profile (**Time Capsule**) or the Home card. It previews a dated snaps
 ## Saved for later
 - Switch between Articles, Movies and Finds.
 - Open a link or remove an item. Everything here is stored in SQLite on the device.
+
+## Settings
+Shows whether NewsAPI, FreeNewsApi and TMDB keys are available to the build, the app version and platform, links to Credits and Privacy, and a **Clear local data** action with confirmation. Interests are kept when data is cleared.
+
+## Credits
+Lists and links the services used for data: TMDB, NewsAPI, FreeNewsApi, Hacker News, Reddit and Expo. Includes the TMDB attribution required by its API terms.
+
+## Privacy
+A plain-language summary of what is stored locally, what is sent to third-party APIs, permissions, and your controls. If `EXPO_PUBLIC_PRIVACY_URL` is configured, it also links to the hosted policy.

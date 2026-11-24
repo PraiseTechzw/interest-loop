@@ -52,6 +52,9 @@ export default function RootLayout() {
               <Stack.Screen name="saved" options={{ title: 'Saved for later' }} />
               <Stack.Screen name="learning" options={{ title: 'Learning Paths' }} />
               <Stack.Screen name="capsule" options={{ title: 'Time Capsule' }} />
+              <Stack.Screen name="settings" options={{ title: 'Settings' }} />
+              <Stack.Screen name="credits" options={{ title: 'Credits' }} />
+              <Stack.Screen name="privacy" options={{ title: 'Privacy' }} />
             </Stack>
           </SQLiteProvider>
         </Suspense>
