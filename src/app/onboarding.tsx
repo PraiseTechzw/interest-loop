@@ -1,11 +1,17 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import { Pill, Screen, ScreenContent, ScreenHeader } from '@/components/ui';
+import {
+  LoadingState,
+  Pill,
+  Screen,
+  ScreenContent,
+  ScreenHeader,
+} from '@/components/ui';
 import { INTERESTS, type InterestId } from '@/constants/interests';
-import { useSetInterest, useSetSetting, useInterests } from '@/hooks/use-app-data';
+import { useInterests, useSetInterest, useSetSetting } from '@/hooks/use-app-data';
 import { radius, space, useTheme } from '@/theme/tokens';
 
 export default function OnboardingScreen() {
@@ -13,17 +19,28 @@ export default function OnboardingScreen() {
   const interests = useInterests();
   const setInterest = useSetInterest();
   const setSetting = useSetSetting();
-  const [selected, setSelected] = useState<InterestId[]>(interests.data ?? []);
+  const [chosen, setChosen] = useState<InterestId[] | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [failed, setFailed] = useState(false);
 
-  const canContinue = useMemo(() => selected.length >= 2, [selected.length]);
+  // Fall back to the stored interests until the user makes a choice, so a
+  // slow database read never shows "0 selected" for an existing selection.
+  const selected = chosen ?? interests.data ?? [];
+  const canContinue = selected.length >= 2;
+  const working = busy || setInterest.isPending || setSetting.isPending;
 
   function toggle(id: InterestId) {
-    setSelected((current) =>
-      current.includes(id) ? current.filter((item) => item !== id) : [...current, id],
-    );
+    setChosen((current) => {
+      const base = current ?? interests.data ?? [];
+      return base.includes(id) ? base.filter((item) => item !== id) : [...base, id];
+    });
+    setFailed(false);
   }
 
-  function finish() {
+
+  async function finish() {
+    setBusy(true);
+    setFailed(false);
     const original = new Set(interests.data ?? []);
     const next = new Set(selected);
     const operations = INTERESTS.filter(
@@ -32,65 +49,98 @@ export default function OnboardingScreen() {
       setInterest.mutateAsync({ tag: interest.id, selected: next.has(interest.id) }),
     );
 
-    Promise.all([
-      ...operations,
-      setSetting.mutateAsync({ key: 'onboarded', value: '1' }),
-      setSetting.mutateAsync({ key: 'profile_name', value: '' }),
-    ]).then(() => router.replace('/'));
+    try {
+      await Promise.all([
+        ...operations,
+        setSetting.mutateAsync({ key: 'onboarded', value: '1' }),
+      ]);
+      router.replace('/');
+    } catch {
+      setFailed(true);
+      setBusy(false);
+    }
   }
 
   return (
-    <Screen>
-      <ScrollView>
-        <ScreenContent>
-          <View style={[styles.hero, { backgroundColor: theme.primary }]}>
-            <Ionicons name="sparkles" size={28} color={theme.onPrimary} />
-            <Text style={[styles.heroTitle, { color: theme.onPrimary }]}>Welcome to InterestLoop</Text>
-            <Text style={[styles.heroText, { color: theme.onPrimary }]}>
-              Pick at least two topics. We’ll use them to shape your news, movies, discovery feed and knowledge graph.
-            </Text>
-          </View>
+    <Screen edges={['top', 'bottom']}>
+      <View style={styles.flex}>
+        <ScrollView contentInsetAdjustmentBehavior="automatic">
+          <ScreenContent>
+            <View style={[styles.hero, { backgroundColor: theme.primary }]}>
+              <Ionicons name="sparkles" size={28} color={theme.onPrimary} />
+              <Text style={[styles.heroTitle, { color: theme.onPrimary }]}>
+                Welcome to InterestLoop
+              </Text>
+              <Text style={[styles.heroText, { color: theme.onPrimary }]}>
+                Pick at least two topics. We’ll use them to shape your news, movies, discovery feed
+                and knowledge graph.
+              </Text>
+            </View>
 
-          <ScreenHeader title="Choose your interests" subtitle="You can change these any time in Profile." />
-          <View style={styles.chips}>
-            {INTERESTS.map((interest) => (
-              <Pill
-                key={interest.id}
-                label={interest.label}
-                icon={interest.icon}
-                color={interest.color}
-                selected={selected.includes(interest.id)}
-                onPress={() => toggle(interest.id)}
-              />
-            ))}
-          </View>
+            {interests.isLoading ? (
+              <LoadingState label="Loading your interests…" />
+            ) : (
+              <>
+                <ScreenHeader
+                  title="Choose your interests"
+                  subtitle="You can change these any time in Profile."
+                />
+                <View style={styles.chips}>
+                  {INTERESTS.map((interest) => (
+                    <Pill
+                      key={interest.id}
+                      label={interest.label}
+                      icon={interest.icon}
+                      color={interest.color}
+                      selected={selected.includes(interest.id)}
+                      onPress={() => toggle(interest.id)}
+                    />
+                  ))}
+                </View>
 
-          <Text style={[styles.count, { color: theme.textMuted }]}>
-            {selected.length} selected · minimum 2
-          </Text>
+                <Text style={[styles.count, { color: theme.textMuted }]}>
+                  {selected.length} selected · minimum 2
+                </Text>
 
+                {failed ? (
+                  <Text style={[styles.error, { color: theme.danger }]}>
+                    Could not save your choices. Please try again.
+                  </Text>
+                ) : null}
+              </>
+            )}
+          </ScreenContent>
+        </ScrollView>
+
+        <View style={[styles.footer, { backgroundColor: theme.background, borderColor: theme.border }]}>
           <Pressable
             accessibilityRole="button"
-            disabled={!canContinue || setInterest.isPending || setSetting.isPending}
+            disabled={!canContinue || working || interests.isLoading}
             onPress={finish}
-            style={[styles.button, { backgroundColor: theme.primary }, (!canContinue || setInterest.isPending || setSetting.isPending) && { opacity: 0.5 }]}>
-            <Text style={{ color: theme.onPrimary, fontWeight: '700' }}>Start my loop</Text>
+            style={[
+              styles.button,
+              { backgroundColor: theme.primary },
+              (!canContinue || working || interests.isLoading) && { opacity: 0.5 },
+            ]}>
+            <Text style={[styles.buttonLabel, { color: theme.onPrimary }]}>
+              {working ? 'Saving…' : 'Start my loop'}
+            </Text>
           </Pressable>
-          <Pressable accessibilityRole="button" onPress={() => router.replace('/')} style={styles.skip}>
-            <Text style={{ color: theme.textMuted }}>Skip for now</Text>
-          </Pressable>
-        </ScreenContent>
-      </ScrollView>
+        </View>
+      </View>
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
   hero: { borderRadius: radius.lg, padding: space.xl, marginBottom: space.xl },
-  heroTitle: { color: '#fff', fontSize: 24, fontWeight: '800', marginTop: 12 },
-  heroText: { color: '#fff', fontSize: 14, lineHeight: 20, marginTop: 8 },
+  heroTitle: { fontSize: 24, fontWeight: '800', marginTop: 12 },
+  heroText: { fontSize: 14, lineHeight: 20, marginTop: 8 },
   chips: { flexDirection: 'row', flexWrap: 'wrap' },
   count: { fontSize: 12, marginTop: space.lg, textAlign: 'center' },
-  button: { borderRadius: radius.md, paddingVertical: 14, alignItems: 'center', marginTop: space.lg },
-  skip: { paddingVertical: 14, alignItems: 'center' },
+  error: { fontSize: 12, textAlign: 'center', marginTop: space.md },
+  flex: { flex: 1 },
+  footer: { borderTopWidth: 1, paddingHorizontal: space.lg, paddingTop: space.md, paddingBottom: space.md },
+  button: { borderRadius: radius.md, paddingVertical: 16, alignItems: 'center' },
+  buttonLabel: { fontWeight: '700', fontSize: 16 },
 });

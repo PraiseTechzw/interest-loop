@@ -39,10 +39,10 @@ export default function MoviesScreen() {
     return filter === 'all' ? items : items.filter((movie) => movie.interest === filter);
   }, [movies.data, filter]);
 
-  if (interests.isLoading) return <Screen><LoadingState label="Loading your interests…" /></Screen>;
+  if (interests.isLoading) return <Screen edges={['top']}><LoadingState label="Loading your interests…" /></Screen>;
 
   return (
-    <Screen>
+    <Screen edges={['top']}>
       <ScrollView
         refreshControl={
           <RefreshControl

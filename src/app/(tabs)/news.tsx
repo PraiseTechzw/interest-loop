@@ -41,10 +41,10 @@ export default function NewsScreen() {
     return filter === 'all' ? items : items.filter((item) => item.interest === filter);
   }, [news.data, filter]);
 
-  if (interests.isLoading) return <Screen><LoadingState label="Loading your interests…" /></Screen>;
+  if (interests.isLoading) return <Screen edges={['top']}><LoadingState label="Loading your interests…" /></Screen>;
 
   return (
-    <Screen>
+    <Screen edges={['top']}>
       <ScrollView
         refreshControl={
           <RefreshControl

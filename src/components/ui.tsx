@@ -9,12 +9,39 @@ import {
   type StyleProp,
   type ViewStyle,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { radius, space, useTheme } from '@/theme/tokens';
 
-export function Screen({ children }: { children: ReactNode }) {
+export type SafeAreaEdge = 'top' | 'bottom';
+
+/**
+ * Root container for a route. Screens with a native Stack header already get
+ * the top inset from the header; headerless screens (tabs, onboarding) must
+ * opt in with `edges` so their content clears the status bar / system bars.
+ */
+export function Screen({
+  children,
+  edges = [],
+}: {
+  children: ReactNode;
+  edges?: SafeAreaEdge[];
+}) {
   const theme = useTheme();
-  return <View style={[styles.screen, { backgroundColor: theme.background }]}>{children}</View>;
+  const insets = useSafeAreaInsets();
+  return (
+    <View
+      style={[
+        styles.screen,
+        {
+          backgroundColor: theme.background,
+          paddingTop: edges.includes('top') ? insets.top : 0,
+          paddingBottom: edges.includes('bottom') ? insets.bottom : 0,
+        },
+      ]}>
+      {children}
+    </View>
+  );
 }
 
 export function ScreenContent({

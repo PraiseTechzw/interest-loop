@@ -43,7 +43,7 @@ export default function DiscoverScreen() {
   }, [feed.data, filter]);
 
   return (
-    <Screen>
+    <Screen edges={['top']}>
       <ScrollView
         refreshControl={
           <RefreshControl
