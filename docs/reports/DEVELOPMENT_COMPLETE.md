@@ -18,7 +18,7 @@
 | Profile & Saved | ✅ | 8 interest toggles, counts, offline library with removal |
 | UX | ✅ | Light/dark tokens, a11y labels, loading/error/empty/content states |
 | Tests | ✅ | 27 Jest unit tests + Maestro E2E flow, wired into CI |
-| Beta prep | ✅ | 1.1.0 version, EAS preview profile, beta checklist, linked Expo project |
+| Beta prep | ✅ | 1.2.0 version, EAS preview profile, beta checklist, linked Expo project |
 | Documentation | ✅ | README, CONTRIBUTING, SCREEN_USAGE, roadmap, changelog, beta checklist, logs |
 
 ## Verification evidence
