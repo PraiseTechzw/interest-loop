@@ -72,13 +72,16 @@ export function MovieCard({
 }) {
   const theme = useTheme();
   const interest = INTEREST_BY_ID[movie.interest];
+  const posterSource =
+    movie.posterSource ??
+    (movie.posterPath ? { uri: `https://image.tmdb.org/t/p/w342${movie.posterPath}` } : null);
 
   return (
     <Card>
       <View style={styles.row}>
-        {movie.posterPath ? (
+        {posterSource ? (
           <Image
-            source={{ uri: `https://image.tmdb.org/t/p/w342${movie.posterPath}` }}
+            source={posterSource}
             style={[styles.poster, compact && styles.posterSmall]}
             contentFit="cover"
           />
@@ -109,6 +112,18 @@ export function MovieCard({
               {movie.overview || 'No synopsis available.'}
             </Text>
           ) : null}
+          <Text
+            accessibilityRole="link"
+            onPress={() =>
+              openExternalUrl(
+                `https://www.youtube.com/results?search_query=${encodeURIComponent(
+                  `${movie.title} official trailer`,
+                )}`,
+              )
+            }
+            style={[styles.trailer, { color: theme.primary }]}>
+            ▶ Watch trailer
+          </Text>
         </View>
 
         <SaveButton saved={saved} busy={saving} onPress={onToggleSave} />
@@ -169,6 +184,7 @@ const styles = StyleSheet.create({
   title: { fontSize: 16, fontWeight: '700', lineHeight: 22, marginVertical: 5 },
   meta: { fontSize: 12, fontWeight: '600' },
   description: { fontSize: 13, lineHeight: 19, marginTop: 6 },
+  trailer: { fontSize: 12, fontWeight: '700', marginTop: 8 },
   link: { fontSize: 13, fontWeight: '700', marginTop: 10 },
   poster: { width: 76, height: 112, borderRadius: radius.sm },
   posterSmall: { width: 56, height: 84 },

@@ -21,7 +21,19 @@
       "expo-status-bar",
       "expo-image",
       "expo-web-browser",
-      "expo-font"
+      "expo-font",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#5B4FE9",
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 200,
+          "dark": {
+            "backgroundColor": "#0E1020",
+            "image": "./assets/splash-icon.png"
+          }
+        }
+      ]
     ],
     "ios": {
       "supportsTablet": true,

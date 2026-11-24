@@ -3,6 +3,9 @@
 ## Unreleased
 
 ### Added
+- **Branded app assets** — infinity-loop identity wired into the app icon, Android adaptive icons, splash screen, favicon and GitHub social preview. Original artwork is preserved in `assets/source/`.
+- **Movie thumbnails** — bundled typographic poster cards for the ten curated demo movies, so the Movies screen shows artwork offline as well as with TMDB posters when a key is configured.
+- **Watch trailer** action on movie cards, opening a YouTube search for the official trailer.
 - **FreeNewsApi source** — news headlines are merged from NewsAPI and FreeNewsApi when both keys are configured, with duplicate removal, newest-first ordering and rate-limited detail requests. Works with either key alone; falls back to curated samples when neither is configured.
 - Unit tests for the new adapter and source merging (8 new tests, 35 total).
 
