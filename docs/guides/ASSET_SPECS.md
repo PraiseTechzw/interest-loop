@@ -2,7 +2,7 @@
 
 Use this when supplying your own artwork for InterestLoop. Every asset below has an exact filename, dimensions, format, safe area and a ready-to-use prompt.
 
-> The files currently in `assets/` are generic template placeholders from the initial commit (a blue "A" and grid circles). **Replace all of them.** Their sizes are correct, but they are not InterestLoop branding.
+> The original generic template placeholders (a blue "A" and grid circles) have been replaced with the supplied infinity-loop identity. Original high-resolution artwork is preserved in `assets/source/`. Screenshots are still to be supplied by the project owner; see §3.3–3.4 for their exact specs.
 
 ---
 
@@ -205,6 +205,17 @@ Prompt suffix for all:
 > Same InterestLoop screen as the Play screenshot, but composed for the target device aspect ratio. Keep all content away from the top status bar and bottom home indicator. No device frame, no captions outside the app UI.
 
 ---
+
+### 3.5 Demo movie posters — `assets/posters/<tmdb-id>.png`
+
+| Property | Value |
+| --- | --- |
+| Dimensions | **300 × 450 px** (2:3 poster ratio) |
+| Format | PNG |
+| Count | 10 (one per curated demo movie) |
+| Purpose | Offline thumbnail shown when no TMDB API key is configured; real TMDB posters replace these in live mode |
+
+These are brand-safe typographic placeholders (colour field + title), not copyrighted movie artwork. If you later want real posters, keep the same filenames and dimensions.
 
 ## 4. Optional assets
 

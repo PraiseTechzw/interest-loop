@@ -1,3 +1,5 @@
+import type { ImageSource as ExpoImageSource } from 'expo-image';
+
 import type { InterestId } from '@/constants/interests';
 
 export type NewsArticle = {
@@ -16,6 +18,7 @@ export type Movie = {
   title: string;
   overview: string;
   posterPath: string | null;
+  posterSource?: ExpoImageSource | number;
   rating: number;
   voteCount: number;
   genreIds: number[];
