@@ -31,7 +31,7 @@ You should receive an acknowledgement within **3 business days** and a status up
 
 ## Out of scope
 
-- Missing API keys (the app intentionally falls back to labelled sample data)
+- Missing API keys (the app shows an empty state with setup guidance)
 - Rate limits imposed by third-party APIs (NewsAPI, Reddit)
 - Social engineering, physical attacks, or issues requiring already-compromised devices
 - Reports generated solely by automated scanners without a demonstrated impact

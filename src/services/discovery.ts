@@ -1,4 +1,3 @@
-import { DEMO_DISCOVERY } from '@/data/demo';
 import { fetchJson } from '@/lib/api';
 import type { DiscoveryItem, FeedResult } from '@/types/models';
 
@@ -117,9 +116,8 @@ export async function fetchDiscovery(): Promise<FeedResult<DiscoveryItem>> {
 
   if (live.length === 0) {
     return {
-      items: rankDiscovery(DEMO_DISCOVERY),
-      isDemo: true,
-      notice: 'Live feeds unavailable — showing curated finds.',
+      items: [],
+      error: 'Live discovery feeds could not be loaded. Check your connection and try again.',
     };
   }
 
@@ -130,5 +128,5 @@ export async function fetchDiscovery(): Promise<FeedResult<DiscoveryItem>> {
     return true;
   });
 
-  return { items: rankDiscovery(unique).slice(0, 15), isDemo: false };
+  return { items: rankDiscovery(unique).slice(0, 15) };
 }

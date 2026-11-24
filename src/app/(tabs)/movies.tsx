@@ -3,7 +3,7 @@ import { RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native
 
 import { MovieCard } from '@/components/content-cards';
 import {
-  DemoBanner,
+  NoticeBanner,
   EmptyState,
   ErrorState,
   LoadingState,
@@ -67,17 +67,25 @@ export default function MoviesScreen() {
             </View>
           ) : null}
 
-          {movies.data?.isDemo ? <DemoBanner message={movies.data.notice ?? ''} /> : null}
+          {movies.data?.notice && movies.data.items.length > 0 ? (
+            <NoticeBanner message={movies.data.notice} />
+          ) : null}
 
           {movies.isLoading ? (
             <LoadingState label="Picking the good ones…" />
-          ) : movies.isError ? (
-            <ErrorState message="Could not load movies." onRetry={() => movies.refetch()} />
+          ) : movies.isError || movies.data?.error ? (
+            <ErrorState
+              message={movies.data?.error ?? 'Could not load movies.'}
+              onRetry={() => movies.refetch()}
+            />
           ) : visible.length === 0 ? (
             <EmptyState
               icon="film-outline"
-              title="No matches yet"
-              message="Try another genre or add more interests in your profile."
+              title="No movies available"
+              message={
+                movies.data?.notice ??
+                'No live movie source is configured. Add EXPO_PUBLIC_TMDB_KEY to .env.'
+              }
             />
           ) : (
             visible.map((movie) => (

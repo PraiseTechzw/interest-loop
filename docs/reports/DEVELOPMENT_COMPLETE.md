@@ -8,12 +8,12 @@
 | --- | --- | --- |
 | Project foundation | ✅ | SDK 58 dependencies resolved via `expo install`; Expo Router with `src/app`; ESLint flat config; tsconfig alias; Metro WASM/COOP config; EAS profiles |
 | Data layer | ✅ | Versioned SQLite schema, parameterized CRUD for interests, saved articles/movies/finds, coach responses with spaced repetition |
-| News | ✅ | NewsAPI adapter + curated fallback, interest filtering, offline saving |
-| Movies | ✅ | TMDB genre discovery + curated fallback, offline saving |
+| News | ✅ | NewsAPI + FreeNewsApi adapters (live only), interest filtering, offline saving |
+| Movies | ✅ | TMDB genre discovery (live only), real posters, trailer links, offline saving |
 | Discovery | ✅ | Live Hacker News + Reddit, score/recency ranking, source filters |
 | Knowledge Graph | ✅ | SVG graph, pan/zoom, node details, relationship map |
 | Mindset Coach | ✅ | 4 prompt categories, saved reflections, Again/Got-it scheduling |
-| Learning Paths | ✅ | Ordered paths from saved content, SQLite progress, sample paths, reset control |
+| Learning Paths | ✅ | Ordered paths from saved content, SQLite progress, reset control |
 | Time Capsule | ✅ | Dated shareable snapshot, privacy-first reflection toggle |
 | Profile & Saved | ✅ | 8 interest toggles, counts, offline library with removal |
 | UX | ✅ | Light/dark tokens, a11y labels, loading/error/empty/content states |
@@ -34,8 +34,8 @@
 
 ## Known limitations
 
-- NewsAPI's free developer plan restricts requests to localhost; on a physical device it may fall back to sample data. Add a suitable plan key or use the bundled sample mode.
-- Reddit occasionally rate-limits unauthenticated JSON requests; the app silently falls back to Hacker News/curated items.
+- NewsAPI's free developer plan restricts requests to localhost; on a physical device the News screen will show an error unless a plan key is used.
+- Reddit occasionally rate-limits unauthenticated JSON requests; that source is skipped and Hacker News results are used.
 - API keys are client-side (`EXPO_PUBLIC_*`) by design for these read-only public APIs; never put secret credentials there.
 
 ## Next (beyond this delivery)

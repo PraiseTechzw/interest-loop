@@ -6,6 +6,7 @@ export const keys = {
   savedMovies: ['saved-movies'] as const,
   savedDiscovery: ['saved-discovery'] as const,
   coachResponses: ['coach-responses'] as const,
+  mindsetPrompts: ['mindset-prompts'] as const,
   activity: ['interest-activity'] as const,
   learningProgress: ['learning-progress'] as const,
   news: (ids: InterestId[]) => ['news', ids] as const,

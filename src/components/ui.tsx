@@ -196,7 +196,7 @@ export function SaveButton({
   );
 }
 
-export function DemoBanner({ message }: { message: string }) {
+export function NoticeBanner({ message }: { message: string }) {
   const theme = useTheme();
   return (
     <View

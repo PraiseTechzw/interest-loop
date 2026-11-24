@@ -28,13 +28,13 @@ Scan the QR code with Expo Go, press `a` / `i` for an emulator/simulator, or `w`
 
 | Variable | Source | Without it |
 | --- | --- | --- |
-| `EXPO_PUBLIC_NEWSAPI_KEY` | https://newsapi.org/ | Curated sample news is shown |
+| `EXPO_PUBLIC_NEWSAPI_KEY` | https://newsapi.org/ | No news is shown until a key is set |
 | `EXPO_PUBLIC_FREENEWS_KEY` | https://freenewsapi.io/ | That source is skipped; other live sources still work |
-| `EXPO_PUBLIC_TMDB_KEY` | https://www.themoviedb.org/settings/api | Curated sample movies are shown |
+| `EXPO_PUBLIC_TMDB_KEY` | https://www.themoviedb.org/settings/api | No movies are shown until a key is set |
 
 News headlines are merged from NewsAPI and FreeNewsApi when both keys are set. FreeNewsApi's free tier allows 5,000 requests/day at 2 requests/second; the adapter paces its calls to stay within that limit and fetches article details (link, image, summary) for the top stories.
 
-Discovery uses the public Hacker News and Reddit JSON APIs — no key required. If those requests fail, curated finds are shown. The UI always labels sample data with a banner.
+Discovery uses the public Hacker News and Reddit JSON APIs — no key required. If those requests fail, the screen shows an error with a retry action. No bundled sample content is included.
 
 Restart the dev server after changing `.env`.
 
@@ -43,13 +43,13 @@ Restart the dev server after changing `.env`.
 ## Features
 
 - **Home** — your interests at a glance, top stories, movie picks and a hidden gem, with quick links to Coach, Graph and Saved.
-- **News** — interest-filtered stories, saved offline, pull-to-refresh, demo/live indicator.
+- **News** — interest-filtered live stories, saved offline, pull-to-refresh, connection status in Profile.
 - **Movies** — TMDB genre recommendations mapped from your interests, save for later, pull-to-refresh.
 - **Discover** — Hacker News + Reddit stories ranked by score/recency, source filters, save finds.
 - **Profile** — toggle all 8 interest tags; saved counts; data-source status. Interest changes update the news, movie and graph data immediately.
 - **Knowledge Graph** — SVG graph of your interests with pan, zoom, node details and relationships derived from saved activity.
 - **Mindset Coach** — first-principles, inversion, second-order and Occam prompts; saved reflections with simplified spaced repetition (Again / Got it).
-- **Learning Paths** — guided routes built from your saved content with per-step progress (sample paths when you have not saved anything yet).
+- **Learning Paths** — guided routes built from your saved content with per-step progress.
 - **Time Capsule** — a dated, shareable snapshot of your interests and progress. Reflection text is opt-in and off by default.
 - **Saved** — all offline articles, movies and finds in one place with removal controls.
 - Dark mode follows the system. Interactive controls have accessibility labels and 38–44px touch targets.
@@ -74,7 +74,6 @@ src/
 │   └── _layout.tsx         # Providers, SQLite, Stack
 ├── components/             # Reusable UI and content cards
 ├── constants/              # Interest catalogue and relationships
-├── data/                   # Curated offline/demo content
 ├── hooks/                  # TanStack Query hooks
 ├── lib/                    # Database, API, graph, formatting, links
 ├── services/               # News, TMDB, Discovery adapters
@@ -106,7 +105,7 @@ Checks run in CI on every PR: dependency validation, Expo Doctor, typecheck, lin
 
 `src/lib/database.ts` owns the SQLite schema (versioned with `PRAGMA user_version`) and all parameterized queries. Tables: `user_interests`, `saved_articles`, `saved_movies`, `saved_discovery`, `coach_responses`.
 
-All remote feeds degrade to bundled curated data when offline or unconfigured, so every screen always has a useful four-state experience: loading, error, empty, content.
+All remote feeds require live sources. When a key is missing or a request fails, screens show a clear empty or error state with setup guidance and a retry action — no fabricated content is bundled.
 
 ---
 

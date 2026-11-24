@@ -7,7 +7,7 @@
 **Decisions made**
 - Scope: deliver all roadmap features through Phase 2 plus dark mode/a11y; leave learning paths, time-capsule and beta distribution as clearly documented follow-ups.
 - Architecture: one source of truth for routing in `src/app/`, one SQLite layer, one query-key registry, one design-token file. No parallel implementations.
-- Risk control: every remote adapter degrades to curated data, so the app is never blank and a missing key cannot block QA.
+- Risk control: every remote adapter returns honest empty/error states; no fabricated content is bundled.
 - Quality gate: dependency check, doctor, typecheck, lint, web export and browser smoke test all required before merge.
 - Delivery: atomic commits on `feat/complete-app`, one reviewed PR linked to issues #1–#3, squash merge into `main`.
 
@@ -26,7 +26,7 @@
 
 **Decisions**
 - Created real tracking issues #6–#8 (the old report referenced numbers that did not exist).
-- Learning paths reuse saved content rather than adding a second content store; progress is a tiny key-value table. Sample paths keep the feature useful on first launch.
+- Learning paths reuse saved content rather than adding a second content store; progress is a tiny key-value table. Empty states guide the user instead of generating sample content.
 - Time capsule excludes reflection text by default; sharing is explicit and local (clipboard/native share sheet) — no server, no account.
 - Removed EAS secret references from preview profiles so beta builds work without configured keys.
 - Delegated the test suite to a specialist subagent with strict file boundaries to avoid source conflicts.

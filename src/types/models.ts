@@ -1,5 +1,3 @@
-import type { ImageSource as ExpoImageSource } from 'expo-image';
-
 import type { InterestId } from '@/constants/interests';
 
 export type NewsArticle = {
@@ -18,7 +16,6 @@ export type Movie = {
   title: string;
   overview: string;
   posterPath: string | null;
-  posterSource?: ExpoImageSource | number;
   rating: number;
   voteCount: number;
   genreIds: number[];
@@ -40,8 +37,8 @@ export type DiscoveryItem = {
 
 export type FeedResult<T> = {
   items: T[];
-  isDemo: boolean;
   notice?: string;
+  error?: string;
 };
 
 export type PromptCategory = 'first-principles' | 'inversion' | 'second-order' | 'occam';
@@ -51,7 +48,7 @@ export type MindsetPrompt = {
   prompt: string;
   category: PromptCategory;
   hint: string;
-  interest: InterestId;
+  interest?: InterestId;
 };
 
 export type CoachResponse = {

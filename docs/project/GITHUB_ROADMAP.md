@@ -39,7 +39,6 @@ See [README.md](../../README.md) for the full guide and [CONTRIBUTING.md](../../
 src/app/         routes (Group tabs + pushed stack screens)
 src/components/  reusable UI
 src/constants/   interest catalogue
-src/data/        curated fallback content
 src/hooks/       TanStack Query hooks
 src/lib/         database, api wrapper, graph, links, formatting
 src/services/    news, movies, discovery
@@ -47,4 +46,4 @@ src/theme/       design tokens
 src/types/       shared models
 ```
 
-TanStack Query handles caching and refetching; `expo-sqlite` handles persistence; remote adapters always return `FeedResult<T>` with an `isDemo`/`notice` pair so screens can show sample content honestly.
+TanStack Query handles caching and refetching; `expo-sqlite` handles persistence; remote adapters return `FeedResult<T>` with `items`, `notice` and optional `error`. Feeds are live-only — no bundled demo content.

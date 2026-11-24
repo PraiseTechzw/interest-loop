@@ -72,9 +72,9 @@ export function MovieCard({
 }) {
   const theme = useTheme();
   const interest = INTEREST_BY_ID[movie.interest];
-  const posterSource =
-    movie.posterSource ??
-    (movie.posterPath ? { uri: `https://image.tmdb.org/t/p/w342${movie.posterPath}` } : null);
+  const posterSource = movie.posterPath
+    ? { uri: `https://image.tmdb.org/t/p/w342${movie.posterPath}` }
+    : null;
 
   return (
     <Card>

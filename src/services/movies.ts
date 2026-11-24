@@ -1,5 +1,4 @@
 import { INTEREST_BY_ID, type InterestId } from '@/constants/interests';
-import { DEMO_MOVIES } from '@/data/demo';
 import { buildUrl, fetchJson } from '@/lib/api';
 import type { FeedResult, Movie } from '@/types/models';
 
@@ -16,10 +15,6 @@ type TmdbResponse = {
   }[];
 };
 
-function demoFor(interests: InterestId[]): Movie[] {
-  return DEMO_MOVIES.filter((movie) => interests.includes(movie.interest));
-}
-
 function pickInterest(genreIds: number[], interests: InterestId[]): InterestId {
   return (
     interests.find((id) =>
@@ -33,9 +28,8 @@ export async function fetchMovies(interests: InterestId[]): Promise<FeedResult<M
 
   if (!apiKey || interests.length === 0) {
     return {
-      items: demoFor(interests),
-      isDemo: true,
-      notice: 'Sample picks — add EXPO_PUBLIC_TMDB_KEY for live recommendations.',
+      items: [],
+      notice: 'No movie source connected. Add EXPO_PUBLIC_TMDB_KEY to .env and restart the app.',
     };
   }
 
@@ -72,20 +66,12 @@ export async function fetchMovies(interests: InterestId[]): Promise<FeedResult<M
         }),
       );
 
-    if (items.length === 0) {
-      return {
-        items: demoFor(interests),
-        isDemo: true,
-        notice: 'No live matches — showing sample picks.',
-      };
-    }
-
-    return { items, isDemo: false };
-  } catch {
+    return { items };
+  } catch (error) {
     return {
-      items: demoFor(interests),
-      isDemo: true,
-      notice: 'Live recommendations unavailable — showing sample picks.',
+      items: [],
+      error: 'Live recommendations could not be loaded. Check your connection and API key.',
+      notice: error instanceof Error ? error.message : undefined,
     };
   }
 }

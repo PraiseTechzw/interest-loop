@@ -4,7 +4,7 @@ import * as Clipboard from 'expo-clipboard';
 import { useState } from 'react';
 import { Alert, Platform, Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 
-import { Card, DemoBanner, LoadingState, Screen, ScreenContent, ScreenHeader, SectionHeader } from '@/components/ui';
+import { Card, NoticeBanner, LoadingState, Screen, ScreenContent, ScreenHeader, SectionHeader } from '@/components/ui';
 import { INTEREST_BY_ID } from '@/constants/interests';
 import {
   useCoachResponses,
@@ -99,7 +99,7 @@ export default function CapsuleScreen() {
             subtitle="A dated snapshot of what you care about right now."
           />
 
-          <DemoBanner message="Privacy first: reflection text is never included unless you switch it on below." />
+          <NoticeBanner message="Privacy first: reflection text is never included unless you switch it on below." />
 
           <Card>
             <View style={styles.badge}>

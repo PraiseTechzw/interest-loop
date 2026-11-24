@@ -135,7 +135,7 @@ export default function ProfileScreen() {
           <View style={styles.sourceRow}>
             <Text style={[styles.rowTitle, { color: theme.text }]}>NewsAPI</Text>
             <Text style={{ color: newsKey ? theme.success : theme.textMuted, fontWeight: '700' }}>
-              {newsKey ? 'Live' : 'Sample data'}
+              {newsKey ? 'Live' : 'Not connected'}
             </Text>
           </View>
           <View style={styles.sourceRow}>

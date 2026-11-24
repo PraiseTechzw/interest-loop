@@ -3,7 +3,7 @@ import { RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 
 import { DiscoveryCard } from '@/components/content-cards';
 import {
-  DemoBanner,
+  NoticeBanner,
   EmptyState,
   ErrorState,
   LoadingState,
@@ -71,17 +71,22 @@ export default function DiscoverScreen() {
             ))}
           </View>
 
-          {feed.data?.isDemo ? <DemoBanner message={feed.data.notice ?? ''} /> : null}
+          {feed.data?.notice && feed.data.items.length > 0 ? (
+            <NoticeBanner message={feed.data.notice} />
+          ) : null}
 
           {feed.isLoading ? (
             <LoadingState label="Scanning the web…" />
-          ) : feed.isError ? (
-            <ErrorState message="Could not load the discovery feed." onRetry={() => feed.refetch()} />
+          ) : feed.isError || feed.data?.error ? (
+            <ErrorState
+              message={feed.data?.error ?? 'Could not load the discovery feed.'}
+              onRetry={() => feed.refetch()}
+            />
           ) : items.length === 0 ? (
             <EmptyState
               icon="compass-outline"
-              title="Nothing in this source"
-              message="Try another source to find something interesting."
+              title="No finds available"
+              message="Live feeds returned nothing. Pull to refresh and try again."
             />
           ) : (
             items.map((item) => (
