@@ -1,4 +1,5 @@
 import { router } from 'expo-router';
+import { useConnectivity } from '@/components/connectivity-provider';
 import { useMemo, useState } from 'react';
 import { RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 
@@ -8,22 +9,24 @@ import {
   EmptyState,
   ErrorState,
   LoadingState,
+  OfflineEmptyState,
   Pill,
   Screen,
   ScreenContent,
   ScreenHeader,
 } from '@/components/ui';
-import { INTEREST_BY_ID, type InterestId } from '@/constants/interests';
+import { getInterest } from '@/lib/interest-catalogue';
 import { useInterests, useMovieFeed, useSavedMovies, useToggleSavedMovie } from '@/hooks/use-app-data';
 import { space, useTheme } from '@/theme/tokens';
 
 export default function MoviesScreen() {
   const theme = useTheme();
+  const { isOffline } = useConnectivity();
   const interests = useInterests();
   const movies = useMovieFeed(interests.data ?? []);
   const saved = useSavedMovies();
   const toggleSave = useToggleSavedMovie();
-  const [filter, setFilter] = useState<InterestId | 'all'>('all');
+  const [filter, setFilter] = useState('all');
   const [pendingId, setPendingId] = useState<number | null>(null);
 
   const selected = interests.data ?? [];
@@ -69,7 +72,7 @@ export default function MoviesScreen() {
               {selected.map((id) => (
                 <Pill
                   key={id}
-                  label={INTEREST_BY_ID[id].short}
+                  label={getInterest(id).short}
                   selected={filter === id}
                   onPress={() => setFilter(id)}
                 />
@@ -84,10 +87,14 @@ export default function MoviesScreen() {
           {movies.isLoading ? (
             <LoadingState label="Picking the good ones…" />
           ) : movies.isError || movies.data?.error ? (
-            <ErrorState
-              message={movies.data?.error ?? 'Could not load movies.'}
-              onRetry={() => movies.refetch()}
-            />
+            isOffline ? (
+              <OfflineEmptyState onViewSaved={() => router.push('/saved')} />
+            ) : (
+              <ErrorState
+                message={movies.data?.error ?? 'Could not load movies.'}
+                onRetry={() => movies.refetch()}
+              />
+            )
           ) : noInterests ? (
             <EmptyState
               icon="sparkles-outline"

@@ -1,5 +1,5 @@
-import { INTEREST_BY_ID, type InterestId } from '@/constants/interests';
 import { buildUrl, fetchJson } from '@/lib/api';
+import { getInterest } from '@/lib/interest-catalogue';
 import type { FeedResult, NewsArticle } from '@/types/models';
 
 import { fetchFreeNews } from './free-news';
@@ -15,7 +15,7 @@ type NewsApiResponse = {
   }[];
 };
 
-async function fetchNewsApi(interests: InterestId[]): Promise<FeedResult<NewsArticle>> {
+async function fetchNewsApi(interests: string[]): Promise<FeedResult<NewsArticle>> {
   const apiKey = process.env.EXPO_PUBLIC_NEWSAPI_KEY?.trim();
 
   if (!apiKey || interests.length === 0) {
@@ -24,7 +24,7 @@ async function fetchNewsApi(interests: InterestId[]): Promise<FeedResult<NewsArt
 
   const query = interests
     .slice(0, 4)
-    .map((id) => `(${INTEREST_BY_ID[id].newsQuery})`)
+    .map((id) => `(${getInterest(id).newsQuery})`)
     .join(' OR ');
 
   try {
@@ -47,7 +47,7 @@ async function fetchNewsApi(interests: InterestId[]): Promise<FeedResult<NewsArt
           `${article.title ?? ''} ${article.description ?? ''} ${sourceName}`.toLowerCase();
         const matchingInterest =
           interests.find((id) =>
-            INTEREST_BY_ID[id].newsQuery
+            getInterest(id).newsQuery
               .toLowerCase()
               .split(/\s+or\s+/)
               .map((term) => term.replace(/[()"]/g, '').trim())
@@ -92,7 +92,7 @@ function mergeSources(sources: FeedResult<NewsArticle>[]): NewsArticle[] {
     .slice(0, 30);
 }
 
-export async function fetchNews(interests: InterestId[]): Promise<FeedResult<NewsArticle>> {
+export async function fetchNews(interests: string[]): Promise<FeedResult<NewsArticle>> {
   const hasNewsApiKey = Boolean(process.env.EXPO_PUBLIC_NEWSAPI_KEY?.trim());
   const hasFreeNewsKey = Boolean(process.env.EXPO_PUBLIC_FREENEWS_KEY?.trim());
 

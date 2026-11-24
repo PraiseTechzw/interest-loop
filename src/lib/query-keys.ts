@@ -1,11 +1,11 @@
-import type { InterestId } from '@/constants/interests';
-
 export const keys = {
   interests: ['interests'] as const,
+  interestCatalogue: ['interest-catalogue'] as const,
   profile: ['profile'] as const,
   savedArticles: ['saved-articles'] as const,
   savedMovies: ['saved-movies'] as const,
   savedDiscovery: ['saved-discovery'] as const,
+  savedNotes: ['saved-notes'] as const,
   coachResponses: ['coach-responses'] as const,
   mindsetPrompts: ['mindset-prompts'] as const,
   activity: ['interest-activity'] as const,
@@ -13,7 +13,7 @@ export const keys = {
   setting: (key: string) => ['setting', key] as const,
   feedback: ['feedback'] as const,
   capsules: ['capsules'] as const,
-  news: (ids: InterestId[]) => ['news', ids] as const,
-  movieFeed: (ids: InterestId[]) => ['movie-feed', ids] as const,
+  news: (ids: string[]) => ['news', ids] as const,
+  movieFeed: (ids: string[]) => ['movie-feed', ids] as const,
   discoveryFeed: ['discovery-feed'] as const,
 };

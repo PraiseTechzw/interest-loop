@@ -47,22 +47,25 @@ Restart the dev server after changing `.env`.
 - **News** — interest-filtered live stories, saved offline, pull-to-refresh, connection status in Profile.
 - **Movies** — TMDB genre recommendations mapped from your interests, save for later, pull-to-refresh.
 - **Discover** — Hacker News + Reddit stories ranked by score/recency, source filters, save finds.
-- **Profile** — toggle all 8 interest tags; saved counts; data-source status. Interest changes update the news, movie and graph data immediately.
+- **Profile** — toggle interests; saved counts; data-source status. Interest changes update the news, movie and graph data immediately.
+- **My topics** — create your own interests with a name, colour, icon and news keywords. Custom topics work across feeds, graph, learning paths, capsules and notes.
 - **Knowledge Graph** — SVG graph of your interests with pan, zoom, node details and relationships derived from saved activity.
 - **Mindset Coach** — first-principles, inversion, second-order and Occam prompts; saved reflections with simplified spaced repetition (Again / Got it).
-- **Learning Paths** — guided routes built from your saved content with per-step progress.
-- **Time Capsule** — a dated, shareable snapshot of your interests and progress. Reflection text is opt-in and off by default.
-- **Saved** — all offline articles, movies and finds in one place with removal controls.
+- **Capture a thought** — private notes for ideas, links and things you want to remember. Tag them to a topic; they become Learning Path steps and show up in Search.
+- **Learning Paths** — guided routes built from your saved content and your own notes, with per-step progress.
+- **Time Capsule** — a dated, shareable snapshot of your interests and progress, including your own notes. Reflection text is opt-in and off by default.
+- **Saved** — all offline articles, movies, finds and your own notes in one place with editing and removal.
 - **Settings** — live-source connection status, app version, privacy summary and one-tap local data clearing.
 - **Onboarding** — first-run interest picker (minimum two topics).
 - **Article reader / movie detail** — offline reading for saved summaries, movie synopsis with trailer link.
-- **Search, feedback, community capsules, diagnostics, export, accessibility and terms** screens.
+- **Backup & restore** — copy all local data to JSON and restore it from the clipboard later. Older backups still import.
+- **Search, feedback, diagnostics, accessibility and terms** screens. Search covers saved articles, movies, finds and your own notes.
 - **Credits / Privacy** — data-source attributions and a plain-language privacy summary.
 - Dark mode follows the system. Interactive controls have accessibility labels and 38–44px touch targets.
 
 ### Interests
 
-CIA, MI6, Geek Culture, Romance, 3D & Animation, Animation Craft, Learning, Problem Solving. Four are selected by default.
+Built in: CIA, MI6, Geek Culture, Romance, 3D & Animation, Animation Craft, Learning, Problem Solving. Four are selected by default. You can add unlimited topics of your own from **Profile → My topics** — this is a personal app, so there is no community, account or cloud sync.
 
 ---
 
@@ -77,11 +80,14 @@ src/
 │   ├── saved.tsx           # Pushed stack screen
 │   ├── learning.tsx        # Learning paths
 │   ├── capsule.tsx         # Dated time capsule
+│   ├── capture.tsx         # Personal notes
+│   ├── interests.tsx       # Create and manage your own topics
+│   ├── export.tsx          # Backup & restore
 │   └── _layout.tsx         # Providers, SQLite, Stack
 ├── components/             # Reusable UI and content cards
-├── constants/              # Interest catalogue and relationships
+├── constants/              # Built-in interests and custom-interest factories
 ├── hooks/                  # TanStack Query hooks
-├── lib/                    # Database, API, graph, formatting, links
+├── lib/                    # Database, API, graph, interest registry, formatting, links
 ├── services/               # News, TMDB, Discovery adapters
 ├── theme/                  # Light/dark design tokens
 └── types/                  # Shared models
@@ -101,7 +107,7 @@ Routes live in `src/app/` (supported by Expo Router SDK 55+). Non-route code sta
 | `npm run lint` | `expo lint` (ESLint flat config) |
 | `npm run export:web` | Production web bundle into `dist/` |
 | `npm run env:check` | Preflight check for `EXPO_PUBLIC_*` keys (values are never printed) |
-| `npm test` | Jest unit tests (27 tests) |
+| `npm test` | Jest unit tests (54 tests) |
 | `npm run test:watch` | Jest in watch mode |
 
 Checks run in CI on every PR: dependency validation, Expo Doctor, typecheck, lint, unit tests and web export. Browser smoke tests are run manually for UI changes.
@@ -110,7 +116,9 @@ Checks run in CI on every PR: dependency validation, Expo Doctor, typecheck, lin
 
 ## Data & offline behaviour
 
-`src/lib/database.ts` owns the SQLite schema (versioned with `PRAGMA user_version`) and all parameterized queries. Tables: `user_interests`, `saved_articles`, `saved_movies`, `saved_discovery`, `coach_responses`.
+`src/lib/database.ts` owns the SQLite schema (version 8, versioned with `PRAGMA user_version`) and all parameterized queries. Tables: `user_interests`, `custom_interests`, `user_profile`, `saved_articles`, `saved_movies`, `saved_discovery`, `saved_notes`, `coach_responses`, `mindset_prompts`, `learning_progress`, `capsules`, `feedback`.
+
+Everything is local. **Backup & restore** exports all of it as JSON. Custom topics and notes are included; API keys never are.
 
 All remote feeds require live sources. When a key is missing or a request fails, screens show a clear empty or error state with setup guidance and a retry action — no fabricated content is bundled.
 

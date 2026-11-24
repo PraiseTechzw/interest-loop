@@ -22,7 +22,7 @@ export default function FeedbackScreen() {
       <Stack.Screen options={{ title: 'Feedback' }} />
       <ScrollView>
         <ScreenContent>
-          <ScreenHeader title="Feedback" subtitle="Tell us what to improve. Stored locally on this device." />
+          <ScreenHeader title="Feedback" subtitle="Jot down what to improve. Notes stay private on this device." />
 
           <Card>
             <SectionHeader title="Category" />
@@ -59,7 +59,7 @@ export default function FeedbackScreen() {
                 setMessage('');
               }}
               style={[styles.button, { backgroundColor: theme.primary }, message.trim().length < 4 && { opacity: 0.5 }]}>
-              <Text style={{ color: theme.onPrimary, fontWeight: '700' }}>Send feedback</Text>
+              <Text style={{ color: theme.onPrimary, fontWeight: '700' }}>Save note</Text>
             </Pressable>
             <Text
               accessibilityRole="link"

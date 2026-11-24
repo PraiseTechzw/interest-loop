@@ -1,3 +1,5 @@
+import { router } from 'expo-router';
+import { useConnectivity } from '@/components/connectivity-provider';
 import { useMemo, useState } from 'react';
 import { RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 
@@ -7,6 +9,7 @@ import {
   EmptyState,
   ErrorState,
   LoadingState,
+  OfflineEmptyState,
   Pill,
   Screen,
   ScreenContent,
@@ -26,6 +29,7 @@ const FILTERS: { id: SourceFilter; label: string }[] = [
 ];
 
 export default function DiscoverScreen() {
+  const { isOffline } = useConnectivity();
   const feed = useDiscoveryFeed();
   const saved = useSavedDiscovery();
   const toggleSave = useToggleSavedDiscovery();
@@ -78,10 +82,14 @@ export default function DiscoverScreen() {
           {feed.isLoading ? (
             <LoadingState label="Scanning the web…" />
           ) : feed.isError || feed.data?.error ? (
-            <ErrorState
-              message={feed.data?.error ?? 'Could not load the discovery feed.'}
-              onRetry={() => feed.refetch()}
-            />
+            isOffline ? (
+              <OfflineEmptyState onViewSaved={() => router.push('/saved')} />
+            ) : (
+              <ErrorState
+                message={feed.data?.error ?? 'Could not load the discovery feed.'}
+                onRetry={() => feed.refetch()}
+              />
+            )
           ) : items.length === 0 ? (
             <EmptyState
               icon="compass-outline"

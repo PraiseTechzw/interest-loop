@@ -1,10 +1,10 @@
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { router } from 'expo-router';
 import { Image } from 'expo-image';
 import { StyleSheet, Text, View } from 'react-native';
 
-import { INTEREST_BY_ID } from '@/constants/interests';
 import { formatCount, formatDate, formatRating, initials, truncate } from '@/lib/format';
+import { getInterest } from '@/lib/interest-catalogue';
 import { openExternalUrl } from '@/lib/links';
 import { radius, space, useTheme } from '@/theme/tokens';
 import type { DiscoveryItem, Movie, NewsArticle } from '@/types/models';
@@ -25,7 +25,7 @@ export function NewsCard({
   compact?: boolean;
 }) {
   const theme = useTheme();
-  const interest = INTEREST_BY_ID[article.interest];
+  const interest = getInterest(article.interest);
 
   return (
     <Card>
@@ -81,7 +81,7 @@ export function NewsCard({
         accessibilityRole="link"
         onPress={() => openExternalUrl(article.url)}
         style={[styles.secondaryLink, { color: theme.textMuted }]}>
-        Publisher site ↗
+        <Ionicons name="open-outline" size={12} color={theme.textMuted} /> Publisher site
       </Text>
     </Card>
   );
@@ -103,7 +103,7 @@ export function MovieCard({
   compact?: boolean;
 }) {
   const theme = useTheme();
-  const interest = INTEREST_BY_ID[movie.interest];
+  const interest = getInterest(movie.interest);
   const posterSource = movie.posterPath
     ? { uri: `https://image.tmdb.org/t/p/w342${movie.posterPath}` }
     : null;
@@ -154,7 +154,8 @@ export function MovieCard({
             {movie.title}
           </Text>
           <Text style={[styles.meta, { color: theme.textMuted }]}>
-            ⭐ {formatRating(movie.rating)} · {formatCount(movie.voteCount)} votes ·{' '}
+            <Ionicons name="star" size={12} color={theme.accent} /> {formatRating(movie.rating)} ·{' '}
+            {formatCount(movie.voteCount)} votes ·{' '}
             {movie.releaseDate.slice(0, 4) || '—'}
           </Text>
           {!compact ? (
@@ -166,7 +167,7 @@ export function MovieCard({
             accessibilityRole="link"
             onPress={() => router.push(`/movie/${movie.id}`)}
             style={[styles.trailer, { color: theme.primary }]}>
-            Watch trailer & details →
+            <Ionicons name="chevron-forward" size={12} color={theme.primary} /> View details
           </Text>
         </View>
 
@@ -200,7 +201,7 @@ export function DiscoveryCard({
               <Text style={[styles.badgeText, { color: theme.primary }]}>{sourceLabel}</Text>
             </View>
             <Text style={[styles.meta, { color: theme.textMuted }]}>
-              {item.age} · ▲ {item.score}
+              {item.age} · <Ionicons name="arrow-up" size={11} color={theme.textMuted} /> {item.score}
             </Text>
           </View>
           <Text style={[styles.title, { color: theme.text }]} numberOfLines={3}>

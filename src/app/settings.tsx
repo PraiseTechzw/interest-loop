@@ -1,4 +1,4 @@
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import Constants from 'expo-constants';
 import { router } from 'expo-router';
 import { Alert, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
@@ -14,7 +14,7 @@ export default function SettingsScreen() {
   const clearData = useClearUserData();
 
   const privacyUrl = process.env.EXPO_PUBLIC_PRIVACY_URL?.trim();
-  const version = Constants.expoConfig?.version ?? '1.2.0';
+  const version = Constants.expoConfig?.version ?? 'unknown';
 
   const sources = getDataSources();
   const allConnected = sources.every((source) => source.connected);

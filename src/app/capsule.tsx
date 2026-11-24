@@ -1,11 +1,11 @@
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { useQuery } from '@tanstack/react-query';
 import * as Clipboard from 'expo-clipboard';
 import { useState } from 'react';
 import { Alert, Platform, Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 
 import { Card, NoticeBanner, LoadingState, Screen, ScreenContent, ScreenHeader, SectionHeader } from '@/components/ui';
-import { INTEREST_BY_ID } from '@/constants/interests';
+import { getInterest } from '@/lib/interest-catalogue';
 import {
   useCoachResponses,
   useInterestActivity,
@@ -14,6 +14,7 @@ import {
   useSavedArticles,
   useSavedDiscovery,
   useSavedMovies,
+  useSavedNotes,
 } from '@/hooks/use-app-data';
 import { buildCapsuleText } from '@/lib/capsule';
 import { radius, space, useTheme } from '@/theme/tokens';
@@ -24,6 +25,7 @@ export default function CapsuleScreen() {
   const articles = useSavedArticles();
   const movies = useSavedMovies();
   const finds = useSavedDiscovery();
+  const notes = useSavedNotes();
   const responses = useCoachResponses();
   const activity = useInterestActivity();
   const saveCapsule = useSaveCapsule();
@@ -45,6 +47,7 @@ export default function CapsuleScreen() {
     articles.isLoading ||
     movies.isLoading ||
     finds.isLoading ||
+    notes.isLoading ||
     responses.isLoading ||
     activity.isLoading
   ) {
@@ -52,11 +55,11 @@ export default function CapsuleScreen() {
   }
 
   const selected = interests.data ?? [];
-  const interestLabels = selected.map((id) => INTEREST_BY_ID[id].label);
+  const interestLabels = selected.map((id) => getInterest(id).label);
   const topTopics = Object.entries(activity.data ?? {})
     .sort((a, b) => b[1] - a[1])
     .slice(0, 3)
-    .map(([id]) => INTEREST_BY_ID[id as keyof typeof INTEREST_BY_ID]?.label ?? id);
+    .map(([id]) => getInterest(id).label);
 
   const summary = buildCapsuleText({
     date: today.data ?? 'today',
@@ -64,6 +67,7 @@ export default function CapsuleScreen() {
     articleCount: articles.data?.length ?? 0,
     movieCount: movies.data?.length ?? 0,
     findCount: finds.data?.length ?? 0,
+    noteCount: notes.data?.length ?? 0,
     reflectionCount: responses.data?.length ?? 0,
     topTopics,
     reflections: includeReflections
@@ -89,6 +93,7 @@ export default function CapsuleScreen() {
     { label: 'Articles', value: articles.data?.length ?? 0 },
     { label: 'Movies', value: movies.data?.length ?? 0 },
     { label: 'Finds', value: finds.data?.length ?? 0 },
+    { label: 'My notes', value: notes.data?.length ?? 0 },
     { label: 'Reflections', value: responses.data?.length ?? 0 },
   ];
 

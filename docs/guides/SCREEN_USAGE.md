@@ -64,19 +64,22 @@ Open **Offline reader** from any News card. Saved articles show their title, sou
 Open **Movie details** from any Movies card. Shows poster, rating, synopsis and a **Watch trailer** link. Live details are loaded from TMDB when configured; saved movies are shown from local storage.
 
 ## Search
-Search across your saved articles, movies and discoveries by title or source. Results open their detail screen where supported.
+Search across your saved articles, movies, discoveries and your own notes by title, text or source. Articles, movies and notes open their detail screen; discoveries open their source link.
+
+## My topics
+Create your own interests with a name, colour, icon and optional news keywords. Custom topics appear in Profile, News, the Knowledge Graph, Learning Paths, Time Capsule and note tagging. Removing a topic never deletes the items you saved under it.
+
+## Capture a thought
+Write a title, your thoughts and an optional link, then tag it with a topic. Notes are private, editable, searchable and become steps in Learning Paths. They also count towards your Time Capsule.
 
 ## Feedback
-Choose a category, write a message and save it locally, or open a GitHub issue template. Previous feedback is listed on the same screen.
-
-## Community
-Shows time capsules you saved locally. Public sharing is not enabled in this release.
+Jot down a private note about what to improve, or open a GitHub issue template. Previous notes are listed on the same screen.
 
 ## Diagnostics
 Shows which API keys are available to the build, feed item counts, last fetch times and error messages. Used to verify installed preview builds.
 
-## Export data
-Copies all locally stored data (interests, profile, saved items, prompts, reflections, progress, capsules and feedback) to the clipboard as JSON. API keys are not included.
+## Backup & restore
+Copies all locally stored data (topics, profile, saved items, your notes, prompts, reflections, progress, capsules and feedback) to the clipboard as JSON. Paste a backup here and confirm to restore it, replacing what is currently on the device. API keys are not included.
 
 ## Accessibility
 Shows the current system colour scheme and the accessibility features the app supports, plus guidance for reporting issues.

@@ -18,9 +18,9 @@ If you configure API keys, you are responsible for complying with each provider'
 
 The app is provided as-is. Feeds can fail or change without notice, and local data can be lost if device storage is cleared or the app is uninstalled.
 
-## Feedback and community
+## Feedback and personal data
 
-Feedback you submit is stored locally on your device. The Community screen currently stores capsules locally; there is no public sharing backend in this release.
+InterestLoop is a personal app. Feedback notes, your own topics, notes and time capsules are stored locally on your device. There is no account, community feed, public sharing or cloud sync. You can export your data as JSON and restore it yourself from the Backup & restore screen.
 
 ## Changes
 

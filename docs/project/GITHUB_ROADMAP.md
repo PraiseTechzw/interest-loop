@@ -17,11 +17,16 @@ Personalized mobile app for tech enthusiasts: curated news, movie recommendation
 - Issue #7 — Time capsule with privacy-controlled reflection sharing.
 - Issue #8 — Unit tests, Maestro E2E flow, beta checklist and EAS preview build.
 
+## Recently delivered — personal app focus
+
+- Custom topics: create, colour, tag and delete your own interests.
+- Capture a thought: private notes that feed Learning Paths, Search and Time Capsule.
+- Backup & restore: full local JSON export/import (no account, no cloud, no community).
+
 ## Remaining work (post-beta candidates)
 
 - Run the [beta checklist](../guides/BETA_CHECKLIST.md) on physical devices and triage feedback.
-- Add Expo Observe for crash/performance telemetry before public beta.
-- Explore account sync and a community feed once the beta validates demand.
+- Add opt-in crash/performance telemetry only if the user wants it — the app is personal-only and has no community, accounts or server sync by design.
 
 ## Setup
 

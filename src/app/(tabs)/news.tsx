@@ -1,4 +1,5 @@
 import { router } from 'expo-router';
+import { useConnectivity } from '@/components/connectivity-provider';
 import { useMemo, useState } from 'react';
 import { RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 
@@ -8,6 +9,7 @@ import {
   EmptyState,
   ErrorState,
   LoadingState,
+  OfflineEmptyState,
   Pill,
   Screen,
   ScreenContent,
@@ -15,15 +17,16 @@ import {
 } from '@/components/ui';
 import { useInterests, useNews, useSavedArticles, useToggleSavedArticle } from '@/hooks/use-app-data';
 import { space, useTheme } from '@/theme/tokens';
-import { INTEREST_BY_ID, type InterestId } from '@/constants/interests';
+import { getInterest } from '@/lib/interest-catalogue';
 
 export default function NewsScreen() {
   const theme = useTheme();
+  const { isOffline } = useConnectivity();
   const interests = useInterests();
   const news = useNews(interests.data ?? []);
   const saved = useSavedArticles();
   const toggleSave = useToggleSavedArticle();
-  const [filter, setFilter] = useState<InterestId | 'all'>('all');
+  const [filter, setFilter] = useState('all');
   const [pendingUrl, setPendingUrl] = useState<string | null>(null);
 
   const selected = interests.data ?? [];
@@ -64,7 +67,7 @@ export default function NewsScreen() {
               {selected.map((id) => (
                 <Pill
                   key={id}
-                  label={INTEREST_BY_ID[id].short}
+                  label={getInterest(id).short}
                   selected={filter === id}
                   onPress={() => setFilter(id)}
                 />
@@ -79,10 +82,14 @@ export default function NewsScreen() {
           {news.isLoading ? (
             <LoadingState label="Fetching the latest stories…" />
           ) : news.isError || news.data?.error ? (
-            <ErrorState
-              message={news.data?.error ?? 'Could not load news.'}
-              onRetry={() => news.refetch()}
-            />
+            isOffline ? (
+              <OfflineEmptyState onViewSaved={() => router.push('/saved')} />
+            ) : (
+              <ErrorState
+                message={news.data?.error ?? 'Could not load news.'}
+                onRetry={() => news.refetch()}
+              />
+            )
           ) : noInterests ? (
             <EmptyState
               icon="sparkles-outline"
@@ -95,7 +102,7 @@ export default function NewsScreen() {
             <EmptyState
               icon="newspaper-outline"
               title="No live news source"
-              message="Add EXPO_PUBLIC_NEWSAPI_KEY or EXPO_PUBLIC_FREENEWS_KEY to .env, then restart Expo with a cleared cache."
+              message="Live news is not set up on this build. Check connection settings to see which sources are available."
               actionLabel="Open settings"
               onAction={() => router.push('/settings')}
             />

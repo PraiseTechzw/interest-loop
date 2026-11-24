@@ -1,4 +1,4 @@
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
@@ -93,6 +93,8 @@ export default function OnboardingScreen() {
                       icon={interest.icon}
                       color={interest.color}
                       selected={selected.includes(interest.id)}
+                      role="checkbox"
+                      busy={working}
                       onPress={() => toggle(interest.id)}
                     />
                   ))}

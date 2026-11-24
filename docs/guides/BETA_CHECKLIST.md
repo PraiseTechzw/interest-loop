@@ -1,6 +1,6 @@
 # Beta release checklist
 
-Version: **1.4.0** · EAS project: `@praisetechzw/interest-loop`
+Version: **1.5.0** · EAS project: `@praisetechzw/interest-loop`
 
 ## 1. Preconditions
 
