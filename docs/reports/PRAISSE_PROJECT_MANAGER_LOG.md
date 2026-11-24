@@ -45,3 +45,27 @@
 - Verify library APIs against versioned docs before writing code; several prototype APIs existed only in stale training data.
 - Expo web is a cheap, high-signal QA target: it exposed three runtime bugs that static checks missed.
 - Keep documentation as a single source of truth; conflicting status files caused confusion in earlier sessions.
+
+## 24 Nov 2026 — Production release sign-off (v1.2.0)
+
+**Objective:** take the project from "features merged" to a verified, tagged, published production release.
+
+**Decisions made**
+- Merged release PR #24 (live-only feeds, branded assets) and CI-only Dependabot PRs #11 (actions/setup-node 4→7) and #12 (actions/checkout 4→7) — both passed the full CI gate.
+- Closed npm bump PRs #13–#17 (react, react-dom, typescript, eslint, react-native-svg): Expo SDK 58 pins exact versions, so these bumps fail the `npx expo install --check` gate. Revisit on the next SDK upgrade.
+- Closed milestones #1 (MVP) and #2 (Phase 1: Core Features). All tracking issues (#1–#3, #6–#8, #19) are closed.
+- Confirmed the v1.2.0 tag and GitHub Release are published (2026-11-24).
+
+**Final verification (on `main` @ 0337017)**
+| Gate | Result |
+| --- | --- |
+| `npx expo-doctor` | 20/20 passed |
+| `npx expo install --check` | dependencies up to date |
+| `npm run typecheck` | no errors |
+| `npm run lint` | no errors |
+| `npm test` | 35/35 passed (5 suites) |
+| `npm run export:web` | bundled successfully |
+
+**Release state:** v1.2.0 published at https://github.com/PraiseTechzw/interest-loop/releases/tag/v1.2.0
+**Build state:** Android preview build in progress on the final commit; previous preview and development builds finished successfully.
+**Decision:** production-ready once the final preview build artifact is produced. Wall-clock verification is the only remaining step; no code, docs, issues, PRs or release actions remain open.
