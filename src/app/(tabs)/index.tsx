@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import { router } from 'expo-router';
+import { Redirect, router } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 
@@ -27,6 +27,7 @@ import {
   useToggleSavedArticle,
   useToggleSavedDiscovery,
   useToggleSavedMovie,
+  useSetting,
 } from '@/hooks/use-app-data';
 import { radius, space, useTheme } from '@/theme/tokens';
 import type { DiscoveryItem, Movie, NewsArticle } from '@/types/models';
@@ -79,6 +80,7 @@ function FeedNotice(props: NoticeProps) {
 
 export default function HomeScreen() {
   const theme = useTheme();
+  const onboarded = useSetting('onboarded');
   const interests = useInterests();
   const news = useNews(interests.data ?? []);
   const movies = useMovieFeed(interests.data ?? []);
@@ -144,6 +146,10 @@ export default function HomeScreen() {
     openProfile,
   };
 
+  if (!onboarded.isLoading && onboarded.data !== '1') {
+    return <Redirect href="/onboarding" />;
+  }
+
   return (
     <Screen>
       <ScrollView
@@ -153,6 +159,15 @@ export default function HomeScreen() {
           <ScreenHeader
             title="InterestLoop"
             subtitle="A daily loop through the things you actually care about."
+            action={
+              <Pressable
+                onPress={() => router.push('/search')}
+                accessibilityRole="button"
+                accessibilityLabel="Search saved items"
+                style={[styles.searchButton, { backgroundColor: theme.surface, borderColor: theme.border }]}>
+                <Ionicons name="search-outline" size={19} color={theme.primary} />
+              </Pressable>
+            }
           />
 
           <View style={[styles.hero, { backgroundColor: theme.primary }]}>
@@ -319,6 +334,7 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
+  searchButton: { width: 40, height: 40, borderRadius: 20, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
   hero: { borderRadius: radius.lg, padding: space.lg, marginBottom: space.lg },
   heroTitle: { color: '#fff', fontSize: 18, fontWeight: '800', marginTop: 8 },
   heroSubtitle: { color: '#fff', fontSize: 13, lineHeight: 19, marginTop: 4, opacity: 0.9 },

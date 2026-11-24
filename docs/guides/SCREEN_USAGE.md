@@ -53,3 +53,33 @@ Lists and links the services used for data: TMDB, NewsAPI, FreeNewsApi, Hacker N
 
 ## Privacy
 A plain-language summary of what is stored locally, what is sent to third-party APIs, permissions, and your controls. If `EXPO_PUBLIC_PRIVACY_URL` is configured, it also links to the hosted policy.
+
+## Onboarding
+Shown on first launch for new installs. Pick at least two interests, then tap **Start my loop**. You can change them later in Profile. Existing installs skip this screen.
+
+## Article reader
+Open **Offline reader** from any News card. Saved articles show their title, source, date and summary without a network connection; **Read the full story online** opens the publisher. Unsaved articles show a short explanation.
+
+## Movie detail
+Open **Movie details** from any Movies card. Shows poster, rating, synopsis and a **Watch trailer** link. Live details are loaded from TMDB when configured; saved movies are shown from local storage.
+
+## Search
+Search across your saved articles, movies and discoveries by title or source. Results open their detail screen where supported.
+
+## Feedback
+Choose a category, write a message and save it locally, or open a GitHub issue template. Previous feedback is listed on the same screen.
+
+## Community
+Shows time capsules you saved locally. Public sharing is not enabled in this release.
+
+## Diagnostics
+Shows which API keys are available to the build, feed item counts, last fetch times and error messages. Used to verify installed preview builds.
+
+## Export data
+Copies all locally stored data (interests, profile, saved items, prompts, reflections, progress, capsules and feedback) to the clipboard as JSON. API keys are not included.
+
+## Accessibility
+Shows the current system colour scheme and the accessibility features the app supports, plus guidance for reporting issues.
+
+## Terms
+Plain-language terms of use; the canonical copy lives at `docs/TERMS.md`.

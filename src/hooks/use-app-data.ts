@@ -4,18 +4,26 @@ import { useMemo } from 'react';
 
 import type { InterestId } from '@/constants/interests';
 import {
+  addFeedback,
   addMindsetPrompt,
   clearUserData,
+  deleteCapsule,
   deleteCoachResponse,
   deleteMindsetPrompt,
+  getCapsules,
   getCoachResponses,
+  getFeedback,
   getInterests,
   getInterestActivity,
   getMindsetPrompts,
   getLearningProgress,
+  getProfile,
+  getSavedArticleByUrl,
   getSavedArticles,
   getSavedDiscovery,
   getSavedMovies,
+  getSavedMovieById,
+  getSetting,
   removeArticle,
   removeDiscovery,
   removeMovie,
@@ -24,9 +32,12 @@ import {
   saveArticle,
   saveCoachResponse,
   saveDiscovery,
+  saveCapsule,
   saveMovie,
   setInterest,
+  setSetting,
   setLearningProgress,
+  setProfile,
 } from '@/lib/database';
 import { buildLearningPaths } from '@/lib/learning-paths';
 import { keys } from '@/lib/query-keys';
@@ -36,13 +47,16 @@ import { fetchNews } from '@/services/news';
 import type {
   CoachResponse,
   DiscoveryItem,
+  FeedbackEntry,
   MindsetPrompt,
   Movie,
   NewsArticle,
   PromptCategory,
   SavedArticleRow,
+  SavedCapsule,
   SavedDiscoveryRow,
   SavedMovieRow,
+  UserProfile,
 } from '@/types/models';
 
 function useDb() {
@@ -86,6 +100,26 @@ export function useSetInterest() {
         client.invalidateQueries({ queryKey: keys.activity }),
       ]);
     },
+  });
+}
+
+// -- Profile -----------------------------------------------------------------
+
+export function useProfile() {
+  const db = useDb();
+  return useQuery<UserProfile>({
+    queryKey: keys.profile,
+    queryFn: () => getProfile(db),
+  });
+}
+
+export function useSetProfile() {
+  const db = useDb();
+  const client = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (profile: UserProfile) => setProfile(db, profile),
+    onSuccess: () => client.invalidateQueries({ queryKey: keys.profile }),
   });
 }
 
@@ -330,6 +364,87 @@ export function useClearUserData() {
         client.invalidateQueries({ queryKey: keys.activity }),
       ]);
     },
+  });
+}
+
+// -- Settings, feedback, capsules, detail ------------------------------------
+
+export function useSetting(key: string) {
+  const db = useDb();
+  return useQuery<string | null>({
+    queryKey: keys.setting(key),
+    queryFn: () => getSetting(db, key),
+  });
+}
+
+export function useSetSetting() {
+  const db = useDb();
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ key, value }: { key: string; value: string }) =>
+      setSetting(db, key, value),
+    onSuccess: (_, variables) => client.invalidateQueries({ queryKey: keys.setting(variables.key) }),
+  });
+}
+
+export function useFeedback() {
+  const db = useDb();
+  return useQuery<FeedbackEntry[]>({
+    queryKey: keys.feedback,
+    queryFn: () => getFeedback(db),
+  });
+}
+
+export function useAddFeedback() {
+  const db = useDb();
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: async (input: { category: string; message: string }) => addFeedback(db, input),
+    onSuccess: () => client.invalidateQueries({ queryKey: keys.feedback }),
+  });
+}
+
+export function useCapsules() {
+  const db = useDb();
+  return useQuery<SavedCapsule[]>({
+    queryKey: keys.capsules,
+    queryFn: () => getCapsules(db),
+  });
+}
+
+export function useSaveCapsule() {
+  const db = useDb();
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: async (summary: string) => saveCapsule(db, summary),
+    onSuccess: () => client.invalidateQueries({ queryKey: keys.capsules }),
+  });
+}
+
+export function useDeleteCapsule() {
+  const db = useDb();
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => deleteCapsule(db, id),
+    onSuccess: () => client.invalidateQueries({ queryKey: keys.capsules }),
+  });
+}
+
+export function useSavedArticle(url: string) {
+  const db = useDb();
+  return useQuery({
+    queryKey: ['saved-article', url],
+    queryFn: () => getSavedArticleByUrl(db, url),
+    enabled: Boolean(url),
+  });
+}
+
+export function useSavedMovie(tmdbId: number) {
+  const db = useDb();
+  return useQuery({
+    queryKey: ['saved-movie', tmdbId],
+    queryFn: () => getSavedMovieById(db, tmdbId),
+    enabled: Number.isFinite(tmdbId) && tmdbId > 0,
   });
 }
 

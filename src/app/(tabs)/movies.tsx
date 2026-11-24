@@ -1,3 +1,4 @@
+import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 
@@ -26,6 +27,8 @@ export default function MoviesScreen() {
   const [pendingId, setPendingId] = useState<number | null>(null);
 
   const selected = interests.data ?? [];
+  const hasTmdbKey = Boolean(process.env.EXPO_PUBLIC_TMDB_KEY?.trim());
+  const noInterests = !interests.isLoading && selected.length === 0;
   const savedIds = useMemo(
     () => new Set((saved.data ?? []).map((item) => item.tmdb_id)),
     [saved.data],
@@ -78,14 +81,34 @@ export default function MoviesScreen() {
               message={movies.data?.error ?? 'Could not load movies.'}
               onRetry={() => movies.refetch()}
             />
+          ) : noInterests ? (
+            <EmptyState
+              icon="sparkles-outline"
+              title="Choose your interests"
+              message="Pick a few topics in your profile to get movie recommendations."
+              actionLabel="Open profile"
+              onAction={() => router.push('/profile')}
+            />
+          ) : !hasTmdbKey ? (
+            <EmptyState
+              icon="film-outline"
+              title="No live movie source"
+              message="Add EXPO_PUBLIC_TMDB_KEY to .env, then restart Expo with a cleared cache to load live picks."
+              actionLabel="Open settings"
+              onAction={() => router.push('/settings')}
+            />
           ) : visible.length === 0 ? (
             <EmptyState
               icon="film-outline"
-              title="No movies available"
+              title={filter === 'all' ? 'No movies found' : 'No movies in this genre'}
               message={
-                movies.data?.notice ??
-                'No live movie source is configured. Add EXPO_PUBLIC_TMDB_KEY to .env.'
+                filter !== 'all'
+                  ? 'Nothing matched this filter. Try another interest.'
+                  : (movies.data?.notice ??
+                    'No movies matched your interests right now. Try selecting more interests in Profile.')
               }
+              actionLabel={filter === 'all' ? undefined : 'Show all'}
+              onAction={filter === 'all' ? undefined : () => setFilter('all')}
             />
           ) : (
             visible.map((movie) => (

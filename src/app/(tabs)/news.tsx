@@ -1,3 +1,4 @@
+import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 
@@ -26,6 +27,10 @@ export default function NewsScreen() {
   const [pendingUrl, setPendingUrl] = useState<string | null>(null);
 
   const selected = interests.data ?? [];
+  const hasNewsKey =
+    Boolean(process.env.EXPO_PUBLIC_NEWSAPI_KEY?.trim()) ||
+    Boolean(process.env.EXPO_PUBLIC_FREENEWS_KEY?.trim());
+  const noInterests = !interests.isLoading && selected.length === 0;
   const savedUrls = useMemo(
     () => new Set((saved.data ?? []).map((item) => item.url)),
     [saved.data],
@@ -78,13 +83,29 @@ export default function NewsScreen() {
               message={news.data?.error ?? 'Could not load news.'}
               onRetry={() => news.refetch()}
             />
+          ) : noInterests ? (
+            <EmptyState
+              icon="sparkles-outline"
+              title="Choose your interests"
+              message="Pick a few topics in your profile to get stories you care about."
+              actionLabel="Open profile"
+              onAction={() => router.push('/profile')}
+            />
+          ) : !hasNewsKey ? (
+            <EmptyState
+              icon="newspaper-outline"
+              title="No live news source"
+              message="Add EXPO_PUBLIC_NEWSAPI_KEY or EXPO_PUBLIC_FREENEWS_KEY to .env, then restart Expo with a cleared cache."
+              actionLabel="Open settings"
+              onAction={() => router.push('/settings')}
+            />
           ) : articles.length === 0 ? (
             <EmptyState
               icon="newspaper-outline"
               title="No stories available"
               message={
                 news.data?.notice ??
-                'No live news is configured. Add an API key in .env to load stories.'
+                'No stories matched your interests right now. Try selecting more interests in Profile.'
               }
             />
           ) : (

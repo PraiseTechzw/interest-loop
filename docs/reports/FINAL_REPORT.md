@@ -1,7 +1,7 @@
 # InterestLoop — Delivery report
 
 **Prepared for:** Praise (project owner)
-**Updated:** 24 November 2026 · **Version:** 1.2.0
+**Updated:** 24 November 2026 · **Version:** 1.3.0
 **Repository:** https://github.com/PraiseTechzw/interest-loop
 
 ---
@@ -39,6 +39,7 @@ InterestLoop began as a non-compiling prototype with phantom APIs, undeclared de
 | **Learning Paths** (new) — ordered steps from saved content, progress in SQLite | ✅ |
 | **Time Capsule** (new) — dated shareable snapshot, reflection text opt-in | ✅ |
 | Dark mode, accessibility, loading/error/empty states | ✅ |
+| Onboarding, article reader, movie detail, search, feedback, community, diagnostics, export, accessibility and terms screens | ✅ |
 | Settings, Credits and Privacy screens; env preflight script | ✅ |
 | **Unit + E2E tests** (new) | ✅ |
 
