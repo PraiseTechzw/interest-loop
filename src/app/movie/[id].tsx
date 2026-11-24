@@ -27,6 +27,7 @@ export default function MovieDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const tmdbId = Number(id);
   const valid = Number.isFinite(tmdbId) && tmdbId > 0;
+  const isWeb = process.env.EXPO_OS === 'web';
   const interests = useInterests();
   const saved = useSavedMovie(tmdbId);
   const toggleSave = useToggleSavedMovie();
@@ -151,7 +152,7 @@ export default function MovieDetailScreen() {
                 <SectionHeader title="Trailer" />
                 <Card>
                   {trailer.data ? (
-                    trailerOpen ? (
+                    trailerOpen && !isWeb ? (
                       <WebView
                         source={{ uri: `https://www.youtube.com/embed/${trailer.data}?autoplay=1&rel=0` }}
                         style={styles.webview}
@@ -161,11 +162,15 @@ export default function MovieDetailScreen() {
                     ) : (
                       <Pressable
                         accessibilityRole="button"
-                        onPress={() => setTrailerOpen(true)}
+                        onPress={() =>
+                          isWeb
+                            ? openExternalUrl(`https://www.youtube.com/watch?v=${trailer.data}`)
+                            : setTrailerOpen(true)
+                        }
                         style={styles.play}>
                         <Ionicons name="play-circle" size={22} color={theme.primary} />
                         <Text style={[styles.playLabel, { color: theme.primary }]}>
-                          Play official trailer
+                          {isWeb ? 'Watch official trailer ↗' : 'Play official trailer'}
                         </Text>
                       </Pressable>
                     )
