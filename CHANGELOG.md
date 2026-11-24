@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.3.0 — Complete product screens (24 Nov 2026)
+
+### Added
+- Onboarding, article reader, movie detail, search, feedback, community capsule gallery, diagnostics, data export, accessibility and terms screens.
+- Saved capsules can be stored from the Time Capsule screen.
+
 ## Unreleased
 
 ### Added

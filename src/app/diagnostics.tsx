@@ -21,10 +21,10 @@ export default function DiagnosticsScreen() {
   const feedback = useFeedback();
 
   const sources = [
-    { label: 'News', query: news, data: news.data },
-    { label: 'Movies', query: movies, data: movies.data },
-    { label: 'Discovery', query: discovery, data: discovery.data },
-    { label: 'Feedback store', query: feedback, data: feedback.data },
+    { label: 'News', query: news, items: news.data?.items.length ?? 0, error: news.data?.error, updatedAt: news.dataUpdatedAt },
+    { label: 'Movies', query: movies, items: movies.data?.items.length ?? 0, error: movies.data?.error, updatedAt: movies.dataUpdatedAt },
+    { label: 'Discovery', query: discovery, items: discovery.data?.items.length ?? 0, error: discovery.data?.error, updatedAt: discovery.dataUpdatedAt },
+    { label: 'Feedback store', query: feedback, items: feedback.data?.length ?? 0, error: undefined as string | undefined, updatedAt: feedback.dataUpdatedAt },
   ];
 
   const keyStatus = [
@@ -56,18 +56,18 @@ export default function DiagnosticsScreen() {
             <Card key={source.label}>
               <Text style={{ color: theme.text, fontWeight: '700' }}>{source.label}</Text>
               <Text style={{ color: theme.textMuted, fontSize: 12, marginTop: 4 }}>
-                Items: {source.data?.items?.length ?? source.data?.length ?? 0}
+                Items: {source.items}
               </Text>
               <Text style={{ color: source.query.isError ? theme.danger : theme.textMuted, fontSize: 12, marginTop: 4 }}>
                 Status: {source.query.isError ? 'error' : source.query.isFetching ? 'fetching' : 'idle'}
               </Text>
-              {source.query.dataUpdatedAt ? (
+              {source.updatedAt ? (
                 <Text style={{ color: theme.textMuted, fontSize: 12, marginTop: 4 }}>
-                  Last updated: {formatDate(new Date(source.query.dataUpdatedAt).toISOString())}
+                  Last updated: {formatDate(new Date(source.updatedAt).toISOString())}
                 </Text>
               ) : null}
-              {'error' in (source.data ?? {}) && source.data?.error ? (
-                <Text style={{ color: theme.danger, fontSize: 12, marginTop: 4 }}>{source.data.error}</Text>
+              {source.error ? (
+                <Text style={{ color: theme.danger, fontSize: 12, marginTop: 4 }}>{source.error}</Text>
               ) : null}
             </Card>
           ))}

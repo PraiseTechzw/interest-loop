@@ -1,13 +1,11 @@
-import { Ionicons } from '@expo/vector-icons';
 import { Stack, useLocalSearchParams } from 'expo-router';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import { Card, LoadingState, Screen, ScreenContent, ScreenHeader } from '@/components/ui';
+import { Card, LoadingState, SaveButton, Screen, ScreenContent, ScreenHeader } from '@/components/ui';
 import { INTEREST_BY_ID, isInterestId } from '@/constants/interests';
 import { useSavedArticle, useToggleSavedArticle } from '@/hooks/use-app-data';
 import { formatDate } from '@/lib/format';
 import { openExternalUrl } from '@/lib/links';
-import { SaveButton } from '@/components/ui';
 import { useTheme } from '@/theme/tokens';
 import type { NewsArticle } from '@/types/models';
 

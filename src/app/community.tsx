@@ -1,10 +1,9 @@
-import { Stack } from 'expo-router';
+import { router, Stack } from 'expo-router';
 import { ScrollView, Text } from 'react-native';
 
 import { Card, EmptyState, Screen, ScreenContent, ScreenHeader, SectionHeader } from '@/components/ui';
 import { useCapsules, useDeleteCapsule } from '@/hooks/use-app-data';
 import { formatDate } from '@/lib/format';
-import { router } from 'expo-router';
 import { useTheme } from '@/theme/tokens';
 
 export default function CommunityScreen() {

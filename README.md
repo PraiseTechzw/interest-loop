@@ -54,6 +54,9 @@ Restart the dev server after changing `.env`.
 - **Time Capsule** — a dated, shareable snapshot of your interests and progress. Reflection text is opt-in and off by default.
 - **Saved** — all offline articles, movies and finds in one place with removal controls.
 - **Settings** — live-source connection status, app version, privacy summary and one-tap local data clearing.
+- **Onboarding** — first-run interest picker (minimum two topics).
+- **Article reader / movie detail** — offline reading for saved summaries, movie synopsis with trailer link.
+- **Search, feedback, community capsules, diagnostics, export, accessibility and terms** screens.
 - **Credits / Privacy** — data-source attributions and a plain-language privacy summary.
 - Dark mode follows the system. Interactive controls have accessibility labels and 38–44px touch targets.
 
@@ -135,6 +138,7 @@ bunx eas-cli submit
 | [CHANGELOG.md](./CHANGELOG.md) | Release history |
 | [docs/README.md](./docs/README.md) | Index of all project documentation |
 | [docs/PRIVACY.md](./docs/PRIVACY.md) | Privacy policy ready to publish for store listings |
+| [docs/TERMS.md](./docs/TERMS.md) | Terms of use |
 | [docs/guides/BETA_CHECKLIST.md](./docs/guides/BETA_CHECKLIST.md) | Release testing and distribution |
 | [docs/guides/SCREEN_USAGE.md](./docs/guides/SCREEN_USAGE.md) | Feature walkthrough |
 | [docs/guides/ASSET_SPECS.md](./docs/guides/ASSET_SPECS.md) | Brand asset sizes, safe zones and prompts |
