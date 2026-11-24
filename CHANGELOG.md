@@ -1,14 +1,16 @@
 # Changelog
 
-## Unreleased
+## 1.2.0 — Live-only release (24 Nov 2026)
+
+### Changed
+- **Live-only feeds** — removed all bundled demo/sample content. News, movies and discovery show honest empty/error states instead of fabricated data; Coach prompts are created by the user and Learning Paths are built only from saved items.
+- **API keys** — uploaded to EAS for development, preview and production; new builds include `EXPO_PUBLIC_NEWSAPI_KEY`, `EXPO_PUBLIC_FREENEWS_KEY` and `EXPO_PUBLIC_TMDB_KEY`. Local `.env` changes require `npx expo start -c`.
 
 ### Added
-- **Live-only feeds** — removed all bundled demo/sample content. News, movies and discovery show honest empty/error states instead of fabricated data; Coach prompts are created by the user.
 - **Branded app assets** — infinity-loop identity wired into the app icon, Android adaptive icons, splash screen, favicon and GitHub social preview. Original artwork is preserved in `assets/source/`.
-- **Movie thumbnails** — real TMDB posters are shown when a TMDB key is configured; movie cards also include a Watch trailer action.
-- **Watch trailer** action on movie cards, opening a YouTube search for the official trailer.
-- **FreeNewsApi source** — news headlines are merged from NewsAPI and FreeNewsApi when both keys are configured, with duplicate removal, newest-first ordering and rate-limited detail requests. Works with either key alone; shows a clear empty state with setup guidance when neither is configured.
-- Unit tests for the new adapter and source merging (8 new tests, 35 total).
+- **Movie artwork** — real TMDB posters when a key is configured, plus a **Watch trailer** action that opens a YouTube search for the official trailer.
+- **FreeNewsApi source** — headlines merged with NewsAPI, deduplicated and sorted newest-first, with rate-limited detail requests.
+- **Unit tests** — 35 tests total, including the new adapters and live-only behaviour.
 
 ## 1.1.0 — Phase 3/4 (23 Nov 2026)
 

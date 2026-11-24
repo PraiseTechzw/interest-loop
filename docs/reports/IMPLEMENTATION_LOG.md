@@ -6,7 +6,7 @@
 - Added `src/app/learning.tsx` (progress bars, step checkboxes, external links) and linked it from Home and Profile.
 - Added `src/lib/capsule.ts` and `src/app/capsule.tsx`: dated snapshot, top topics, opt-in reflection text, clipboard/native share. Added `expo-clipboard`.
 - Added Jest 30 + jest-expo 58 configuration, 27 unit tests and `.maestro/save-journey.yml`; CI now runs `npm test`.
-- Bumped version to 1.1.0, added CHANGELOG.md and BETA_CHECKLIST.md, simplified EAS profiles, wired unit tests into CI.
+- Bumped version to 1.1.0 (later 1.2.0 for the live-only release), added CHANGELOG.md and BETA_CHECKLIST.md, simplified EAS profiles, wired unit tests into CI.
 - Verified: install check, doctor 20/20, typecheck, lint, 27 tests, web export all pass. EAS project linked; preview build prepared.
 
 ## 2026-11-23 — Full rebuild and delivery (branch `feat/complete-app`)
