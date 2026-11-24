@@ -4,10 +4,13 @@ import { useMemo } from 'react';
 
 import type { InterestId } from '@/constants/interests';
 import {
+  addMindsetPrompt,
   deleteCoachResponse,
+  deleteMindsetPrompt,
   getCoachResponses,
   getInterests,
   getInterestActivity,
+  getMindsetPrompts,
   getLearningProgress,
   getSavedArticles,
   getSavedDiscovery,
@@ -32,6 +35,7 @@ import { fetchNews } from '@/services/news';
 import type {
   CoachResponse,
   DiscoveryItem,
+  MindsetPrompt,
   Movie,
   NewsArticle,
   PromptCategory,
@@ -264,6 +268,46 @@ export function useLearningPaths() {
       progress.refetch();
     },
   };
+}
+
+// -- User-created mindset prompts --------------------------------------------
+
+export function useMindsetPrompts() {
+  const db = useDb();
+  return useQuery<MindsetPrompt[]>({
+    queryKey: keys.mindsetPrompts,
+    queryFn: () => getMindsetPrompts(db),
+  });
+}
+
+export function useAddMindsetPrompt() {
+  const db = useDb();
+  const client = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (input: {
+      id: string;
+      prompt: string;
+      category: PromptCategory;
+      hint: string;
+    }) => addMindsetPrompt(db, input),
+    onSuccess: () => client.invalidateQueries({ queryKey: keys.mindsetPrompts }),
+  });
+}
+
+export function useDeleteMindsetPrompt() {
+  const db = useDb();
+  const client = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (id: string) => deleteMindsetPrompt(db, id),
+    onSuccess: async () => {
+      await Promise.all([
+        client.invalidateQueries({ queryKey: keys.mindsetPrompts }),
+        client.invalidateQueries({ queryKey: keys.coachResponses }),
+      ]);
+    },
+  });
 }
 
 // -- Remote feeds ------------------------------------------------------------

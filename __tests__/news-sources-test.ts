@@ -27,7 +27,7 @@ describe('fetchNews sources', () => {
   beforeEach(() => {
     mockFetchJson.mockReset();
     mockFetchFreeNews.mockReset();
-    mockFetchFreeNews.mockResolvedValue({ items: [], isDemo: false });
+    mockFetchFreeNews.mockResolvedValue({ items: [] });
     delete process.env.EXPO_PUBLIC_NEWSAPI_KEY;
     delete process.env.EXPO_PUBLIC_FREENEWS_KEY;
   });
@@ -55,12 +55,10 @@ describe('fetchNews sources', () => {
         article('https://news.example/old', '2026-11-18T10:00:00.000Z'),
         article('https://free.example/new', '2026-11-23T10:00:00.000Z'),
       ],
-      isDemo: false,
     });
 
     const result = await fetchNews(['ci']);
 
-    expect(result.isDemo).toBe(false);
     expect(result.items.map((item) => item.url)).toEqual([
       'https://free.example/new',
       'https://news.example/new',
@@ -69,25 +67,23 @@ describe('fetchNews sources', () => {
     expect(mockFetchFreeNews).toHaveBeenCalledWith(['ci']);
   });
 
-  it('returns demo news only when neither source is configured', async () => {
+  it('returns an empty result with guidance when neither source is configured', async () => {
     const result = await fetchNews(['ci']);
 
-    expect(result.isDemo).toBe(true);
-    expect(result.items.length).toBeGreaterThan(0);
-    expect(result.notice).toContain('EXPO_PUBLIC_FREENEWS_KEY');
-    expect(mockFetchFreeNews).toHaveBeenCalled();
+    expect(result.items).toEqual([]);
+    expect(result.error).toBeUndefined();
+    expect(result.notice).toContain('EXPO_PUBLIC_NEWSAPI_KEY');
+    expect(mockFetchFreeNews).not.toHaveBeenCalled();
   });
 
   it('uses FreeNewsApi alone when only its key is configured', async () => {
     process.env.EXPO_PUBLIC_FREENEWS_KEY = 'free-key';
     mockFetchFreeNews.mockResolvedValue({
       items: [article('https://free.example/only', '2026-11-23T10:00:00.000Z')],
-      isDemo: false,
     });
 
     const result = await fetchNews(['ci']);
 
-    expect(result.isDemo).toBe(false);
     expect(result.items).toHaveLength(1);
     expect(mockFetchJson).not.toHaveBeenCalled();
   });

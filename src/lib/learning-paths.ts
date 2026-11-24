@@ -4,7 +4,6 @@ import {
   isInterestId,
   type InterestId,
 } from '@/constants/interests';
-import { DEMO_DISCOVERY, DEMO_MOVIES, DEMO_NEWS } from '@/data/demo';
 import type { SavedArticleRow, SavedDiscoveryRow, SavedMovieRow } from '@/types/models';
 
 export type StepKind = 'article' | 'movie' | 'find';
@@ -27,7 +26,6 @@ export type LearningPath = {
   steps: PathStep[];
   completed: number;
   total: number;
-  isSample: boolean;
 };
 
 type Input = {
@@ -47,7 +45,7 @@ function interestForMovie(genre: string, interests: InterestId[]): InterestId {
   );
 }
 
-/** Ordered, deterministic paths built from saved content (or curated samples when empty). */
+/** Deterministic paths built only from content the user has actually saved. */
 export function buildLearningPaths({
   interests,
   articles,
@@ -100,48 +98,6 @@ export function buildLearningPaths({
     });
   }
 
-  const hasSavedContent = grouped.size > 0;
-
-  if (!hasSavedContent) {
-    for (const interest of interests) {
-      for (const article of DEMO_NEWS.filter((item) => item.interest === interest).slice(0, 2)) {
-        const key = `demo-article:${article.id}`;
-        add(interest, {
-          key,
-          kind: 'article',
-          title: article.title,
-          subtitle: `${article.source} · sample article`,
-          url: article.url,
-          interest,
-          done: Boolean(progress[key]),
-        });
-      }
-      for (const movie of DEMO_MOVIES.filter((item) => item.interest === interest).slice(0, 1)) {
-        const key = `demo-movie:${movie.id}`;
-        add(interest, {
-          key,
-          kind: 'movie',
-          title: movie.title,
-          subtitle: 'Film · sample pick',
-          interest,
-          done: Boolean(progress[key]),
-        });
-      }
-      for (const find of DEMO_DISCOVERY.filter((item) => item.interest === interest).slice(0, 1)) {
-        const key = `demo-find:${find.id}`;
-        add(interest, {
-          key,
-          kind: 'find',
-          title: find.title,
-          subtitle: `${find.source} · sample find`,
-          url: find.url,
-          interest,
-          done: Boolean(progress[key]),
-        });
-      }
-    }
-  }
-
   return INTEREST_IDS.filter((id) => interests.includes(id))
     .map((id): LearningPath => {
       const steps = (grouped.get(id) ?? []).slice(0, 8);
@@ -149,13 +105,10 @@ export function buildLearningPaths({
         id,
         interest: id,
         title: `${INTEREST_BY_ID[id].label} path`,
-        description: hasSavedContent
-          ? 'Built from the items you saved for later.'
-          : 'Sample path — save items in this topic to make it yours.',
+        description: 'Built from the items you saved for later.',
         steps,
         completed: steps.filter((step) => step.done).length,
         total: steps.length,
-        isSample: !hasSavedContent,
       };
     })
     .filter((path) => path.steps.length >= 2);

@@ -178,7 +178,7 @@ Use this when supplying your own artwork for InterestLoop. Every asset below has
 **Prompts (one per screenshot):**
 
 1. `01-home.png` — "App UI screenshot of the InterestLoop Home screen: large 'InterestLoop' greeting, indigo 'Your interests' hero card with CIA/Geek/3D/Learning pills, four quick-action tiles (Coach, Graph, Saved, Paths), a Top stories card and a Movie picks card. Clean light theme, mobile portrait, no device frame."
-2. `02-news.png` — "App UI screenshot of the News screen titled 'Tech News', interest filter pills, sample story cards with source and date, bookmark buttons, a small info banner about demo data. Light theme, mobile portrait."
+2. `02-news.png` — "App UI screenshot of the News screen titled 'Tech News', interest filter pills, live story cards with source and date, bookmark buttons. Light theme, mobile portrait."
 3. `03-movies.png` — "App UI screenshot of the Movies screen titled 'Movie Night', genre filter pills, movie cards with rating stars and bookmark buttons, one poster placeholder monogram. Light theme, mobile portrait."
 4. `04-discover.png` — "App UI screenshot of the Discover screen titled 'Discover', source pills All/Hacker News/Reddit/Curated, ranked cards with score and age, bookmark buttons. Light theme, mobile portrait."
 5. `05-graph.png` — "App UI screenshot of a Knowledge Graph: indigo, coral, teal and green nodes arranged in a circle on a white canvas, thin connecting lines, zoom controls, topic detail card beneath. Light theme, mobile portrait."
@@ -206,16 +206,6 @@ Prompt suffix for all:
 
 ---
 
-### 3.5 Demo movie posters — `assets/posters/<tmdb-id>.png`
-
-| Property | Value |
-| --- | --- |
-| Dimensions | **300 × 450 px** (2:3 poster ratio) |
-| Format | PNG |
-| Count | 10 (one per curated demo movie) |
-| Purpose | Offline thumbnail shown when no TMDB API key is configured; real TMDB posters replace these in live mode |
-
-These are brand-safe typographic placeholders (colour field + title), not copyrighted movie artwork. If you later want real posters, keep the same filenames and dimensions.
 
 ## 4. Optional assets
 
@@ -224,7 +214,7 @@ These are brand-safe typographic placeholders (colour field + title), not copyri
 | `assets/ios-dark-icon.png`, `assets/ios-tinted-icon.png` | 1024 × 1024 each | Only if using `ios.icon` variants in app config |
 | `assets/notification-icon.png` | 96 × 96, white silhouette on transparent | Only if adding push notifications |
 | `public/manifest-icon-192.png`, `public/manifest-icon-512.png` | 192×192, 512×512 | Only if publishing the web build as an installable PWA |
-| `assets/store/demo-preview.mp4` | 15–30 s, portrait | Optional App Store app preview / README GIF |
+| `assets/store/app-preview.mp4` | 15–30 s, portrait | Optional App Store app preview / README GIF |
 
 ---
 

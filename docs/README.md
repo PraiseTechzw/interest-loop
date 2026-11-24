@@ -32,7 +32,6 @@ src/
 ├── app/           # Expo Router routes (tab group + pushed stack screens)
 ├── components/    # Reusable UI primitives and content cards
 ├── constants/     # Interest catalogue and relationships
-├── data/          # Curated fallback content
 ├── hooks/         # TanStack Query hooks
 ├── lib/           # Database, API wrapper, graph, capsule, formatting, links
 ├── services/      # News, movies, discovery adapters

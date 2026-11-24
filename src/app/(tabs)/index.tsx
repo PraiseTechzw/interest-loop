@@ -6,7 +6,7 @@ import { Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'r
 import { DiscoveryCard, MovieCard, NewsCard } from '@/components/content-cards';
 import {
   Card,
-  DemoBanner,
+  NoticeBanner,
   EmptyState,
   ErrorState,
   LoadingState,
@@ -38,6 +38,7 @@ type NoticeProps = {
   pending: boolean;
   error: boolean;
   empty: boolean;
+  feedError?: string;
   retry: () => void;
   openProfile: () => void;
   loadingLabel: string;
@@ -65,8 +66,10 @@ function FeedNotice(props: NoticeProps) {
       />
     );
   }
-  if (props.error) {
-    return <ErrorState message={props.errorLabel} onRetry={props.retry} />;
+  if (props.error || props.feedError) {
+    return (
+      <ErrorState message={props.feedError ?? props.errorLabel} onRetry={props.retry} />
+    );
   }
   if (props.empty) {
     return <EmptyState title={props.emptyTitle} message={props.emptyMessage} />;
@@ -202,19 +205,25 @@ export default function HomeScreen() {
             </Pressable>
           </View>
 
-          {news.data?.isDemo ? <DemoBanner message={news.data.notice ?? ''} /> : null}
+          {news.data?.notice && news.data.items.length > 0 ? (
+            <NoticeBanner message={news.data.notice} />
+          ) : null}
 
           <SectionHeader title="Top stories" actionLabel="All news" onAction={() => router.push('/news')} />
           <FeedNotice
             {...feedNotice}
             pending={news.isLoading}
             error={news.isError}
+            feedError={news.data?.error}
             empty={(news.data?.items.length ?? 0) === 0}
             retry={() => news.refetch()}
             loadingLabel="Gathering your stories…"
             errorLabel="Could not load stories."
-            emptyTitle="Nothing here yet"
-            emptyMessage="Try adding more interests in your profile."
+            emptyTitle="No news connected"
+            emptyMessage={
+              news.data?.notice ??
+              'Add a news API key in .env to load live stories.'
+            }
           />
           {news.data?.items.slice(0, 2).map((article) => (
             <NewsCard
@@ -232,12 +241,16 @@ export default function HomeScreen() {
             {...feedNotice}
             pending={movies.isLoading}
             error={movies.isError}
+            feedError={movies.data?.error}
             empty={(movies.data?.items.length ?? 0) === 0}
             retry={() => movies.refetch()}
             loadingLabel="Finding something good to watch…"
             errorLabel="Could not load movies."
-            emptyTitle="No picks yet"
-            emptyMessage="Try a different set of interests in your profile."
+            emptyTitle="No movies connected"
+            emptyMessage={
+              movies.data?.notice ??
+              'Add EXPO_PUBLIC_TMDB_KEY to .env to load live recommendations.'
+            }
           />
           {movies.data?.items.slice(0, 2).map((movie) => (
             <MovieCard
@@ -257,13 +270,14 @@ export default function HomeScreen() {
             noInterests={false}
             pending={discovery.isLoading}
             error={discovery.isError}
+            feedError={discovery.data?.error}
             empty={(discovery.data?.items.length ?? 0) === 0}
             retry={() => discovery.refetch()}
             openProfile={openProfile}
             loadingLabel="Checking the web…"
             errorLabel="Could not load discoveries."
             emptyTitle="No finds right now"
-            emptyMessage="Pull to refresh to try again."
+            emptyMessage="Live feeds returned nothing. Pull to refresh to try again."
           />
           {discovery.data?.items.slice(0, 1).map((item) => (
             <DiscoveryCard

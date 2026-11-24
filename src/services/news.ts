@@ -1,5 +1,4 @@
 import { INTEREST_BY_ID, type InterestId } from '@/constants/interests';
-import { DEMO_NEWS } from '@/data/demo';
 import { buildUrl, fetchJson } from '@/lib/api';
 import type { FeedResult, NewsArticle } from '@/types/models';
 
@@ -16,15 +15,11 @@ type NewsApiResponse = {
   }[];
 };
 
-function demoFor(interests: InterestId[]): NewsArticle[] {
-  return DEMO_NEWS.filter((article) => interests.includes(article.interest));
-}
-
 async function fetchNewsApi(interests: InterestId[]): Promise<FeedResult<NewsArticle>> {
   const apiKey = process.env.EXPO_PUBLIC_NEWSAPI_KEY?.trim();
 
   if (!apiKey || interests.length === 0) {
-    return { items: [], isDemo: false };
+    return { items: [] };
   }
 
   const query = interests
@@ -48,7 +43,8 @@ async function fetchNewsApi(interests: InterestId[]): Promise<FeedResult<NewsArt
       .filter((article) => article.title && article.url)
       .map((article, index): NewsArticle => {
         const sourceName = article.source?.name ?? 'Unknown source';
-        const haystack = `${article.title ?? ''} ${article.description ?? ''} ${sourceName}`.toLowerCase();
+        const haystack =
+          `${article.title ?? ''} ${article.description ?? ''} ${sourceName}`.toLowerCase();
         const matchingInterest =
           interests.find((id) =>
             INTEREST_BY_ID[id].newsQuery
@@ -76,13 +72,9 @@ async function fetchNewsApi(interests: InterestId[]): Promise<FeedResult<NewsArt
         return true;
       });
 
-    if (items.length === 0) {
-      return { items: [], isDemo: false, notice: 'No live stories matched from NewsAPI.' };
-    }
-
-    return { items, isDemo: false };
+    return { items };
   } catch {
-    return { items: [], isDemo: false, notice: 'NewsAPI unavailable.' };
+    return { items: [], notice: 'NewsAPI unavailable.' };
   }
 }
 
@@ -104,22 +96,24 @@ export async function fetchNews(interests: InterestId[]): Promise<FeedResult<New
   const hasNewsApiKey = Boolean(process.env.EXPO_PUBLIC_NEWSAPI_KEY?.trim());
   const hasFreeNewsKey = Boolean(process.env.EXPO_PUBLIC_FREENEWS_KEY?.trim());
 
+  if (!hasNewsApiKey && !hasFreeNewsKey) {
+    return {
+      items: [],
+      notice:
+        'No news source connected. Add EXPO_PUBLIC_NEWSAPI_KEY or EXPO_PUBLIC_FREENEWS_KEY to .env and restart the app.',
+    };
+  }
+
   const results = await Promise.all([fetchNewsApi(interests), fetchFreeNews(interests)]);
   const items = mergeSources(results);
 
   if (items.length > 0) {
-    return { items, isDemo: false };
+    return { items };
   }
 
-  const notice =
-    !hasNewsApiKey && !hasFreeNewsKey
-      ? 'Sample stories — add EXPO_PUBLIC_NEWSAPI_KEY or EXPO_PUBLIC_FREENEWS_KEY for live news.'
-      : results.find((result) => result.notice)?.notice ??
-        'Live news unavailable — showing sample stories.';
-
   return {
-    items: demoFor(interests),
-    isDemo: true,
-    notice,
+    items: [],
+    error: 'No live stories could be loaded. Check your connection and API keys.',
+    notice: results.find((result) => result.notice)?.notice,
   };
 }

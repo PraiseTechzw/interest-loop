@@ -8,7 +8,7 @@ Version: **1.1.0** · EAS project: `@praisetechzw/interest-loop`
 - [x] Project linked (`npx eas-cli project:info`)
 - [x] `eas.json` profiles defined (development / preview / production)
 - [x] CI green on the release PR (deps, doctor, typecheck, lint, tests, web export)
-- [ ] API keys set in EAS if live feeds are wanted: `eas env:create --scope project --name EXPO_PUBLIC_NEWSAPI_KEY --value ... --environment preview` (optional — the app works in labelled demo mode without them)
+- [ ] API keys set in EAS for live feeds: `EXPO_PUBLIC_NEWSAPI_KEY`, `EXPO_PUBLIC_FREENEWS_KEY`, `EXPO_PUBLIC_TMDB_KEY` (configure with `eas env:create --scope project --environment preview`; local `.env` is not used by EAS builds)
 
 ## 2. Build
 
@@ -31,7 +31,7 @@ Find artifacts at https://expo.dev/accounts/praisetechzw/projects/interest-loop/
 
 - [ ] Install the preview build on a physical Android device (Expo Orbit or internal link).
 - [ ] Home loads with interests and at least one feed section.
-- [ ] News/Movies/Discover fetch or fall back to demo data with a visible notice.
+- [ ] News/Movies/Discover fetch live data or show a clear error/empty state with retry.
 - [ ] Saving an article works while offline, and it appears under Saved after a restart.
 - [ ] Learning Paths progress survives a restart.
 - [ ] Time Capsule copies/shares text; reflection text is absent unless toggled.

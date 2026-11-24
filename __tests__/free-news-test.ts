@@ -46,11 +46,11 @@ describe('fetchFreeNews', () => {
   it('does nothing without an API key or interests', async () => {
     delete process.env.EXPO_PUBLIC_FREENEWS_KEY;
 
-    await expect(fetchFreeNews(['ci'])).resolves.toEqual({ items: [], isDemo: false });
+    await expect(fetchFreeNews(['ci'])).resolves.toEqual({ items: [] });
     expect(mockFetchJson).not.toHaveBeenCalled();
 
     process.env.EXPO_PUBLIC_FREENEWS_KEY = 'test-key';
-    await expect(fetchFreeNews([])).resolves.toEqual({ items: [], isDemo: false });
+    await expect(fetchFreeNews([])).resolves.toEqual({ items: [] });
     expect(mockFetchJson).not.toHaveBeenCalled();
   });
 
@@ -64,7 +64,6 @@ describe('fetchFreeNews', () => {
 
     const result = await fetchFreeNews(['ci']);
 
-    expect(result.isDemo).toBe(false);
     expect(result.items).toHaveLength(1);
     expect(result.items[0]).toMatchObject({
       id: 'a',
@@ -120,7 +119,6 @@ describe('fetchFreeNews', () => {
 
     expect(result).toEqual({
       items: [],
-      isDemo: false,
       notice: 'FreeNewsApi unavailable.',
     });
   });

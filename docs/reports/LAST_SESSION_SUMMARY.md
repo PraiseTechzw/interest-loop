@@ -7,7 +7,7 @@
 - The prototype was replaced with a working Expo SDK 58 application. Routes live in `src/app/`; navigation is a 5-tab group (Home, News, Movies, Discover, Profile) with pushed screens for Coach, Graph and Saved.
 - Dependencies are SDK-compatible and validated by `npx expo install --check` and `npx expo-doctor` (20/20).
 - All features from the original roadmap's first three phases are implemented: news, movies, offline saving, discovery, graph, coach and profile.
-- Data sources work without keys via curated fallbacks; adding `EXPO_PUBLIC_NEWSAPI_KEY` / `EXPO_PUBLIC_TMDB_KEY` switches to live data.
+- Data sources are live-only; adding `EXPO_PUBLIC_NEWSAPI_KEY` / `EXPO_PUBLIC_TMDB_KEY` (locally and in EAS) enables them.
 - Documentation was rewritten to match reality (README, CONTRIBUTING, SCREEN_USAGE, roadmap, status and logs).
 
 ## Verification

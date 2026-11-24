@@ -8,7 +8,7 @@
 
 ## 1. Executive summary
 
-InterestLoop began as a non-compiling prototype with phantom APIs, undeclared dependencies and seven broken screens. Phase 1 delivered a working Expo SDK 58 app with offline data, live feeds with honest demo fallback, full documentation and a reviewed merge to `main`. Phase 2/3 (this pass) added guided learning paths, a privacy-aware time capsule, an automated test suite, a Maestro E2E flow and beta-release preparation. All work goes through PRs with CI gates.
+InterestLoop began as a non-compiling prototype with phantom APIs, undeclared dependencies and seven broken screens. Phase 1 delivered a working Expo SDK 58 app with offline data, live-only feeds with honest empty/error states, full documentation and a reviewed merge to `main`. Phase 2/3 (this pass) added guided learning paths, a privacy-aware time capsule, an automated test suite, a Maestro E2E flow and beta-release preparation. All work goes through PRs with CI gates.
 
 ---
 
@@ -30,13 +30,13 @@ InterestLoop began as a non-compiling prototype with phantom APIs, undeclared de
 | Feature | Status |
 | --- | --- |
 | Home dashboard with quick actions | ✅ |
-| News (NewsAPI + FreeNewsApi + curated fallback, offline saves) | ✅ |
+| News (NewsAPI + FreeNewsApi, live only, offline saves) | ✅ |
 | Movies (TMDB by genre, offline saves) | ✅ |
 | Discover (Hacker News + Reddit, ranking, filters) | ✅ |
 | Knowledge Graph (SVG, pan/zoom, topic details) | ✅ |
 | Mindset Coach (spaced repetition) | ✅ |
 | Profile & Saved library | ✅ |
-| **Learning Paths** (new) — ordered steps from saved content, progress in SQLite, sample paths | ✅ |
+| **Learning Paths** (new) — ordered steps from saved content, progress in SQLite | ✅ |
 | **Time Capsule** (new) — dated shareable snapshot, reflection text opt-in | ✅ |
 | Dark mode, accessibility, loading/error/empty states | ✅ |
 | **Unit + E2E tests** (new) | ✅ |
@@ -101,8 +101,8 @@ Phase 3/4: none found yet — new code passed static checks and tests on first p
 
 ## 6. Known limitations
 
-- **NewsAPI free plan** restricts live mobile requests; falls back to sample stories on a device without a suitable key.
-- **Reddit** may rate-limit unauthenticated JSON requests; the app falls back to Hacker News/curated items.
+- **NewsAPI free plan** restricts live mobile requests; the News screen shows an error state without a suitable key.
+- **Reddit** may rate-limit unauthenticated JSON requests; those results are skipped.
 - **API keys are client-side** (`EXPO_PUBLIC_*`) and only suitable for these read-only public APIs.
 - **Web SQLite** needs COOP/COEP headers (configured); third-party hosts must forward them.
 - **iOS preview** requires Apple credentials in the Expo account; Android preview is unblocked.

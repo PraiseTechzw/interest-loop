@@ -11,6 +11,7 @@ import type {
   CoachResponse,
   DiscoveryItem,
   InterestRow,
+  MindsetPrompt,
   Movie,
   NewsArticle,
   PromptCategory,
@@ -21,7 +22,7 @@ import type {
 
 export type Database = SQLite.SQLiteDatabase;
 export const DATABASE_NAME = 'interest_loop.db';
-const SCHEMA_VERSION = 3;
+const SCHEMA_VERSION = 4;
 
 /** Migrations run once per database version inside SQLiteProvider's onInit. */
 export async function migrateDatabase(db: Database): Promise<void> {
@@ -84,6 +85,14 @@ export async function migrateDatabase(db: Database): Promise<void> {
       item_key TEXT PRIMARY KEY,
       completed INTEGER NOT NULL DEFAULT 0,
       updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+    );
+
+    CREATE TABLE IF NOT EXISTS mindset_prompts (
+      id TEXT PRIMARY KEY,
+      prompt TEXT NOT NULL,
+      category TEXT NOT NULL,
+      hint TEXT NOT NULL DEFAULT '',
+      created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
     );
 
     CREATE INDEX IF NOT EXISTS idx_articles_interest ON saved_articles(interest_tag);
@@ -329,6 +338,46 @@ export async function getInterestActivity(
   }
 
   return counts;
+}
+
+// -- User-created mindset prompts --------------------------------------------
+
+export async function getMindsetPrompts(db: Database): Promise<MindsetPrompt[]> {
+  const rows = await db.getAllAsync<{
+    id: string;
+    prompt: string;
+    category: string;
+    hint: string;
+  }>('SELECT id, prompt, category, hint FROM mindset_prompts ORDER BY created_at DESC');
+
+  return rows.map((row) => ({
+    id: row.id,
+    prompt: row.prompt,
+    category: row.category as PromptCategory,
+    hint: row.hint,
+  }));
+}
+
+export async function addMindsetPrompt(
+  db: Database,
+  input: { id: string; prompt: string; category: PromptCategory; hint: string },
+): Promise<void> {
+  await db.runAsync(
+    'INSERT OR REPLACE INTO mindset_prompts (id, prompt, category, hint) VALUES ($id, $prompt, $category, $hint)',
+    {
+      $id: input.id,
+      $prompt: input.prompt,
+      $category: input.category,
+      $hint: input.hint,
+    },
+  );
+}
+
+export async function deleteMindsetPrompt(db: Database, id: string): Promise<void> {
+  await db.withTransactionAsync(async () => {
+    await db.runAsync('DELETE FROM coach_responses WHERE prompt_id = ?', id);
+    await db.runAsync('DELETE FROM mindset_prompts WHERE id = ?', id);
+  });
 }
 
 // -- Learning paths ----------------------------------------------------------

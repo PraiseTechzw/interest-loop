@@ -2,7 +2,7 @@
 
 ## 2026-11-23 — Phase 3/4: learning paths, time capsule, tests, beta prep
 
-- Added SQLite schema v3 (`learning_progress`) and domain logic in `src/lib/learning-paths.ts`: ordered paths from saved articles/movies/finds, sample paths when empty, per-step completion hooks and reset.
+- Added SQLite schema v3 (`learning_progress`) and domain logic in `src/lib/learning-paths.ts`: ordered paths from saved articles/movies/finds with per-step completion hooks and reset.
 - Added `src/app/learning.tsx` (progress bars, step checkboxes, external links) and linked it from Home and Profile.
 - Added `src/lib/capsule.ts` and `src/app/capsule.tsx`: dated snapshot, top topics, opt-in reflection text, clipboard/native share. Added `expo-clipboard`.
 - Added Jest 30 + jest-expo 58 configuration, 27 unit tests and `.maestro/save-journey.yml`; CI now runs `npm test`.
@@ -19,7 +19,7 @@
 2. Backed up the broken prototype to `/tmp/opencode/interest-loop-legacy/` and rebuilt the app under `src/app/` using Expo Router (tab group + pushed stack screens).
 3. Implemented a versioned SQLite layer with parameterized CRUD and simplified spaced repetition; wired it through `SQLiteProvider` and TanStack Query hooks.
 4. Rebuilt all seven screens plus a Saved library, with loading/error/empty/content states, pull-to-refresh, interest filters, dark mode and accessibility labels.
-5. Added real adapters: NewsAPI, TMDB, Hacker News, Reddit — each degrading to curated demo data with a visible notice.
+5. Added real adapters: NewsAPI, TMDB, Hacker News, Reddit — live-only, with empty/error states and no bundled demo data.
 6. Added ESLint flat config, Metro WASM/COOP config, EAS profiles, `.env.example` and full documentation.
 7. Verified: expo install --check clean, expo-doctor 20/20, tsc clean, lint clean, web export successful, browser QA of all flows.
 

@@ -3,7 +3,7 @@ import { RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native
 
 import { NewsCard } from '@/components/content-cards';
 import {
-  DemoBanner,
+  NoticeBanner,
   EmptyState,
   ErrorState,
   LoadingState,
@@ -67,17 +67,25 @@ export default function NewsScreen() {
             </View>
           ) : null}
 
-          {news.data?.isDemo ? <DemoBanner message={news.data.notice ?? ''} /> : null}
+          {news.data?.notice && news.data.items.length > 0 ? (
+            <NoticeBanner message={news.data.notice} />
+          ) : null}
 
           {news.isLoading ? (
             <LoadingState label="Fetching the latest stories…" />
-          ) : news.isError ? (
-            <ErrorState message="Could not load news." onRetry={() => news.refetch()} />
+          ) : news.isError || news.data?.error ? (
+            <ErrorState
+              message={news.data?.error ?? 'Could not load news.'}
+              onRetry={() => news.refetch()}
+            />
           ) : articles.length === 0 ? (
             <EmptyState
               icon="newspaper-outline"
-              title="No stories in this topic"
-              message="Try another interest, or add more interests in your profile."
+              title="No stories available"
+              message={
+                news.data?.notice ??
+                'No live news is configured. Add an API key in .env to load stories.'
+              }
             />
           ) : (
             articles.map((article) => (

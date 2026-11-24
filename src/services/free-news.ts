@@ -96,7 +96,7 @@ export async function fetchFreeNews(interests: InterestId[]): Promise<FeedResult
   const apiKey = process.env.EXPO_PUBLIC_FREENEWS_KEY?.trim();
 
   if (!apiKey || interests.length === 0) {
-    return { items: [], isDemo: false };
+    return { items: [] };
   }
 
   try {
@@ -140,11 +140,11 @@ export async function fetchFreeNews(interests: InterestId[]): Promise<FeedResult
     });
 
     if (items.length === 0) {
-      return { items: [], isDemo: false, notice: 'No live stories matched from FreeNewsApi.' };
+      return { items: [], notice: 'No live stories matched from FreeNewsApi.' };
     }
 
-    return { items, isDemo: false };
+    return { items };
   } catch {
-    return { items: [], isDemo: false, notice: 'FreeNewsApi unavailable.' };
+    return { items: [], notice: 'FreeNewsApi unavailable.' };
   }
 }
