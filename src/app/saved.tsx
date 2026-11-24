@@ -134,7 +134,7 @@ export default function SavedScreen() {
                       <View style={styles.flex}>
                         <Text style={[styles.title, { color: theme.text }]}>{movie.title}</Text>
                         <Text style={[styles.meta, { color: theme.textMuted }]}>
-                          ⭐ {movie.vote_average.toFixed(1)} · saved {formatDate(movie.saved_at)}
+                          Rating {movie.vote_average.toFixed(1)} · saved {formatDate(movie.saved_at)}
                         </Text>
                         <Text
                           accessibilityRole="button"

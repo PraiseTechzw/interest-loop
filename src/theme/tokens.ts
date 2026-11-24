@@ -20,10 +20,10 @@ export type Theme = {
 const light: Theme = {
   background: '#F5F6FB',
   surface: '#FFFFFF',
-  surfaceAlt: '#EFF1F8',
+  surfaceAlt: '#F1F2F8',
   text: '#171A33',
-  textMuted: '#6A708C',
-  border: '#E2E5F0',
+  textMuted: '#565C7A',
+  border: '#E3E5EF',
   primary: '#5B4FE9',
   primarySoft: '#EDEBFF',
   onPrimary: '#FFFFFF',
@@ -39,8 +39,8 @@ const dark: Theme = {
   surface: '#191C31',
   surfaceAlt: '#232741',
   text: '#F4F5FF',
-  textMuted: '#A2A8C8',
-  border: '#30354F',
+  textMuted: '#B6BCDA',
+  border: '#323751',
   primary: '#9A8EFF',
   primarySoft: '#2A2750',
   onPrimary: '#12132A',
@@ -58,5 +58,5 @@ export function useTheme(): Theme {
   return scheme === 'dark' ? dark : light;
 }
 
-export const radius = { sm: 8, md: 14, lg: 20, pill: 999 };
+export const radius = { sm: 8, md: 10, lg: 14, pill: 999 };
 export const space = { xs: 4, sm: 8, md: 12, lg: 16, xl: 24, xxl: 32 };

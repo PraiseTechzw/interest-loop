@@ -1,31 +1,52 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { Stack, useLocalSearchParams } from 'expo-router';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
-
-import { Card, LoadingState, Screen, ScreenContent, ScreenHeader, SectionHeader } from '@/components/ui';
-import { INTEREST_BY_ID, isInterestId } from '@/constants/interests';
-import { space, useTheme } from '@/theme/tokens';
-import { useInterests, useSavedMovie } from '@/hooks/use-app-data';
-import { fetchMovieById } from '@/services/movies';
 import { useQuery } from '@tanstack/react-query';
+import { useState } from 'react';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { WebView } from 'react-native-webview';
+
+import {
+  Card,
+  LoadingState,
+  SaveButton,
+  Screen,
+  ScreenContent,
+  SectionHeader,
+} from '@/components/ui';
+import { INTEREST_BY_ID, isInterestId } from '@/constants/interests';
+import { useInterests, useSavedMovie, useToggleSavedMovie } from '@/hooks/use-app-data';
+import { formatCount, formatRating } from '@/lib/format';
 import { openExternalUrl } from '@/lib/links';
+import { fetchMovieById, fetchMovieTrailer } from '@/services/movies';
+import { radius, space, useTheme } from '@/theme/tokens';
 import type { Movie } from '@/types/models';
 
 export default function MovieDetailScreen() {
   const theme = useTheme();
   const { id } = useLocalSearchParams<{ id: string }>();
   const tmdbId = Number(id);
-  const saved = useSavedMovie(tmdbId);
+  const valid = Number.isFinite(tmdbId) && tmdbId > 0;
   const interests = useInterests();
+  const saved = useSavedMovie(tmdbId);
+  const toggleSave = useToggleSavedMovie();
+  const [trailerOpen, setTrailerOpen] = useState(false);
 
+  // Always refresh live details so saved movies also get genres, runtime and a trailer.
   const live = useQuery({
     queryKey: ['movie-detail', tmdbId],
     queryFn: () => fetchMovieById(tmdbId, interests.data ?? []),
-    enabled: Number.isFinite(tmdbId) && tmdbId > 0 && !saved.data,
+    enabled: valid,
+    staleTime: 24 * 60 * 60 * 1000,
+  });
+  const trailer = useQuery({
+    queryKey: ['movie-trailer', tmdbId],
+    queryFn: () => fetchMovieTrailer(tmdbId),
+    enabled: valid,
+    staleTime: 7 * 24 * 60 * 60 * 1000,
   });
 
-  const movie: Movie | null = saved.data
+  const offline: Movie | null = saved.data
     ? {
         id: saved.data.tmdb_id,
         title: saved.data.title,
@@ -37,30 +58,41 @@ export default function MovieDetailScreen() {
         releaseDate: '',
         interest: 'geek',
       }
-    : live.data ?? null;
-
-  const isLoading = saved.isLoading || (!saved.data && live.isLoading);
-
-  const trailerUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(
-    `${movie?.title ?? ''} official trailer`,
-  )}`;
+    : null;
+  const movie = live.data ?? offline;
+  const isLoading = live.isLoading || saved.isLoading;
+  const backdrop = movie?.backdropPath
+    ? `https://image.tmdb.org/t/p/w780${movie.backdropPath}`
+    : null;
+  const year = movie?.releaseDate?.slice(0, 4);
+  const interest = movie ? INTEREST_BY_ID[movie.interest] : null;
 
   return (
-    <Screen>
-      <Stack.Screen options={{ title: 'Movie' }} />
+    <Screen edges={['bottom']}>
+      <Stack.Screen options={{ title: movie?.title ?? 'Movie' }} />
       {isLoading ? (
         <LoadingState label="Loading movie…" />
       ) : !movie ? (
         <ScreenContent>
-          <ScreenHeader title="Movie not found" subtitle="Open a movie from the Movies screen." />
+          <Text style={[styles.title, { color: theme.text }]}>Movie not found</Text>
+          <Text style={[styles.body, { color: theme.textMuted }]}>
+            Open a movie from the Movies screen to see its details here.
+          </Text>
         </ScreenContent>
       ) : (
         <ScrollView>
-          <ScreenContent>
+          {backdrop ? (
+            <View style={styles.backdropWrap}>
+              <Image source={{ uri: backdrop }} style={styles.backdrop} contentFit="cover" />
+              <View style={[styles.backdropShade, { backgroundColor: theme.overlay }]} />
+            </View>
+          ) : null}
+
+          <ScreenContent style={backdrop ? styles.contentOverBackdrop : undefined}>
             <View style={styles.header}>
               {movie.posterPath ? (
                 <Image
-                  source={{ uri: `https://image.tmdb.org/t/p/w500${movie.posterPath}` }}
+                  source={{ uri: `https://image.tmdb.org/t/p/w342${movie.posterPath}` }}
                   style={styles.poster}
                   contentFit="cover"
                 />
@@ -71,25 +103,41 @@ export default function MovieDetailScreen() {
               )}
               <View style={styles.headerText}>
                 <Text style={[styles.title, { color: theme.text }]}>{movie.title}</Text>
+                {movie.tagline ? (
+                  <Text style={[styles.tagline, { color: theme.textMuted }]}>
+                    “{movie.tagline}”
+                  </Text>
+                ) : null}
                 <Text style={[styles.meta, { color: theme.textMuted }]}>
-                  ⭐ {movie.rating.toFixed(1)} · {movie.releaseDate.slice(0, 4) || '—'}
+                  ⭐ {formatRating(movie.rating)} · {formatCount(movie.voteCount)} votes
                 </Text>
-                <Text style={[styles.interest, { color: INTEREST_BY_ID[movie.interest].color }]}>
-                  {isInterestId(movie.interest) ? INTEREST_BY_ID[movie.interest].label : movie.interest}
+                <Text style={[styles.meta, { color: theme.textMuted }]}>
+                  {year || 'Year unknown'}
+                  {movie.runtime ? ` · ${Math.floor(movie.runtime / 60)}h ${movie.runtime % 60}m` : ''}
                 </Text>
               </View>
+              <SaveButton
+                saved={Boolean(saved.data)}
+                busy={toggleSave.isPending}
+                onPress={() => toggleSave.mutate({ movie, saved: !saved.data })}
+              />
             </View>
 
-            <View style={styles.actions}>
-              <Card>
-                <Text
-                  accessibilityRole="link"
-                  onPress={() => openExternalUrl(trailerUrl)}
-                  style={{ color: theme.primary, fontWeight: '700' }}>
-                  ▶ Watch trailer
-                </Text>
-              </Card>
-            </View>
+            {interest ? (
+              <Text style={[styles.interest, { color: interest.color }]}>
+                {isInterestId(movie.interest) ? interest.label : movie.interest}
+              </Text>
+            ) : null}
+
+            {movie.genres?.length ? (
+              <View style={styles.genres}>
+                {movie.genres.map((genre) => (
+                  <View key={genre} style={[styles.genre, { backgroundColor: theme.primarySoft }]}>
+                    <Text style={[styles.genreText, { color: theme.primary }]}>{genre}</Text>
+                  </View>
+                ))}
+              </View>
+            ) : null}
 
             <SectionHeader title="Synopsis" />
             <Card>
@@ -98,13 +146,48 @@ export default function MovieDetailScreen() {
               </Text>
             </Card>
 
-            {saved.data ? (
-              <Card>
-                <Text style={{ color: theme.textMuted, fontSize: 12 }}>
-                  Saved on this device — available offline.
-                </Text>
-              </Card>
-            ) : null}
+            {trailer.data || trailer.isLoading ? (
+              <>
+                <SectionHeader title="Trailer" />
+                <Card>
+                  {trailer.data ? (
+                    trailerOpen ? (
+                      <WebView
+                        source={{ uri: `https://www.youtube.com/embed/${trailer.data}?autoplay=1&rel=0` }}
+                        style={styles.webview}
+                        allowsInlineMediaPlayback
+                        mediaPlaybackRequiresUserAction={false}
+                      />
+                    ) : (
+                      <Pressable
+                        accessibilityRole="button"
+                        onPress={() => setTrailerOpen(true)}
+                        style={styles.play}>
+                        <Ionicons name="play-circle" size={22} color={theme.primary} />
+                        <Text style={[styles.playLabel, { color: theme.primary }]}>
+                          Play official trailer
+                        </Text>
+                      </Pressable>
+                    )
+                  ) : (
+                    <LoadingState label="Finding trailer…" />
+                  )}
+                </Card>
+              </>
+            ) : (
+              <Text
+                accessibilityRole="link"
+                onPress={() =>
+                  openExternalUrl(
+                    `https://www.youtube.com/results?search_query=${encodeURIComponent(
+                      `${movie.title} official trailer`,
+                    )}`,
+                  )
+                }
+                style={[styles.link, { color: theme.primary }]}>
+                Search for trailer ↗
+              </Text>
+            )}
           </ScreenContent>
         </ScrollView>
       )}
@@ -113,13 +196,30 @@ export default function MovieDetailScreen() {
 }
 
 const styles = StyleSheet.create({
-  header: { flexDirection: 'row', gap: space.lg, marginTop: 8 },
-  poster: { width: 120, height: 180, borderRadius: 12 },
-  posterFallback: { width: 120, height: 180, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
+  backdropWrap: { height: 190, position: 'relative' },
+  backdrop: { width: '100%', height: '100%' },
+  backdropShade: { ...StyleSheet.absoluteFill, opacity: 0.35 },
+  contentOverBackdrop: { marginTop: -46 },
+  header: { flexDirection: 'row', gap: space.md, alignItems: 'flex-start' },
+  poster: { width: 104, height: 156, borderRadius: radius.md },
+  posterFallback: {
+    width: 104,
+    height: 156,
+    borderRadius: radius.md,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   headerText: { flex: 1 },
-  title: { fontSize: 22, fontWeight: '800', lineHeight: 29 },
-  meta: { fontSize: 13, marginTop: 8 },
-  interest: { fontSize: 12, fontWeight: '700', marginTop: 8 },
-  actions: { marginTop: space.lg },
+  title: { fontSize: 22, fontWeight: '800', lineHeight: 28 },
+  tagline: { fontSize: 13, fontStyle: 'italic', marginTop: 6, lineHeight: 19 },
+  meta: { fontSize: 12, marginTop: 8 },
+  interest: { fontSize: 12, fontWeight: '700', marginTop: space.md },
+  genres: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: space.sm, marginBottom: space.lg },
+  genre: { borderRadius: radius.pill, paddingHorizontal: 10, paddingVertical: 5 },
+  genreText: { fontSize: 11, fontWeight: '700' },
   body: { fontSize: 15, lineHeight: 23 },
+  play: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10, paddingVertical: 12 },
+  playLabel: { fontSize: 14, fontWeight: '700' },
+  webview: { height: 220, borderRadius: radius.sm },
+  link: { fontSize: 14, fontWeight: '700', marginTop: space.lg },
 });

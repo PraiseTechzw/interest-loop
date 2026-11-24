@@ -33,10 +33,26 @@ export default function ProfileScreen() {
   const bio = profile.data?.bio?.trim();
 
   const stats = [
-    { label: 'Articles', value: articles.data?.length ?? 0, icon: 'newspaper-outline' as const },
-    { label: 'Movies', value: movies.data?.length ?? 0, icon: 'film-outline' as const },
-    { label: 'Finds', value: discovery.data?.length ?? 0, icon: 'compass-outline' as const },
-    { label: 'Insights', value: responses.data?.length ?? 0, icon: 'bulb-outline' as const },
+    { label: 'Articles', value: articles.data?.length ?? 0 },
+    { label: 'Movies', value: movies.data?.length ?? 0 },
+    { label: 'Finds', value: discovery.data?.length ?? 0 },
+    { label: 'Insights', value: responses.data?.length ?? 0 },
+  ];
+
+  const tools = [
+    { label: 'Mindset Coach', href: '/coach', icon: 'bulb-outline' as const },
+    { label: 'Knowledge Graph', href: '/graph', icon: 'git-network-outline' as const },
+    { label: 'Learning Paths', href: '/learning', icon: 'library-outline' as const },
+    { label: 'Time Capsule', href: '/capsule', icon: 'hourglass-outline' as const },
+    { label: 'Settings', href: '/settings', icon: 'settings-outline' as const },
+    { label: 'Privacy', href: '/privacy', icon: 'lock-closed-outline' as const },
+    { label: 'Search', href: '/search', icon: 'search-outline' as const },
+    { label: 'Feedback', href: '/feedback', icon: 'chatbox-outline' as const },
+    { label: 'Community', href: '/community', icon: 'people-outline' as const },
+    { label: 'Diagnostics', href: '/diagnostics', icon: 'pulse-outline' as const },
+    { label: 'Export data', href: '/export', icon: 'download-outline' as const },
+    { label: 'Accessibility', href: '/accessibility', icon: 'accessibility-outline' as const },
+    { label: 'Terms', href: '/terms', icon: 'document-text-outline' as const },
   ];
 
   return (
@@ -75,17 +91,16 @@ export default function ProfileScreen() {
             </Pressable>
           </Card>
 
-          <View style={styles.stats}>
-            {stats.map((stat) => (
-              <View
-                key={stat.label}
-                style={[styles.stat, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-                <Ionicons name={stat.icon} size={19} color={theme.primary} />
-                <Text style={[styles.statValue, { color: theme.text }]}>{stat.value}</Text>
-                <Text style={[styles.statLabel, { color: theme.textMuted }]}>{stat.label}</Text>
-              </View>
-            ))}
-          </View>
+          <Card style={styles.statsCard}>
+            <View style={styles.stats}>
+              {stats.map((stat) => (
+                <View key={stat.label} style={styles.stat}>
+                  <Text style={[styles.statValue, { color: theme.text }]}>{stat.value}</Text>
+                  <Text style={[styles.statLabel, { color: theme.textMuted }]}>{stat.label}</Text>
+                </View>
+              ))}
+            </View>
+          </Card>
 
           <SectionHeader title="Your interests" />
           <Text style={[styles.helper, { color: theme.textMuted }]}>
@@ -134,78 +149,19 @@ export default function ProfileScreen() {
           </Pressable>
 
           <SectionHeader title="Tools" />
-          <View style={styles.tools}>
-            <Pressable
-              onPress={() => router.push('/coach')}
-              accessibilityRole="button"
-              style={[styles.tool, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-              <Ionicons name="bulb-outline" size={20} color={theme.accent} />
-              <Text style={[styles.toolText, { color: theme.text }]}>Mindset Coach</Text>
-            </Pressable>
-            <Pressable
-              onPress={() => router.push('/graph')}
-              accessibilityRole="button"
-              style={[styles.tool, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-              <Ionicons name="git-network-outline" size={20} color={theme.primary} />
-              <Text style={[styles.toolText, { color: theme.text }]}>Knowledge Graph</Text>
-            </Pressable>
-            <Pressable
-              onPress={() => router.push('/learning')}
-              accessibilityRole="button"
-              style={[styles.tool, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-              <Ionicons name="library-outline" size={20} color={theme.success} />
-              <Text style={[styles.toolText, { color: theme.text }]}>Learning Paths</Text>
-            </Pressable>
-            <Pressable
-              onPress={() => router.push('/capsule')}
-              accessibilityRole="button"
-              style={[styles.tool, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-              <Ionicons name="hourglass-outline" size={20} color={theme.accent} />
-              <Text style={[styles.toolText, { color: theme.text }]}>Time Capsule</Text>
-            </Pressable>
-            <Pressable
-              onPress={() => router.push('/settings')}
-              accessibilityRole="button"
-              style={[styles.tool, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-              <Ionicons name="settings-outline" size={20} color={theme.textMuted} />
-              <Text style={[styles.toolText, { color: theme.text }]}>Settings</Text>
-            </Pressable>
-            <Pressable
-              onPress={() => router.push('/privacy')}
-              accessibilityRole="button"
-              style={[styles.tool, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-              <Ionicons name="lock-closed-outline" size={20} color={theme.success} />
-              <Text style={[styles.toolText, { color: theme.text }]}>Privacy</Text>
-            </Pressable>
-            <Pressable onPress={() => router.push('/search')} accessibilityRole="button" style={[styles.tool, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-              <Ionicons name="search-outline" size={20} color={theme.primary} />
-              <Text style={[styles.toolText, { color: theme.text }]}>Search</Text>
-            </Pressable>
-            <Pressable onPress={() => router.push('/feedback')} accessibilityRole="button" style={[styles.tool, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-              <Ionicons name="chatbox-outline" size={20} color={theme.accent} />
-              <Text style={[styles.toolText, { color: theme.text }]}>Feedback</Text>
-            </Pressable>
-            <Pressable onPress={() => router.push('/community')} accessibilityRole="button" style={[styles.tool, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-              <Ionicons name="people-outline" size={20} color={theme.success} />
-              <Text style={[styles.toolText, { color: theme.text }]}>Community</Text>
-            </Pressable>
-            <Pressable onPress={() => router.push('/diagnostics')} accessibilityRole="button" style={[styles.tool, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-              <Ionicons name="pulse-outline" size={20} color={theme.primary} />
-              <Text style={[styles.toolText, { color: theme.text }]}>Diagnostics</Text>
-            </Pressable>
-            <Pressable onPress={() => router.push('/export')} accessibilityRole="button" style={[styles.tool, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-              <Ionicons name="download-outline" size={20} color={theme.primary} />
-              <Text style={[styles.toolText, { color: theme.text }]}>Export data</Text>
-            </Pressable>
-            <Pressable onPress={() => router.push('/accessibility')} accessibilityRole="button" style={[styles.tool, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-              <Ionicons name="accessibility-outline" size={20} color={theme.success} />
-              <Text style={[styles.toolText, { color: theme.text }]}>Accessibility</Text>
-            </Pressable>
-            <Pressable onPress={() => router.push('/terms')} accessibilityRole="button" style={[styles.tool, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-              <Ionicons name="document-text-outline" size={20} color={theme.textMuted} />
-              <Text style={[styles.toolText, { color: theme.text }]}>Terms</Text>
-            </Pressable>
-          </View>
+          <Card style={styles.toolsCard}>
+            {tools.map((tool, index) => (
+              <Pressable
+                key={tool.label}
+                onPress={() => router.push(tool.href)}
+                accessibilityRole="button"
+                style={[styles.toolRow, index > 0 && { borderTopWidth: 1, borderColor: theme.border }]}>
+                <Ionicons name={tool.icon} size={18} color={theme.textMuted} />
+                <Text style={[styles.toolLabel, { color: theme.text }]}>{tool.label}</Text>
+                <Ionicons name="chevron-forward" size={16} color={theme.textMuted} />
+              </Pressable>
+            ))}
+          </Card>
 
           <SectionHeader title="Data sources" />
           <Card>
@@ -257,17 +213,15 @@ const styles = StyleSheet.create({
     marginTop: space.md,
   },
   editLabel: { fontSize: 13, fontWeight: '700' },
-  stats: { flexDirection: 'row', gap: space.sm, marginBottom: space.xl },
+  statsCard: { paddingVertical: space.md },
+  stats: { flexDirection: 'row' },
   stat: {
     flex: 1,
-    borderWidth: 1,
-    borderRadius: radius.md,
-    paddingVertical: space.md,
     alignItems: 'center',
-    gap: 4,
+    gap: 2,
   },
-  statValue: { fontSize: 18, fontWeight: '800' },
-  statLabel: { fontSize: 10, fontWeight: '600' },
+  statValue: { fontSize: 24, fontWeight: '500' },
+  statLabel: { fontSize: 12, fontWeight: '400' },
   helper: { fontSize: 12, lineHeight: 17, marginBottom: space.md },
   chips: { flexDirection: 'row', flexWrap: 'wrap', marginBottom: space.xl },
   linkCard: {
@@ -287,15 +241,8 @@ const styles = StyleSheet.create({
   },
   rowTitle: { fontSize: 15, fontWeight: '700' },
   rowSubtitle: { fontSize: 12, marginTop: 3 },
-  tools: { flexDirection: 'row', flexWrap: 'wrap', gap: space.md, marginBottom: space.xl },
-  tool: {
-    width: '48%',
-    borderWidth: 1,
-    borderRadius: radius.md,
-    padding: space.md,
-    alignItems: 'center',
-    gap: 6,
-  },
-  toolText: { fontSize: 12, fontWeight: '700', textAlign: 'center' },
+  toolsCard: { paddingVertical: 0, paddingHorizontal: space.md },
+  toolRow: { flexDirection: 'row', alignItems: 'center', gap: space.md, paddingVertical: 12 },
+  toolLabel: { flex: 1, fontSize: 14, fontWeight: '500' },
   sourceRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10 },
 });

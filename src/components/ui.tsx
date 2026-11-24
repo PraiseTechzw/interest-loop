@@ -118,7 +118,6 @@ export function Card({
     {
       backgroundColor: theme.surface,
       borderColor: theme.border,
-      shadowColor: theme.shadow,
     },
     style,
   ];
@@ -314,18 +313,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: space.md,
+    marginTop: space.lg,
+    marginBottom: space.sm,
   },
-  sectionTitle: { fontSize: 17, fontWeight: '700' },
+  sectionTitle: { fontSize: 17, fontWeight: '700', letterSpacing: -0.3 },
   card: {
     borderRadius: radius.lg,
     borderWidth: 1,
     padding: space.lg,
     marginBottom: space.md,
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.06,
-    shadowRadius: 10,
-    elevation: 2,
   },
   pressed: { opacity: 0.75 },
   pill: {

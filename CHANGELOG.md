@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.4.0 — UI polish (24 Nov 2026)
+
+- Flatter surfaces: cards have no resting shadows, smaller radius and one tone-step separation.
+- Plain text navigation replaced icon-tile rows; profile metrics became a flat strip.
+- Cleaner article/movie cards: one primary link, ratings as text, no emoji-as-icons.
+- Stronger muted text contrast and tighter type tracking; added `DESIGN.md` as the design source of truth.
+- Verified with the Impeccable detector and 390px production screenshots.
+
 ## 1.3.0 — Complete product screens (24 Nov 2026)
 
 ### Added

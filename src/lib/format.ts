@@ -21,6 +21,11 @@ export function formatRating(value: number): string {
   return value > 0 ? value.toFixed(1) : '—';
 }
 
+export function formatCount(value: number): string {
+  if (value >= 1000) return `${(value / 1000).toFixed(1)}k`;
+  return String(value);
+}
+
 export function truncate(text: string, max: number): string {
   const clean = text.replace(/\s+/g, ' ').trim();
   return clean.length > max ? `${clean.slice(0, max - 1).trimEnd()}…` : clean;
