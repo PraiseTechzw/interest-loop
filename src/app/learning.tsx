@@ -1,4 +1,4 @@
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
@@ -12,7 +12,7 @@ import {
   ScreenHeader,
   SectionHeader,
 } from '@/components/ui';
-import { INTEREST_BY_ID } from '@/constants/interests';
+import { getInterest } from '@/lib/interest-catalogue';
 import {
   useLearningPaths,
   useResetLearningProgress,
@@ -26,6 +26,7 @@ const STEP_ICONS: Record<PathStep['kind'], keyof typeof Ionicons.glyphMap> = {
   article: 'newspaper-outline',
   movie: 'film-outline',
   find: 'compass-outline',
+  note: 'create-outline',
 };
 
 export default function LearningScreen() {
@@ -67,7 +68,7 @@ export default function LearningScreen() {
           ) : (
             learning.paths.map((path) => {
               const percent = path.total > 0 ? Math.round((path.completed / path.total) * 100) : 0;
-              const interest = INTEREST_BY_ID[path.interest];
+              const interest = getInterest(path.interest);
 
               return (
                 <Card key={path.id}>
@@ -151,7 +152,7 @@ export default function LearningScreen() {
             <Text style={[styles.description, { color: theme.textMuted }]}>
               Each path collects the articles, movies and discoveries you saved in one topic. Work
               through the steps in order and tick them off — progress is stored on your device.
-              When you have no saved items yet, a sample path shows what to expect.
+              Add your own notes from the Capture screen and they become steps too.
             </Text>
             <Text
               accessibilityRole="link"

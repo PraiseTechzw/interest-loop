@@ -1,12 +1,12 @@
-import {
-  INTEREST_BY_ID,
-  INTEREST_IDS,
-  isInterestId,
-  type InterestId,
-} from '@/constants/interests';
-import type { SavedArticleRow, SavedDiscoveryRow, SavedMovieRow } from '@/types/models';
+import { getInterest } from '@/lib/interest-catalogue';
+import type {
+  SavedArticleRow,
+  SavedDiscoveryRow,
+  SavedMovieRow,
+  SavedNoteRow,
+} from '@/types/models';
 
-export type StepKind = 'article' | 'movie' | 'find';
+export type StepKind = 'article' | 'movie' | 'find' | 'note';
 
 export type PathStep = {
   key: string;
@@ -14,13 +14,13 @@ export type PathStep = {
   title: string;
   subtitle: string;
   url?: string;
-  interest: InterestId;
+  interest: string;
   done: boolean;
 };
 
 export type LearningPath = {
   id: string;
-  interest: InterestId;
+  interest: string;
   title: string;
   description: string;
   steps: PathStep[];
@@ -29,18 +29,19 @@ export type LearningPath = {
 };
 
 type Input = {
-  interests: InterestId[];
+  interests: string[];
   articles: SavedArticleRow[];
   movies: SavedMovieRow[];
   finds: SavedDiscoveryRow[];
+  notes: SavedNoteRow[];
   progress: Record<string, boolean>;
 };
 
-function interestForMovie(genre: string, interests: InterestId[]): InterestId {
+function interestForMovie(genre: string, interests: string[]): string {
   const genreIds = genre.split(',').filter(Boolean).map(Number);
   return (
     interests.find((id) =>
-      INTEREST_BY_ID[id].movieGenres.some((movieGenre) => genreIds.includes(movieGenre)),
+      getInterest(id).movieGenres.some((movieGenre) => genreIds.includes(movieGenre)),
     ) ?? interests[0]
   );
 }
@@ -51,17 +52,18 @@ export function buildLearningPaths({
   articles,
   movies,
   finds,
+  notes,
   progress,
 }: Input): LearningPath[] {
-  const grouped = new Map<InterestId, PathStep[]>();
-  const add = (interest: InterestId, step: PathStep) => {
+  const grouped = new Map<string, PathStep[]>();
+  const add = (interest: string, step: PathStep) => {
     const existing = grouped.get(interest) ?? [];
     existing.push(step);
     grouped.set(interest, existing);
   };
 
   for (const article of articles) {
-    const interest = isInterestId(article.interest_tag) ? article.interest_tag : 'geek';
+    const interest = article.interest_tag || 'geek';
     add(interest, {
       key: `article:${article.url}`,
       kind: 'article',
@@ -86,7 +88,7 @@ export function buildLearningPaths({
   }
 
   for (const find of finds) {
-    const interest = isInterestId(find.interest_tag) ? find.interest_tag : 'problem-solving';
+    const interest = find.interest_tag || 'problem-solving';
     add(interest, {
       key: `find:${find.id}`,
       kind: 'find',
@@ -98,13 +100,26 @@ export function buildLearningPaths({
     });
   }
 
-  return INTEREST_IDS.filter((id) => interests.includes(id))
+  for (const note of notes) {
+    const interest = note.interest_tag || interests[0] || 'geek';
+    add(interest, {
+      key: `note:${note.id}`,
+      kind: 'note',
+      title: note.title,
+      subtitle: 'Your note',
+      url: note.url || undefined,
+      interest,
+      done: Boolean(progress[`note:${note.id}`]),
+    });
+  }
+
+  return Array.from(new Set(interests))
     .map((id): LearningPath => {
       const steps = (grouped.get(id) ?? []).slice(0, 8);
       return {
         id,
         interest: id,
-        title: `${INTEREST_BY_ID[id].label} path`,
+        title: `${getInterest(id).label} path`,
         description: 'Built from the items you saved for later.',
         steps,
         completed: steps.filter((step) => step.done).length,

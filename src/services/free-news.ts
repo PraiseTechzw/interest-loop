@@ -1,5 +1,5 @@
-import type { InterestId } from '@/constants/interests';
 import { buildUrl, fetchJson } from '@/lib/api';
+import { getInterest } from '@/lib/interest-catalogue';
 import type { FeedResult, NewsArticle } from '@/types/models';
 
 /**
@@ -17,7 +17,7 @@ const INTERESTS_TO_QUERY = 4;
 const ARTICLES_PER_INTEREST = 2;
 
 /** `in_title` uses AND semantics, so each interest maps to a short keyword phrase. */
-const SEARCH_TERMS: Record<InterestId, string> = {
+const SEARCH_TERMS: Record<string, string> = {
   ci: 'intelligence',
   mi6: 'espionage',
   geek: 'technology',
@@ -74,7 +74,7 @@ function pacedFetchJson<T>(url: string, apiKey: string): Promise<T> {
 function toArticle(
   item: FreeNewsItem,
   details: FreeNewsDetails,
-  interest: InterestId,
+  interest: string,
 ): NewsArticle | null {
   const title = (details.title ?? item.title ?? '').trim();
   const url = details.original_url?.trim();
@@ -93,7 +93,15 @@ function toArticle(
   };
 }
 
-export async function fetchFreeNews(interests: InterestId[]): Promise<FeedResult<NewsArticle>> {
+/** Short keyword phrase for in_title (which uses AND semantics). */
+function searchTerm(id: string): string {
+  return (
+    SEARCH_TERMS[id] ??
+    (getInterest(id).label.split(/\s+(OR|AND)\s+/i)[0].slice(0, 30) || id)
+  );
+}
+
+export async function fetchFreeNews(interests: string[]): Promise<FeedResult<NewsArticle>> {
   const apiKey = process.env.EXPO_PUBLIC_FREENEWS_KEY?.trim();
 
   if (!apiKey || interests.length === 0) {
@@ -107,7 +115,7 @@ export async function fetchFreeNews(interests: InterestId[]): Promise<FeedResult
         pacedFetchJson<FreeNewsListResponse>(
           buildUrl(`${BASE_URL}/news`, {
             language: 'en',
-            in_title: SEARCH_TERMS[interest],
+            in_title: searchTerm(interest),
             order_by: 'recent',
           }),
           apiKey,

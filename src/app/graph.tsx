@@ -1,11 +1,11 @@
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { PanResponder, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import Svg, { Line } from 'react-native-svg';
 
 import { Card, EmptyState, ErrorState, LoadingState, Screen, ScreenContent, ScreenHeader, SectionHeader } from '@/components/ui';
-import { INTEREST_BY_ID, RELATED_INTERESTS } from '@/constants/interests';
+import { getInterest } from '@/lib/interest-catalogue';
 import { useInterestActivity, useInterests } from '@/hooks/use-app-data';
 import { buildGraph } from '@/lib/graph';
 import { radius, space, useTheme } from '@/theme/tokens';
@@ -168,26 +168,35 @@ export default function GraphScreen() {
               <View style={styles.detailHeader}>
                 <View style={[styles.detailDot, { backgroundColor: selected.color }]} />
                 <Text style={[styles.detailTitle, { color: theme.text }]}>
-                  {INTEREST_BY_ID[selected.interest].label}
+                  {getInterest(selected.interest).label}
                 </Text>
               </View>
               <Text style={[styles.detailText, { color: theme.textMuted }]}>
-                {INTEREST_BY_ID[selected.interest].blurb.trim()} You have saved{' '}
+                {getInterest(selected.interest).blurb.trim()} You have saved{' '}
                 {selected.savedCount} {selected.savedCount === 1 ? 'item' : 'items'} in this topic.
               </Text>
               <Text style={[styles.detailLabel, { color: theme.text }]}>Connected topics</Text>
               <View style={styles.related}>
-                {RELATED_INTERESTS[selected.interest]
-                  .filter((id) => (interests.data ?? []).includes(id))
-                  .map((id) => (
-                    <View
-                      key={id}
-                      style={[styles.relatedPill, { backgroundColor: theme.surfaceAlt }]}>
-                      <Text style={{ color: theme.text, fontSize: 12, fontWeight: '600' }}>
-                        {INTEREST_BY_ID[id].short}
-                      </Text>
-                    </View>
-                  ))}
+                {Array.from(
+                  new Set(
+                    edges
+                      .filter((edge) => edge.from === selected.id || edge.to === selected.id)
+                      .map((edge) => (edge.from === selected.id ? edge.to : edge.from)),
+                  ),
+                ).map((id) => (
+                  <View key={id} style={[styles.relatedPill, { backgroundColor: theme.surfaceAlt }]}>
+                    <Text style={{ color: theme.text, fontSize: 12, fontWeight: '600' }}>
+                      {getInterest(id).short}
+                    </Text>
+                  </View>
+                ))}
+                {edges.every(
+                  (edge) => edge.from !== selected.id && edge.to !== selected.id,
+                ) ? (
+                  <Text style={{ color: theme.textMuted, fontSize: 12 }}>
+                    Save a few items to link this topic to others.
+                  </Text>
+                ) : null}
               </View>
             </Card>
           ) : (

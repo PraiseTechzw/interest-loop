@@ -1,8 +1,11 @@
-import type { InterestId } from '@/constants/interests';
+import { makeCustomInterest, type InterestId } from '@/constants/interests';
+import { registerCustomInterests } from '@/lib/interest-catalogue';
 import { buildGraph } from '@/lib/graph';
 
 describe('buildGraph', () => {
   const activity: Record<string, number> = { ci: 2, mi6: 1, geek: 5, '3d': 0 };
+
+  afterEach(() => registerCustomInterests([]));
 
   it('creates exactly one node per selected interest', () => {
     const selected: InterestId[] = ['ci', 'mi6', 'geek', '3d'];
@@ -109,6 +112,22 @@ describe('buildGraph', () => {
       expect(edge.from < edge.to).toBe(true);
       expect(edge.id).toBe(`${edge.from}:${edge.to}`);
     }
+  });
+
+  it('uses custom topic metadata and links it via shared saves', () => {
+    registerCustomInterests([
+      makeCustomInterest({ id: 'custom-watches', label: 'Vintage watches', color: '#123456' }),
+    ]);
+
+    const { nodes, edges } = buildGraph(['custom-watches', 'geek'], {
+      'custom-watches': 2,
+      geek: 4,
+    });
+
+    expect(nodes[0]).toMatchObject({ label: 'Vintage watch…', color: '#123456' });
+    expect(edges).toEqual([
+      { id: 'custom-watches:geek', from: 'custom-watches', to: 'geek', strength: 3 },
+    ]);
   });
 
   it('derives edge strength from shared activity, capped at 3', () => {

@@ -6,6 +6,7 @@ export type CapsuleData = {
   articleCount: number;
   movieCount: number;
   findCount: number;
+  noteCount: number;
   reflectionCount: number;
   topTopics: string[];
   reflections?: string[];
@@ -17,7 +18,7 @@ export function buildCapsuleText(data: CapsuleData): string {
     `InterestLoop time capsule — ${data.date}`,
     '',
     `Interests: ${data.interestLabels.length > 0 ? data.interestLabels.join(', ') : 'still choosing'}`,
-    `Saved this year: ${data.articleCount} articles · ${data.movieCount} movies · ${data.findCount} finds`,
+    `Saved this year: ${data.articleCount} articles · ${data.movieCount} movies · ${data.findCount} finds · ${data.noteCount} of your own notes`,
     `Top topics: ${data.topTopics.length > 0 ? data.topTopics.join(', ') : 'exploring'}`,
     `Mindset reflections recorded: ${data.reflectionCount}`,
   ];

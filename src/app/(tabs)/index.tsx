@@ -1,4 +1,4 @@
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { Redirect, router } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
@@ -14,7 +14,7 @@ import {
   ScreenHeader,
   SectionHeader,
 } from '@/components/ui';
-import { INTEREST_BY_ID } from '@/constants/interests';
+import { getInterest } from '@/lib/interest-catalogue';
 import {
   useDiscoveryFeed,
   useInterests,
@@ -181,7 +181,7 @@ export default function HomeScreen() {
               {selected.slice(0, 5).map((id) => (
                 <View key={id} style={styles.heroPill}>
                   <Text style={{ color: theme.onPrimary, fontSize: 12, fontWeight: '700' }}>
-                    {INTEREST_BY_ID[id].short}
+                    {getInterest(id).short}
                   </Text>
                 </View>
               ))}
@@ -190,6 +190,7 @@ export default function HomeScreen() {
 
           <View style={styles.actions}>
             {[
+              { label: 'Capture', href: '/capture' },
               { label: 'Coach', href: '/coach' },
               { label: 'Graph', href: '/graph' },
               { label: 'Saved', href: '/saved' },

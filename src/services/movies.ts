@@ -1,5 +1,5 @@
-import { INTEREST_BY_ID, type InterestId } from '@/constants/interests';
 import { buildUrl, fetchJson } from '@/lib/api';
+import { getInterest } from '@/lib/interest-catalogue';
 import type { FeedResult, Movie } from '@/types/models';
 
 type TmdbResponse = {
@@ -15,10 +15,10 @@ type TmdbResponse = {
   }[];
 };
 
-function pickInterest(genreIds: number[], interests: InterestId[]): InterestId {
+function pickInterest(genreIds: number[], interests: string[]): string {
   return (
     interests.find((id) =>
-      INTEREST_BY_ID[id].movieGenres.some((genre) => genreIds.includes(genre)),
+      getInterest(id).movieGenres.some((genre) => genreIds.includes(genre)),
     ) ?? interests[0]
   );
 }
@@ -33,7 +33,7 @@ export function rankingScore(rating: number, votes: number): number {
 
 export async function fetchMovieById(
   id: number,
-  interests: InterestId[],
+  interests: string[],
 ): Promise<Movie | null> {
   const apiKey = process.env.EXPO_PUBLIC_TMDB_KEY?.trim();
   if (!apiKey) return null;
@@ -106,7 +106,7 @@ export async function fetchMovieTrailer(id: number): Promise<string | null> {
   }
 }
 
-export async function fetchMovies(interests: InterestId[]): Promise<FeedResult<Movie>> {
+export async function fetchMovies(interests: string[]): Promise<FeedResult<Movie>> {
   const apiKey = process.env.EXPO_PUBLIC_TMDB_KEY?.trim();
 
   if (!apiKey || interests.length === 0) {
@@ -119,7 +119,7 @@ export async function fetchMovies(interests: InterestId[]): Promise<FeedResult<M
   // TMDB treats a comma as AND (a movie must match every genre). With several
   // interests selected that yields zero results, so use OR to match any genre.
   const genres = Array.from(
-    new Set(interests.flatMap((id) => INTEREST_BY_ID[id].movieGenres)),
+    new Set(interests.flatMap((id) => getInterest(id).movieGenres)),
   ).join('|');
 
   try {

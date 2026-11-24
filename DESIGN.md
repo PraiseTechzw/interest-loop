@@ -49,7 +49,9 @@ One family (system sans). Visible scale: 28/24 for screen titles, 17 for section
 - No KPI tiles with icons and coloured accents.
 - No gradient hero, no glass, no glow.
 - No repeated card grid where a list or plain rows would do.
-- No emoji as icons, no decorative dividers, no index numbers.
+- No emoji as icons, no decorative dividers. Ranking numbers are allowed only on
+  movie cards, where the numbered `#1/#2/#3` badge is the product's explicit
+  ranking signal; use a pill badge, never a bare numeral.
 - No thin uppercase tracked labels.
 - No nested cards.
 

@@ -1,4 +1,4 @@
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { router } from 'expo-router';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
@@ -6,6 +6,7 @@ import { Card, Pill, Screen, ScreenContent, ScreenHeader, SectionHeader } from '
 import { INTERESTS } from '@/constants/interests';
 import {
   useCoachResponses,
+  useInterestCatalogue,
   useInterests,
   useProfile,
   useSavedArticles,
@@ -20,6 +21,7 @@ import { radius, space, useTheme } from '@/theme/tokens';
 export default function ProfileScreen() {
   const theme = useTheme();
   const interests = useInterests();
+  const catalogue = useInterestCatalogue();
   const profile = useProfile();
   const setInterest = useSetInterest();
   const articles = useSavedArticles();
@@ -40,6 +42,8 @@ export default function ProfileScreen() {
   ];
 
   const tools = [
+    { label: 'Capture a thought', href: '/capture', icon: 'create-outline' as const },
+    { label: 'My topics', href: '/interests', icon: 'sparkles-outline' as const },
     { label: 'Mindset Coach', href: '/coach', icon: 'bulb-outline' as const },
     { label: 'Knowledge Graph', href: '/graph', icon: 'git-network-outline' as const },
     { label: 'Learning Paths', href: '/learning', icon: 'library-outline' as const },
@@ -48,9 +52,8 @@ export default function ProfileScreen() {
     { label: 'Privacy', href: '/privacy', icon: 'lock-closed-outline' as const },
     { label: 'Search', href: '/search', icon: 'search-outline' as const },
     { label: 'Feedback', href: '/feedback', icon: 'chatbox-outline' as const },
-    { label: 'Community', href: '/community', icon: 'people-outline' as const },
     { label: 'Diagnostics', href: '/diagnostics', icon: 'pulse-outline' as const },
-    { label: 'Export data', href: '/export', icon: 'download-outline' as const },
+    { label: 'Backup & restore', href: '/export', icon: 'download-outline' as const },
     { label: 'Accessibility', href: '/accessibility', icon: 'accessibility-outline' as const },
     { label: 'Terms', href: '/terms', icon: 'document-text-outline' as const },
   ];
@@ -107,19 +110,30 @@ export default function ProfileScreen() {
             News, movies and your knowledge graph update as you change these.
           </Text>
           <View style={styles.chips}>
-            {INTERESTS.map((interest) => (
+            {(catalogue.data ?? INTERESTS).map((interest) => (
               <Pill
                 key={interest.id}
                 label={interest.label}
                 icon={interest.icon}
                 color={interest.color}
                 selected={selected.has(interest.id)}
+                role="checkbox"
+                busy={setInterest.isPending}
                 onPress={() =>
                   setInterest.mutate({ tag: interest.id, selected: !selected.has(interest.id) })
                 }
               />
             ))}
           </View>
+          <Pressable
+            onPress={() => router.push('/interests')}
+            accessibilityRole="button"
+            style={styles.manageTopics}>
+            <Ionicons name="add-circle-outline" size={16} color={theme.primary} />
+            <Text style={{ color: theme.primary, fontWeight: '700', fontSize: 13 }}>
+              Add or manage your own topics
+            </Text>
+          </Pressable>
 
           <SectionHeader title="Your library" />
           <Pressable
@@ -223,7 +237,8 @@ const styles = StyleSheet.create({
   statValue: { fontSize: 24, fontWeight: '500' },
   statLabel: { fontSize: 12, fontWeight: '400' },
   helper: { fontSize: 12, lineHeight: 17, marginBottom: space.md },
-  chips: { flexDirection: 'row', flexWrap: 'wrap', marginBottom: space.xl },
+  chips: { flexDirection: 'row', flexWrap: 'wrap', marginBottom: space.sm },
+  manageTopics: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 6, marginBottom: space.xl },
   linkCard: {
     borderWidth: 1,
     borderRadius: radius.lg,

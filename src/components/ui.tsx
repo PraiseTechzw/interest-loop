@@ -1,4 +1,4 @@
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import type { ReactNode } from 'react';
 import {
   ActivityIndicator,
@@ -13,7 +13,26 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { radius, space, useTheme } from '@/theme/tokens';
 
+import { useConnectivity } from './connectivity-provider';
+
 export type SafeAreaEdge = 'top' | 'bottom';
+
+/** Shown at the top of every screen when the device has no connection. */
+export function OfflineBanner() {
+  const { isOffline } = useConnectivity();
+  const theme = useTheme();
+  if (!isOffline) return null;
+  return (
+    <View
+      accessibilityRole="alert"
+      style={[styles.offlineBanner, { backgroundColor: theme.surfaceAlt, borderColor: theme.border }]}>
+      <Ionicons name="cloud-offline-outline" size={14} color={theme.textMuted} />
+      <Text style={[styles.offlineText, { color: theme.textMuted }]}>
+        Offline — showing what’s saved on this device
+      </Text>
+    </View>
+  );
+}
 
 /**
  * Root container for a route. Screens with a native Stack header already get
@@ -39,6 +58,7 @@ export function Screen({
           paddingBottom: edges.includes('bottom') ? insets.bottom : 0,
         },
       ]}>
+      <OfflineBanner />
       {children}
     </View>
   );
@@ -67,7 +87,9 @@ export function ScreenHeader({
   return (
     <View style={styles.headerRow}>
       <View style={styles.headerText}>
-        <Text style={[styles.headerTitle, { color: theme.text }]}>{title}</Text>
+        <Text accessibilityRole="header" style={[styles.headerTitle, { color: theme.text }]}>
+          {title}
+        </Text>
         {subtitle ? (
           <Text style={[styles.headerSubtitle, { color: theme.textMuted }]}>{subtitle}</Text>
         ) : null}
@@ -89,7 +111,9 @@ export function SectionHeader({
   const theme = useTheme();
   return (
     <View style={styles.sectionHeader}>
-      <Text style={[styles.sectionTitle, { color: theme.text }]}>{title}</Text>
+      <Text accessibilityRole="header" style={[styles.sectionTitle, { color: theme.text }]}>
+        {title}
+      </Text>
       {actionLabel && onAction ? (
         <Pressable onPress={onAction} hitSlop={8} accessibilityRole="button">
           <Text style={{ color: theme.primary, fontWeight: '600', fontSize: 13 }}>
@@ -143,15 +167,22 @@ export function Pill({
   selected = false,
   onPress,
   icon,
+  role = 'radio',
+  busy = false,
 }: {
   label: string;
   color?: string;
   selected?: boolean;
   onPress?: () => void;
   icon?: keyof typeof Ionicons.glyphMap;
+  role?: 'radio' | 'checkbox';
+  busy?: boolean;
 }) {
   const theme = useTheme();
   const tint = color ?? theme.primary;
+  // onPrimary is tuned for theme.primary; arbitrary interest tints need a
+  // luminance-aware foreground so selected chips stay legible in both themes.
+  const onTint = isLightColor(tint) ? '#171A33' : '#FFFFFF';
   const content = (
     <View
       style={[
@@ -165,13 +196,11 @@ export function Pill({
         <Ionicons
           name={icon}
           size={14}
-          color={selected ? theme.onPrimary : theme.textMuted}
+          color={selected ? onTint : theme.textMuted}
           style={styles.pillIcon}
         />
       ) : null}
-      <Text style={[styles.pillText, { color: selected ? theme.onPrimary : theme.text }]}>
-        {label}
-      </Text>
+      <Text style={[styles.pillText, { color: selected ? onTint : theme.text }]}>{label}</Text>
     </View>
   );
 
@@ -180,13 +209,23 @@ export function Pill({
   return (
     <Pressable
       onPress={onPress}
-      accessibilityRole="checkbox"
-      accessibilityState={{ checked: selected }}
+      disabled={busy}
+      accessibilityRole={role}
+      accessibilityState={{ checked: selected, busy, disabled: busy }}
       accessibilityLabel={label}
-      hitSlop={4}>
+      hitSlop={8}>
       {content}
     </Pressable>
   );
+}
+
+function isLightColor(hex: string): boolean {
+  const clean = hex.replace('#', '');
+  if (clean.length !== 6) return false;
+  const r = parseInt(clean.slice(0, 2), 16);
+  const g = parseInt(clean.slice(2, 4), 16);
+  const b = parseInt(clean.slice(4, 6), 16);
+  return (r * 299 + g * 587 + b * 114) / 1000 > 150;
 }
 
 export function SaveButton({
@@ -204,7 +243,9 @@ export function SaveButton({
       onPress={onPress}
       disabled={busy}
       accessibilityRole="button"
-      accessibilityLabel={saved ? 'Remove from saved' : 'Save for offline reading'}
+      accessibilityLabel={saved ? 'Remove from saved' : 'Save on this device'}
+      accessibilityState={{ disabled: busy, selected: saved }}
+      hitSlop={8}
       style={({ pressed }) => [
         styles.saveButton,
         {
@@ -222,15 +263,25 @@ export function SaveButton({
   );
 }
 
-export function NoticeBanner({ message }: { message: string }) {
+export function NoticeBanner({
+  message,
+  tone = 'info',
+}: {
+  message: string;
+  tone?: 'info' | 'warning' | 'error';
+}) {
   const theme = useTheme();
+  const accent =
+    tone === 'error' ? theme.danger : tone === 'warning' ? theme.accent : theme.primary;
   return (
     <View
-      style={[
-        styles.banner,
-        { backgroundColor: theme.primarySoft, borderColor: theme.border },
-      ]}>
-      <Ionicons name="information-circle-outline" size={16} color={theme.primary} />
+      accessibilityRole="alert"
+      style={[styles.banner, { backgroundColor: theme.primarySoft, borderColor: theme.border }]}>
+      <Ionicons
+        name={tone === 'info' ? 'information-circle-outline' : 'warning-outline'}
+        size={16}
+        color={accent}
+      />
       <Text style={[styles.bannerText, { color: theme.text }]}>{message}</Text>
     </View>
   );
@@ -239,17 +290,30 @@ export function NoticeBanner({ message }: { message: string }) {
 export function LoadingState({ label = 'Loading…' }: { label?: string }) {
   const theme = useTheme();
   return (
-    <View style={styles.state}>
+    <View style={styles.state} accessibilityRole="progressbar" accessibilityLabel={label}>
       <ActivityIndicator size="large" color={theme.primary} />
       <Text style={[styles.stateText, { color: theme.textMuted }]}>{label}</Text>
     </View>
   );
 }
 
+/** Feed-level fallback when the network is unavailable. */
+export function OfflineEmptyState({ onViewSaved }: { onViewSaved: () => void }) {
+  return (
+    <EmptyState
+      icon="cloud-offline-outline"
+      title="You’re offline"
+      message="Live feeds need a connection. Anything you saved is still available on this device."
+      actionLabel="View saved items"
+      onAction={onViewSaved}
+    />
+  );
+}
+
 export function ErrorState({ message, onRetry }: { message: string; onRetry: () => void }) {
   const theme = useTheme();
   return (
-    <View style={styles.state}>
+    <View style={styles.state} accessibilityRole="alert">
       <Ionicons name="alert-circle-outline" size={32} color={theme.danger} />
       <Text style={[styles.stateText, { color: theme.text }]}>{message}</Text>
       <Pressable
@@ -299,6 +363,15 @@ export function EmptyState({
 
 const styles = StyleSheet.create({
   screen: { flex: 1 },
+  offlineBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    borderBottomWidth: 1,
+    paddingHorizontal: space.lg,
+    paddingVertical: 8,
+  },
+  offlineText: { fontSize: 12, fontWeight: '600' },
   content: { paddingHorizontal: space.lg, paddingTop: space.md, paddingBottom: space.xxl },
   headerRow: {
     flexDirection: 'row',

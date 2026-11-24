@@ -1,23 +1,26 @@
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
+import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { Card, EmptyState, Pill, Screen, ScreenContent, ScreenHeader, SectionHeader } from '@/components/ui';
-import { INTEREST_BY_ID, isInterestId } from '@/constants/interests';
 import {
+  useRemoveNote,
   useSavedArticles,
   useSavedDiscovery,
   useSavedMovies,
+  useSavedNotes,
   useToggleSavedArticle,
   useToggleSavedDiscovery,
   useToggleSavedMovie,
 } from '@/hooks/use-app-data';
-import { formatDate, truncate } from '@/lib/format';
+import { formatCount, formatDate } from '@/lib/format';
+import { getInterest } from '@/lib/interest-catalogue';
 import { openExternalUrl } from '@/lib/links';
 import { radius, space, useTheme } from '@/theme/tokens';
 import type { NewsArticle } from '@/types/models';
 
-type Tab = 'articles' | 'movies' | 'finds';
+type Tab = 'articles' | 'movies' | 'finds' | 'notes';
 
 export default function SavedScreen() {
   const theme = useTheme();
@@ -25,21 +28,24 @@ export default function SavedScreen() {
   const articles = useSavedArticles();
   const movies = useSavedMovies();
   const discovery = useSavedDiscovery();
+  const notes = useSavedNotes();
   const removeArticle = useToggleSavedArticle();
   const removeMovie = useToggleSavedMovie();
   const removeDiscovery = useToggleSavedDiscovery();
+  const removeNote = useRemoveNote();
 
   const tabs = useMemo(
     () => [
       { id: 'articles' as const, label: `Articles (${articles.data?.length ?? 0})` },
       { id: 'movies' as const, label: `Movies (${movies.data?.length ?? 0})` },
       { id: 'finds' as const, label: `Finds (${discovery.data?.length ?? 0})` },
+      { id: 'notes' as const, label: `My notes (${notes.data?.length ?? 0})` },
     ],
-    [articles.data, movies.data, discovery.data],
+    [articles.data, movies.data, discovery.data, notes.data],
   );
 
   const isBusy =
-    removeArticle.isPending || removeMovie.isPending || removeDiscovery.isPending;
+    removeArticle.isPending || removeMovie.isPending || removeDiscovery.isPending || removeNote.isPending;
 
   return (
     <Screen>
@@ -47,7 +53,7 @@ export default function SavedScreen() {
         <ScreenContent>
           <ScreenHeader
             title="Saved for later"
-            subtitle="Everything here is stored on your device and works offline."
+            subtitle="Kept on this device, so you can read it without a connection."
           />
 
           <View style={styles.tabs}>
@@ -72,7 +78,7 @@ export default function SavedScreen() {
                 />
               ) : (
                 articles.data!.map((item) => {
-                  const interest = INTEREST_BY_ID[item.interest_tag as keyof typeof INTEREST_BY_ID];
+                  const interest = getInterest(item.interest_tag);
                   const article: NewsArticle = {
                     id: item.url,
                     title: item.title,
@@ -81,30 +87,38 @@ export default function SavedScreen() {
                     source: item.source,
                     imageUrl: item.image_url,
                     publishedAt: item.saved_at,
-                    interest: interest?.id ?? 'geek',
+                    interest: item.interest_tag || 'geek',
                   };
                   return (
                     <Card key={item.id}>
-                      <Text style={[styles.meta, { color: interest?.color ?? theme.primary }]}>
-                        {interest?.short ?? 'Saved'}
-                      </Text>
-                      <Text style={[styles.title, { color: theme.text }]}>{item.title}</Text>
+                      <Text style={[styles.meta, { color: interest.color }]}>{interest.short}</Text>
+                      <Pressable
+                        accessibilityRole="button"
+                        accessibilityLabel={`Read ${item.title}`}
+                        onPress={() =>
+                          router.push({ pathname: '/article/[url]', params: { url: item.url } })
+                        }>
+                        <Text style={[styles.title, { color: theme.text }]}>{item.title}</Text>
+                      </Pressable>
                       <Text style={[styles.meta, { color: theme.textMuted }]}>
                         {item.source} · saved {formatDate(item.saved_at)}
                       </Text>
+                      {item.description ? (
+                        <Text numberOfLines={3} style={[styles.excerpt, { color: theme.textMuted }]}>
+                          {item.description}
+                        </Text>
+                      ) : null}
                       <View style={styles.actions}>
                         <Text
                           accessibilityRole="link"
                           onPress={() => openExternalUrl(item.url)}
-                          style={{ color: theme.primary, fontWeight: '700', fontSize: 13 }}>
-                          Read story →
+                          style={[styles.link, { color: theme.primary }]}>
+                          <Ionicons name="open-outline" size={13} color={theme.primary} /> Publisher
                         </Text>
                         <Text
                           accessibilityRole="button"
-                          onPress={() =>
-                            removeArticle.mutate({ article, saved: false })
-                          }
-                          style={{ color: theme.danger, fontWeight: '600', fontSize: 13 }}>
+                          onPress={() => removeArticle.mutate({ article, saved: false })}
+                          style={[styles.link, { color: theme.danger }]}>
                           {isBusy ? 'Removing…' : 'Remove'}
                         </Text>
                       </View>
@@ -132,14 +146,21 @@ export default function SavedScreen() {
                         <Ionicons name="film-outline" size={20} color={theme.primary} />
                       </View>
                       <View style={styles.flex}>
-                        <Text style={[styles.title, { color: theme.text }]}>{movie.title}</Text>
+                        <Pressable
+                          accessibilityRole="button"
+                          accessibilityLabel={`View ${movie.title}`}
+                          onPress={() => router.push(`/movie/${movie.tmdb_id}`)}>
+                          <Text style={[styles.title, { color: theme.text }]}>{movie.title}</Text>
+                        </Pressable>
                         <Text style={[styles.meta, { color: theme.textMuted }]}>
-                          Rating {movie.vote_average.toFixed(1)} · saved {formatDate(movie.saved_at)}
+                          <Ionicons name="star" size={12} color={theme.accent} />{' '}
+                          {movie.vote_average.toFixed(1)} · {formatCount(movie.vote_count)} votes ·
+                          saved {formatDate(movie.saved_at)}
                         </Text>
                         <Text
                           accessibilityRole="button"
                           onPress={() => removeMovie.mutate({ movie: movieFromRow(movie), saved: false })}
-                          style={{ color: theme.danger, fontWeight: '600', fontSize: 13, marginTop: 8 }}>
+                          style={[styles.link, { color: theme.danger, marginTop: 8 }]}>
                           {isBusy ? 'Removing…' : 'Remove'}
                         </Text>
                       </View>
@@ -163,23 +184,90 @@ export default function SavedScreen() {
                 discovery.data!.map((item) => (
                   <Card key={item.id}>
                     <Text style={[styles.meta, { color: theme.primary }]}>{item.source}</Text>
-                    <Text style={[styles.title, { color: theme.text }]}>{truncate(item.title, 90)}</Text>
+                    <Text numberOfLines={3} style={[styles.title, { color: theme.text }]}>
+                      {item.title}
+                    </Text>
+                    {item.excerpt ? (
+                      <Text numberOfLines={3} style={[styles.excerpt, { color: theme.textMuted }]}>
+                        {item.excerpt}
+                      </Text>
+                    ) : null}
                     <View style={styles.actions}>
                       <Text
                         accessibilityRole="link"
                         onPress={() => openExternalUrl(item.url)}
-                        style={{ color: theme.primary, fontWeight: '700', fontSize: 13 }}>
-                        Open link →
+                        style={[styles.link, { color: theme.primary }]}>
+                        <Ionicons name="open-outline" size={13} color={theme.primary} /> Source
                       </Text>
                       <Text
                         accessibilityRole="button"
                         onPress={() => removeDiscovery.mutate({ item: discoveryFromRow(item), saved: false })}
-                        style={{ color: theme.danger, fontWeight: '600', fontSize: 13 }}>
+                        style={[styles.link, { color: theme.danger }]}>
                         {isBusy ? 'Removing…' : 'Remove'}
                       </Text>
                     </View>
                   </Card>
                 ))
+              )}
+            </>
+          ) : null}
+
+          {tab === 'notes' ? (
+            <>
+              <SectionHeader
+                title="My notes"
+                actionLabel="New note"
+                onAction={() => router.push('/capture')}
+              />
+              {(notes.data ?? []).length === 0 ? (
+                <EmptyState
+                  icon="create-outline"
+                  title="Nothing captured yet"
+                  message="Write down an idea, a link or something you want to remember. It stays on this device."
+                  actionLabel="Capture a thought"
+                  onAction={() => router.push('/capture')}
+                />
+              ) : (
+                notes.data!.map((note) => {
+                  const interest = getInterest(note.interest_tag);
+                  return (
+                    <Card key={note.id}>
+                      <Text style={[styles.meta, { color: interest.color }]}>{interest.label}</Text>
+                      <Pressable
+                        accessibilityRole="button"
+                        accessibilityLabel={`Edit ${note.title}`}
+                        onPress={() => router.push({ pathname: '/capture', params: { id: note.id } })}>
+                        <Text style={[styles.title, { color: theme.text }]}>{note.title}</Text>
+                      </Pressable>
+                      {note.body ? (
+                        <Text numberOfLines={4} style={[styles.excerpt, { color: theme.textMuted }]}>
+                          {note.body}
+                        </Text>
+                      ) : null}
+                      <Text style={[styles.meta, { color: theme.textMuted }]}>
+                        Updated {formatDate(note.updated_at)}
+                      </Text>
+                      <View style={styles.actions}>
+                        {note.url ? (
+                          <Text
+                            accessibilityRole="link"
+                            onPress={() => openExternalUrl(note.url)}
+                            style={[styles.link, { color: theme.primary }]}>
+                            <Ionicons name="open-outline" size={13} color={theme.primary} /> Link
+                          </Text>
+                        ) : (
+                          <Text />
+                        )}
+                        <Text
+                          accessibilityRole="button"
+                          onPress={() => removeNote.mutate(note.id)}
+                          style={[styles.link, { color: theme.danger }]}>
+                          {isBusy ? 'Removing…' : 'Remove'}
+                        </Text>
+                      </View>
+                    </Card>
+                  );
+                })
               )}
             </>
           ) : null}
@@ -195,7 +283,10 @@ function movieFromRow(row: {
   overview: string;
   poster_path: string | null;
   vote_average: number;
+  vote_count: number;
   genre: string;
+  release_date: string;
+  interest_tag: string;
 }) {
   return {
     id: row.tmdb_id,
@@ -203,10 +294,10 @@ function movieFromRow(row: {
     overview: row.overview,
     posterPath: row.poster_path,
     rating: row.vote_average,
-    voteCount: 0,
+    voteCount: row.vote_count,
     genreIds: row.genre.split(',').filter(Boolean).map(Number),
-    releaseDate: '',
-    interest: 'geek' as const,
+    releaseDate: row.release_date,
+    interest: row.interest_tag || 'geek',
   };
 }
 
@@ -230,7 +321,7 @@ function discoveryFromRow(row: {
     score: row.score,
     age: '',
     type: 'article' as const,
-    interest: isInterestId(row.interest_tag) ? row.interest_tag : 'problem-solving',
+    interest: row.interest_tag || 'problem-solving',
   };
 }
 
@@ -241,5 +332,7 @@ const styles = StyleSheet.create({
   iconBox: { width: 40, height: 40, borderRadius: radius.sm, alignItems: 'center', justifyContent: 'center' },
   title: { fontSize: 15, fontWeight: '700', lineHeight: 21, marginVertical: 5 },
   meta: { fontSize: 11, fontWeight: '600' },
+  excerpt: { fontSize: 13, lineHeight: 19, marginBottom: 6 },
   actions: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 12 },
+  link: { fontSize: 13, fontWeight: '600', flexDirection: 'row', alignItems: 'center', gap: 4 },
 });

@@ -2,7 +2,7 @@
   "expo": {
     "name": "InterestLoop",
     "slug": "interest-loop",
-    "version": "1.4.0",
+    "version": "1.5.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
@@ -27,7 +27,7 @@
         {
           "backgroundColor": "#5B4FE9",
           "image": "./assets/splash-icon.png",
-          "imageWidth": 200,
+          "imageWidth": 340,
           "dark": {
             "backgroundColor": "#0E1020",
             "image": "./assets/splash-icon.png"
@@ -42,7 +42,6 @@
     "android": {
       "package": "com.praisetech.interestloop",
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
@@ -64,7 +63,7 @@
         }
       },
       "eas": {
-        "projectId": "702665b1-0674-45c8-b427-c6ed16a52f1b"
+        "projectId": "6a5749e1-b8e8-4304-b864-a4cc66a58df2"
       }
     }
   }

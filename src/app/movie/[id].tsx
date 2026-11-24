@@ -1,4 +1,4 @@
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { Image } from 'expo-image';
 import { Stack, useLocalSearchParams } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { WebView } from 'react-native-webview';
 
+import { useConnectivity } from '@/components/connectivity-provider';
 import {
   Card,
   LoadingState,
@@ -14,9 +15,9 @@ import {
   ScreenContent,
   SectionHeader,
 } from '@/components/ui';
-import { INTEREST_BY_ID, isInterestId } from '@/constants/interests';
 import { useInterests, useSavedMovie, useToggleSavedMovie } from '@/hooks/use-app-data';
 import { formatCount, formatRating } from '@/lib/format';
+import { getInterest } from '@/lib/interest-catalogue';
 import { openExternalUrl } from '@/lib/links';
 import { fetchMovieById, fetchMovieTrailer } from '@/services/movies';
 import { radius, space, useTheme } from '@/theme/tokens';
@@ -28,6 +29,7 @@ export default function MovieDetailScreen() {
   const tmdbId = Number(id);
   const valid = Number.isFinite(tmdbId) && tmdbId > 0;
   const isWeb = process.env.EXPO_OS === 'web';
+  const { isOffline } = useConnectivity();
   const interests = useInterests();
   const saved = useSavedMovie(tmdbId);
   const toggleSave = useToggleSavedMovie();
@@ -37,13 +39,13 @@ export default function MovieDetailScreen() {
   const live = useQuery({
     queryKey: ['movie-detail', tmdbId],
     queryFn: () => fetchMovieById(tmdbId, interests.data ?? []),
-    enabled: valid,
+    enabled: valid && !isOffline,
     staleTime: 24 * 60 * 60 * 1000,
   });
   const trailer = useQuery({
     queryKey: ['movie-trailer', tmdbId],
     queryFn: () => fetchMovieTrailer(tmdbId),
-    enabled: valid,
+    enabled: valid && !isOffline && !saved.data,
     staleTime: 7 * 24 * 60 * 60 * 1000,
   });
 
@@ -54,19 +56,19 @@ export default function MovieDetailScreen() {
         overview: saved.data.overview,
         posterPath: saved.data.poster_path,
         rating: saved.data.vote_average,
-        voteCount: 0,
+        voteCount: saved.data.vote_count,
         genreIds: saved.data.genre.split(',').filter(Boolean).map(Number),
-        releaseDate: '',
-        interest: 'geek',
+        releaseDate: saved.data.release_date,
+        interest: saved.data.interest_tag || 'geek',
       }
     : null;
   const movie = live.data ?? offline;
-  const isLoading = live.isLoading || saved.isLoading;
+  const isLoading = !offline && (live.isLoading || saved.isLoading);
   const backdrop = movie?.backdropPath
     ? `https://image.tmdb.org/t/p/w780${movie.backdropPath}`
     : null;
   const year = movie?.releaseDate?.slice(0, 4);
-  const interest = movie ? INTEREST_BY_ID[movie.interest] : null;
+  const interest = movie ? getInterest(movie.interest) : null;
 
   return (
     <Screen edges={['bottom']}>
@@ -110,7 +112,8 @@ export default function MovieDetailScreen() {
                   </Text>
                 ) : null}
                 <Text style={[styles.meta, { color: theme.textMuted }]}>
-                  ⭐ {formatRating(movie.rating)} · {formatCount(movie.voteCount)} votes
+                  <Ionicons name="star" size={13} color={theme.accent} /> {formatRating(movie.rating)} ·{' '}
+                  {formatCount(movie.voteCount)} votes
                 </Text>
                 <Text style={[styles.meta, { color: theme.textMuted }]}>
                   {year || 'Year unknown'}
@@ -126,7 +129,7 @@ export default function MovieDetailScreen() {
 
             {interest ? (
               <Text style={[styles.interest, { color: interest.color }]}>
-                {isInterestId(movie.interest) ? interest.label : movie.interest}
+                {interest.label}
               </Text>
             ) : null}
 

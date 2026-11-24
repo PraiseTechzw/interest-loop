@@ -1,5 +1,24 @@
 # Changelog
 
+## 1.5.0 — Connectivity and custom interests (24 Nov 2026)
+
+- Added NetInfo-backed connectivity state with React Query online/offline sync.
+- Added user-created custom interests with a shared registry for services and UI.
+- Kept the new EAS project and re-uploaded all three API keys.
+
+## Unreleased — make it yours
+
+### Added
+- **Custom topics** — create your own interests with a name, colour, icon and news keywords. Your topics drive News, the Knowledge Graph, Learning Paths, Time Capsule and Search.
+- **Capture a thought** — a personal notes screen for ideas, links and things you want to remember. Notes are taggable by topic, editable, searchable, and become steps in Learning Paths.
+- **Backup & restore** — export all local data (including custom topics and notes) as JSON and restore it from the clipboard. Old backups without an `app` marker still import.
+- Personal notes are counted in the Time Capsule snapshot.
+- Unit tests for the interest catalogue, personal notes in learning paths, graph relationships for custom topics, backup validation and capsule text (54 tests total).
+
+### Changed
+- The app is now explicitly personal-only: the Community screen and its navigation entry were removed, feedback is labelled as a private note, and Search opens saved Discover finds.
+- Learning Paths copy no longer promises a sample path (sample content was removed in 1.2.0).
+
 ## 1.4.0 — UI polish (24 Nov 2026)
 
 - Flatter surfaces: cards have no resting shadows, smaller radius and one tone-step separation.
@@ -11,12 +30,8 @@
 ## 1.3.0 — Complete product screens (24 Nov 2026)
 
 ### Added
-- Onboarding, article reader, movie detail, search, feedback, community capsule gallery, diagnostics, data export, accessibility and terms screens.
+- Onboarding, article reader, movie detail, search, feedback, saved capsule gallery, diagnostics, data export, accessibility and terms screens.
 - Saved capsules can be stored from the Time Capsule screen.
-
-## Unreleased
-
-### Added
 - `npm run env:check` preflight script and in-app connection status on the new Settings screen.
 - Settings, Credits and Privacy screens; publishable privacy policy at `docs/PRIVACY.md`.
 - Clear-local-data action with confirmation.

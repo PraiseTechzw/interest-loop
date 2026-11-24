@@ -74,6 +74,7 @@ export type SavedArticleRow = {
   title: string;
   url: string;
   description: string;
+  content: string;
   source: string;
   image_url: string | null;
   interest_tag: string;
@@ -87,7 +88,10 @@ export type SavedMovieRow = {
   overview: string;
   poster_path: string | null;
   vote_average: number;
+  vote_count: number;
   genre: string;
+  release_date: string;
+  interest_tag: string;
   saved_at: string;
 };
 
@@ -113,6 +117,17 @@ export type SavedCapsule = {
   id: string;
   summary: string;
   created_at: string;
+};
+
+/** A note or link the user captured themselves — no feed or API required. */
+export type SavedNoteRow = {
+  id: string;
+  title: string;
+  body: string;
+  url: string;
+  interest_tag: string;
+  created_at: string;
+  updated_at: string;
 };
 
 export type InterestRow = {

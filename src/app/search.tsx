@@ -1,14 +1,27 @@
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { Stack, router } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { Card, EmptyState, Screen, ScreenContent, ScreenHeader, SectionHeader } from '@/components/ui';
-import { useSavedArticles, useSavedDiscovery, useSavedMovies } from '@/hooks/use-app-data';
+import {
+  useSavedArticles,
+  useSavedDiscovery,
+  useSavedMovies,
+  useSavedNotes,
+} from '@/hooks/use-app-data';
 import { truncate } from '@/lib/format';
+import { openExternalUrl } from '@/lib/links';
 import { useTheme } from '@/theme/tokens';
 
-type Result = { key: string; title: string; subtitle: string; kind: string; href: string };
+type Result = {
+  key: string;
+  title: string;
+  subtitle: string;
+  kind: 'article' | 'movie' | 'find' | 'note';
+  href?: string;
+  url?: string;
+};
 
 export default function SearchScreen() {
   const theme = useTheme();
@@ -16,6 +29,7 @@ export default function SearchScreen() {
   const articles = useSavedArticles();
   const movies = useSavedMovies();
   const finds = useSavedDiscovery();
+  const notes = useSavedNotes();
 
   const results = useMemo<Result[]>(() => {
     const q = query.trim().toLowerCase();
@@ -25,37 +39,44 @@ export default function SearchScreen() {
         key: `article-${item.id}`,
         title: item.title,
         subtitle: `${item.source} · article`,
-        kind: 'article',
+        kind: 'article' as const,
         href: `/article/${encodeURIComponent(item.url)}`,
       })),
       ...(movies.data ?? []).map((item) => ({
         key: `movie-${item.id}`,
         title: item.title,
         subtitle: `Movie · ${item.vote_average.toFixed(1)}`,
-        kind: 'movie',
+        kind: 'movie' as const,
         href: `/movie/${item.tmdb_id}`,
       })),
       ...(finds.data ?? []).map((item) => ({
         key: `find-${item.id}`,
         title: item.title,
         subtitle: `${item.source} · discovery`,
-        kind: 'find',
-        href: '',
+        kind: 'find' as const,
+        url: item.url,
+      })),
+      ...(notes.data ?? []).map((item) => ({
+        key: `note-${item.id}`,
+        title: item.title,
+        subtitle: `${item.body ? `${truncate(item.body, 40)} · ` : ''}your note`,
+        kind: 'note' as const,
+        href: `/capture?id=${encodeURIComponent(item.id)}`,
       })),
     ];
     return all.filter((item) => `${item.title} ${item.subtitle}`.toLowerCase().includes(q));
-  }, [query, articles.data, movies.data, finds.data]);
+  }, [query, articles.data, movies.data, finds.data, notes.data]);
 
   return (
     <Screen>
       <Stack.Screen options={{ title: 'Search' }} />
       <ScrollView>
         <ScreenContent>
-          <ScreenHeader title="Search" subtitle="Find something you saved on this device." />
+          <ScreenHeader title="Search" subtitle="Find something you saved or wrote on this device." />
           <TextInput
             value={query}
             onChangeText={setQuery}
-            placeholder="Search articles, movies, finds…"
+            placeholder="Search articles, movies, finds, notes…"
             placeholderTextColor={theme.textMuted}
             accessibilityLabel="Search saved items"
             style={[styles.input, { backgroundColor: theme.surface, borderColor: theme.border, color: theme.text }]}
@@ -70,10 +91,23 @@ export default function SearchScreen() {
                 <EmptyState title="No matches" message="Try a different word or save more items." />
               ) : (
                 results.map((result) => (
-                  <Card key={result.key} onPress={result.href ? () => router.push(result.href as never) : undefined}>
+                  <Card
+                    key={result.key}
+                    onPress={() => {
+                      if (result.href) router.push(result.href as never);
+                      else if (result.url) openExternalUrl(result.url);
+                    }}>
                     <View style={styles.row}>
                       <Ionicons
-                        name={result.kind === 'movie' ? 'film-outline' : result.kind === 'find' ? 'compass-outline' : 'newspaper-outline'}
+                        name={
+                          result.kind === 'movie'
+                            ? 'film-outline'
+                            : result.kind === 'find'
+                              ? 'compass-outline'
+                              : result.kind === 'note'
+                                ? 'create-outline'
+                                : 'newspaper-outline'
+                        }
                         size={20}
                         color={theme.primary}
                       />

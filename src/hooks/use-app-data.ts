@@ -1,17 +1,21 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { Image } from 'expo-image';
 import { useSQLiteContext } from 'expo-sqlite';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 
-import type { InterestId } from '@/constants/interests';
+import type { Interest, InterestId } from '@/constants/interests';
 import {
+  addCustomInterest,
   addFeedback,
   addMindsetPrompt,
   clearUserData,
   deleteCapsule,
   deleteCoachResponse,
+  deleteCustomInterest,
   deleteMindsetPrompt,
   getCapsules,
   getCoachResponses,
+  getCustomInterests,
   getFeedback,
   getInterests,
   getInterestActivity,
@@ -21,12 +25,17 @@ import {
   getSavedArticleByUrl,
   getSavedArticles,
   getSavedDiscovery,
+  getSavedNoteById,
+  getSavedNotes,
   getSavedMovies,
   getSavedMovieById,
   getSetting,
+  importUserData,
+  parseBackup,
   removeArticle,
   removeDiscovery,
   removeMovie,
+  removeNote,
   resetLearningProgress,
   reviewCoachResponse,
   saveArticle,
@@ -34,11 +43,14 @@ import {
   saveDiscovery,
   saveCapsule,
   saveMovie,
+  saveNote,
   setInterest,
   setSetting,
   setLearningProgress,
   setProfile,
+  type UserDataBackup,
 } from '@/lib/database';
+import { registerCustomInterests } from '@/lib/interest-catalogue';
 import { buildLearningPaths } from '@/lib/learning-paths';
 import { keys } from '@/lib/query-keys';
 import { fetchDiscovery } from '@/services/discovery';
@@ -56,6 +68,7 @@ import type {
   SavedCapsule,
   SavedDiscoveryRow,
   SavedMovieRow,
+  SavedNoteRow,
   UserProfile,
 } from '@/types/models';
 
@@ -70,6 +83,7 @@ function useInvalidateAllSaved() {
       client.invalidateQueries({ queryKey: keys.savedArticles }),
       client.invalidateQueries({ queryKey: keys.savedMovies }),
       client.invalidateQueries({ queryKey: keys.savedDiscovery }),
+      client.invalidateQueries({ queryKey: keys.savedNotes }),
       client.invalidateQueries({ queryKey: keys.activity }),
     ]);
 }
@@ -97,6 +111,55 @@ export function useSetInterest() {
         client.invalidateQueries({ queryKey: keys.interests }),
         client.invalidateQueries({ queryKey: ['news'] }),
         client.invalidateQueries({ queryKey: ['movie-feed'] }),
+        client.invalidateQueries({ queryKey: keys.activity }),
+      ]);
+    },
+  });
+}
+
+/** Built-in plus user-created topics, registered for pure feed adapters. */
+export function useInterestCatalogue() {
+  const db = useDb();
+  const query = useQuery<Interest[]>({
+    queryKey: keys.interestCatalogue,
+    queryFn: () => getCustomInterests(db),
+  });
+
+  useEffect(() => {
+    if (query.data) registerCustomInterests(query.data);
+  }, [query.data]);
+
+  return query;
+}
+
+export function useAddCustomInterest() {
+  const db = useDb();
+  const client = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (interest: Interest) => {
+      await addCustomInterest(db, interest);
+      await setInterest(db, interest.id, true);
+    },
+    onSuccess: async () => {
+      await Promise.all([
+        client.invalidateQueries({ queryKey: keys.interestCatalogue }),
+        client.invalidateQueries({ queryKey: keys.interests }),
+      ]);
+    },
+  });
+}
+
+export function useDeleteCustomInterest() {
+  const db = useDb();
+  const client = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (id: string) => deleteCustomInterest(db, id),
+    onSuccess: async () => {
+      await Promise.all([
+        client.invalidateQueries({ queryKey: keys.interestCatalogue }),
+        client.invalidateQueries({ queryKey: keys.interests }),
         client.invalidateQueries({ queryKey: keys.activity }),
       ]);
     },
@@ -139,8 +202,12 @@ export function useToggleSavedArticle() {
 
   return useMutation({
     mutationFn: async (input: { article: NewsArticle; saved: boolean }) => {
-      if (input.saved) await saveArticle(db, input.article);
-      else await removeArticle(db, input.article.url);
+      if (input.saved) {
+        await saveArticle(db, input.article);
+        if (input.article.imageUrl) {
+          void Image.prefetch([input.article.imageUrl], 'disk').catch(() => {});
+        }
+      } else await removeArticle(db, input.article.url);
     },
     onSuccess: invalidate,
   });
@@ -160,8 +227,15 @@ export function useToggleSavedMovie() {
 
   return useMutation({
     mutationFn: async (input: { movie: Movie; saved: boolean }) => {
-      if (input.saved) await saveMovie(db, input.movie);
-      else await removeMovie(db, input.movie.id);
+      if (input.saved) {
+        await saveMovie(db, input.movie);
+        if (input.movie.posterPath) {
+          void Image.prefetch(
+            [`https://image.tmdb.org/t/p/w342${input.movie.posterPath}`],
+            'disk',
+          ).catch(() => {});
+        }
+      } else await removeMovie(db, input.movie.id);
     },
     onSuccess: invalidate,
   });
@@ -193,6 +267,51 @@ export function useInterestActivity() {
   return useQuery<Record<string, number>>({
     queryKey: keys.activity,
     queryFn: () => getInterestActivity(db),
+  });
+}
+
+// -- Personal notes ----------------------------------------------------------
+
+export function useSavedNotes() {
+  const db = useDb();
+  return useQuery<SavedNoteRow[]>({
+    queryKey: keys.savedNotes,
+    queryFn: () => getSavedNotes(db),
+  });
+}
+
+export function useSavedNote(id: string) {
+  const db = useDb();
+  return useQuery({
+    queryKey: ['saved-note', id],
+    queryFn: () => getSavedNoteById(db, id),
+    enabled: Boolean(id),
+  });
+}
+
+export function useSaveNote() {
+  const db = useDb();
+  const invalidate = useInvalidateAllSaved();
+
+  return useMutation({
+    mutationFn: async (input: {
+      id?: string;
+      title: string;
+      body: string;
+      url: string;
+      interest: string;
+    }) => saveNote(db, input),
+    onSuccess: invalidate,
+  });
+}
+
+export function useRemoveNote() {
+  const db = useDb();
+  const invalidate = useInvalidateAllSaved();
+
+  return useMutation({
+    mutationFn: async (id: string) => removeNote(db, id),
+    onSuccess: invalidate,
   });
 }
 
@@ -278,6 +397,7 @@ export function useLearningPaths() {
   const articles = useSavedArticles();
   const movies = useSavedMovies();
   const finds = useSavedDiscovery();
+  const notes = useSavedNotes();
   const progress = useLearningProgress();
 
   const paths = useMemo(
@@ -287,9 +407,10 @@ export function useLearningPaths() {
         articles: articles.data ?? [],
         movies: movies.data ?? [],
         finds: finds.data ?? [],
+        notes: notes.data ?? [],
         progress: progress.data ?? {},
       }),
-    [interests.data, articles.data, movies.data, finds.data, progress.data],
+    [interests.data, articles.data, movies.data, finds.data, notes.data, progress.data],
   );
 
   return {
@@ -300,6 +421,7 @@ export function useLearningPaths() {
       articles.refetch();
       movies.refetch();
       finds.refetch();
+      notes.refetch();
       progress.refetch();
     },
   };
@@ -358,11 +480,28 @@ export function useClearUserData() {
         client.invalidateQueries({ queryKey: keys.savedArticles }),
         client.invalidateQueries({ queryKey: keys.savedMovies }),
         client.invalidateQueries({ queryKey: keys.savedDiscovery }),
+        client.invalidateQueries({ queryKey: keys.savedNotes }),
         client.invalidateQueries({ queryKey: keys.coachResponses }),
         client.invalidateQueries({ queryKey: keys.mindsetPrompts }),
         client.invalidateQueries({ queryKey: keys.learningProgress }),
         client.invalidateQueries({ queryKey: keys.activity }),
       ]);
+    },
+  });
+}
+
+export function useImportBackup() {
+  const db = useDb();
+  const client = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (text: string): Promise<UserDataBackup> => {
+      const backup = parseBackup(text);
+      await importUserData(db, backup);
+      return backup;
+    },
+    onSuccess: async () => {
+      await client.resetQueries();
     },
   });
 }
@@ -450,7 +589,7 @@ export function useSavedMovie(tmdbId: number) {
 
 // -- Remote feeds ------------------------------------------------------------
 
-export function useNews(interests: InterestId[]) {
+export function useNews(interests: string[]) {
   return useQuery({
     queryKey: keys.news(interests),
     queryFn: () => fetchNews(interests),
@@ -459,7 +598,7 @@ export function useNews(interests: InterestId[]) {
   });
 }
 
-export function useMovieFeed(interests: InterestId[]) {
+export function useMovieFeed(interests: string[]) {
   return useQuery({
     queryKey: keys.movieFeed(interests),
     queryFn: () => fetchMovies(interests),

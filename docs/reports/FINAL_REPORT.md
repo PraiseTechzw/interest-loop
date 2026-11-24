@@ -1,7 +1,7 @@
 # InterestLoop — Delivery report
 
 **Prepared for:** Praise (project owner)
-**Updated:** 24 November 2026 · **Version:** 1.4.0
+**Updated:** 24 November 2026 · **Version:** 1.5.0
 **Repository:** https://github.com/PraiseTechzw/interest-loop
 
 ---
