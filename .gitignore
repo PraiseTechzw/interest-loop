@@ -33,6 +33,10 @@ yarn-error.*
 # editor-local settings
 .vscode/
 
+# design tooling artifacts
+.impeccable/
+.taste-skill/
+
 # local env files
 .env
 .env*.local
